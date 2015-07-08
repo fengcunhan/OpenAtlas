@@ -20,12 +20,6 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
  * **/
 package com.openatlas.android.lifecycle;
 
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
@@ -44,11 +38,17 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.openatlas.android.compat.AtlasCompat;
-import com.openatlas.android.initializer.OpenAtlasInitializer;
 import com.openatlas.android.initializer.BundleParser;
+import com.openatlas.android.initializer.OpenAtlasInitializer;
 import com.openatlas.boot.Globals;
 import com.openatlas.framework.Framework;
 import com.openatlas.runtime.ContextImplHook;
+
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /****OpenAtlas 框架App的基类，用户的application需要集成此类****/
@@ -192,6 +192,7 @@ public class AtlasApp extends AtlasCompat {
     protected void attachBaseContext(Context base) {
     	// TODO Auto-generated method stub
     	super.attachBaseContext(base);
+        this.mBaseContext = base;
     	BundleParser.parser(getBaseContext());
     	
 		try {
