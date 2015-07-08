@@ -24,6 +24,9 @@ OpenAtlasCore Android动态部署框架（你可以认为是插件，但又与�
 在gradle1.3之前的版本，通过aapt修改参数不太好处理，aapt修改的时候gradle插件1.3还没出来。
 对于资源分区使用versionName做了个中转，这样把资源的Package-id传给aapt,当然现在方案很多了，后面重构，现在先这样。
 比如说原来你这样写
+
+宿主的0x7f这个一般不动。0x10到0x7e的都可以用，当然，0x0这一块的最好不要动,0x00是共享资源，跟你没啥关系基本上，0x01是Android系统资源， 0x02是WebView资源(Android 5.0新增)
+
 ```
 versionName:"1.0.1"
 
