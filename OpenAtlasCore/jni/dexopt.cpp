@@ -8,13 +8,10 @@
 
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
-/* Header for class com_alipay_mobile_quinox_classloader_InitExecutor */
+
 char *dexoptBin = "/bin/dexopt";
 void dexopt(const char* apkPath,const char* dexPath,const char* args );
-/* Class:     com_alipay_mobile_quinox_classloader_InitExecutor
- * Method:    dexopt
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
- */
+
 JNIEXPORT void JNICALL Java_com_openatlas_dexopt_InitExecutor_dexopt
 (JNIEnv *env, jclass clazz, jstring japkPtah , jstring jdexPtah, jstring jargs){
 
