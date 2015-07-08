@@ -1,14 +1,15 @@
-# OpenAtlas
+# OpenAtlasCore -unProxy  Android Dynamic Deployment Framework
  [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android%20OpenAtlas-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/2056)<br>
 [![Join the chat at https://gitter.im/bunnyblue/OpenAtlas](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bunnyblue/OpenAtlas?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
  Build Status [![Build Status](https://travis-ci.org/bunnyblue/OpenAtlas.svg?branch=master)](https://travis-ci.org/bunnyblue/OpenAtlas)
  Branch Status [![Build Status](https://travis-ci.org/bunnyblue/OpenAtlas.svg?branch=bunny)](https://travis-ci.org/bunnyblue/OpenAtlas)<br>
 
-OpenAtlas ,a Android Component Plugin Framework<br>The MIT License (MIT) Copyright (c) 2015 Bunny Blue,achellies<br>
+OpenAtlas ,Android Component Dynamic Deployment Framework(Android  Plugin Framework)<br>The MIT License (MIT) Copyright (c) 2015 Bunny Blue,achellies<br>
+###[README-中文](README-Zh.md)
 
 
 
-  <br>代码遵循MIT License，目前使用patch aapt进行资源分区，虽然现在这个项目带有插件的名字，严格意义上说这个已经从插件里面出来了，跟系统一样管理各个组件，叫做component更合适。，有bug的话可以在issue里面提交。</br>
+  <br>MIT License，use patched aapt  to build Dynamic Module，it's different with  some plugin frameworks which  implement through proxy，any  question open a issue</br>
 
 ### Simple Project Moved to https://github.com/bunnyblue/OpenAtlasExt
 
