@@ -1,4 +1,4 @@
-# OpenAtlas
+# OpenAtlas-非代理Android动态部署框架
  [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android%20OpenAtlas-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/2056)<br>
 [![Join the chat at https://gitter.im/bunnyblue/OpenAtlas](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bunnyblue/OpenAtlas?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
  Build Status [![Build Status](https://travis-ci.org/bunnyblue/OpenAtlas.svg?branch=master)](https://travis-ci.org/bunnyblue/OpenAtlas)
