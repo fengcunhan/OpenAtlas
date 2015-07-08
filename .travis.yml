@@ -6,7 +6,7 @@ env:
 
 android:
   components:
-    - build-tools-22.0.0
+    - build-tools-22.0.1
      - sys-img-armeabi-v7a-android-19
 
 before_script:
@@ -20,3 +20,6 @@ script:
   - ./gradlew connectedAndroidTest
   - ./gradlew assembleDebug
   - ./gradlew installDebug
+cache:
+  directories:
+    - $HOME/.gradle
