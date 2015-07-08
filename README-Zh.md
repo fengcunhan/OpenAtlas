@@ -10,7 +10,7 @@ OpenAtlasCore Android动态部署框架（你可以认为是插件，但又与�
 
   <br>代码遵循MIT License，Android动态部署框架，与通过代理方式实现的插件区别很大，用过代理的应该知道，代理方式会有各种莫名其妙的问题，有bug的话可以在issue里面提交。</br>
 
-### 鉴于仓库体积有点大，事例以及编译工具已经移动到 https://github.com/bunnyblue/OpenAtlasExt
+### 鉴于仓库体积有点大，示例以及编译工具已经移动到 https://github.com/bunnyblue/OpenAtlasExt
 
 
 ### Contributors
