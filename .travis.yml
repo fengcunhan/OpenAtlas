@@ -19,7 +19,7 @@ before_script:
 script:
   - ./gradlew connectedAndroidTest
   - ./gradlew assembleDebug
-  - ./gradlew installDebug --info
+  - ./gradlew installDebug --stacktrace
 cache:
   directories:
     - $HOME/.gradle
