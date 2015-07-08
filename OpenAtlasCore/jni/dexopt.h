@@ -7,8 +7,8 @@
 #include <stdio.h>
 #include<sys/wait.h>
 #include<utime.h>
-#ifndef _Included_blue_stack_openAtlas_dexopt_InitExecutor
-#define _Included_blue_stack_openAtlas_dexopt_InitExecutor
+#ifndef _DEXOPT
+#define _DEXOPT
 #ifdef __cplusplus
 
 extern "C" {

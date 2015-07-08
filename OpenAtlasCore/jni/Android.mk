@@ -17,6 +17,6 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := dexopt
-LOCAL_SRC_FILES := blue_stack_openAtlas_dexopt_InitExecutor.cpp
+LOCAL_SRC_FILES := dexopt.cpp
 LOCAL_LDLIBS := -llog
 include $(BUILD_SHARED_LIBRARY)
