@@ -20,16 +20,6 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
  * **/
 package com.openatlas.util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.security.cert.Certificate;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -39,6 +29,21 @@ import com.openatlas.hack.OpenAtlasHacks;
 import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
 import com.openatlas.runtime.PackageLite;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public class ApkUtils {
 	static final int SYSTEM_ROOT_STATE_DISABLE = 0;
@@ -207,5 +212,41 @@ public class ApkUtils {
 				}
 			}
 		}
+	}
+    /**
+     *Valid plugin  md5
+     * ***/
+	public static  boolean validFileMD5(String path,String md5Sum){
+
+
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+            File mFile = new File(path);
+            if (mFile==null||!mFile.exists()||!mFile.isFile()){
+                return false;
+            }
+            FileInputStream in = new FileInputStream(mFile);
+            FileChannel ch = in.getChannel();
+            MappedByteBuffer byteBuffer = ch.map(FileChannel.MapMode.READ_ONLY, 0, mFile.length());
+            messageDigest.update(byteBuffer);
+            byte[] bytes = messageDigest.digest();
+            final String HEX = "0123456789abcdef";
+            StringBuilder sb = new StringBuilder(bytes.length * 2);
+            for (byte b : bytes) {
+                sb.append(HEX.charAt((b >> 4) & 0x0f));
+                sb.append(HEX.charAt(b & 0x0f));
+            }
+            return  md5Sum.equals(sb.toString());
+        } catch (NoSuchAlgorithmException e) {
+
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+
+            e.printStackTrace();
+        } catch (IOException e) {
+
+
+        }
+        return  false;
 	}
 }
