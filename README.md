@@ -11,7 +11,7 @@ OpenAtlas ,Android Component Dynamic Deployment Framework(Android  Plugin Framew
 
   <br>MIT License，use patched aapt  to build Dynamic Module，it's different with  some plugin frameworks which  implement through proxy，any  question open a issue</br>
 
-### Simple Project Moved to https://github.com/bunnyblue/OpenAtlasExt
+## Simple Project& Build System(aapt and ...) has Moved to https://github.com/bunnyblue/OpenAtlasExt
 
 
 ### Contributors
