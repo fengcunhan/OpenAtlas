@@ -77,7 +77,7 @@ public class BundleArchiveRevision {
 
 	class BundleArchiveRevisionClassLoader extends DexClassLoader {
 		/**
-		 * @param dexPaththe list of jar/apk files containing classes and resources, delimited by File.pathSeparator, which defaults to ":" on Android
+		 * @param dexPath the list of jar/apk files containing classes and resources, delimited by File.pathSeparator, which defaults to ":" on Android
 		 * @param optimizedDirectory directory where optimized dex files should be written; must not be null
 		 * @param libraryPath the list of directories containing native libraries, delimited by File.pathSeparator; may be null
 		 * @param 
@@ -221,6 +221,7 @@ public class BundleArchiveRevision {
 			if (!this.revisionDir.exists()) {
 				this.revisionDir.mkdirs();
 			}
+
 			if (StringUtils
 					.startWith(this.revisionLocation, REFERENCE_PROTOCOL)) {
 				this.bundleFile = new File(StringUtils.substringAfter(
