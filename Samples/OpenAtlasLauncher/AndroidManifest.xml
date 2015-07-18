@@ -15,7 +15,7 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <application
         android:name=".BootApp"
         android:allowBackup="true"
@@ -34,13 +34,6 @@
         <activity
             android:name="com.openatlas.homelauncher.MainActivity"
             android:label="@string/app_name" >
-        </activity>
-        <activity android:name="com.taobao.scan.MainActivity" >
-            <intent-filter>
-                <action android:name="com.taobao.scan.MainActivity" />
-            </intent-filter>
-        </activity>
-        <activity android:name="com.taobao.scan.SaneService" >
         </activity>
 
         <provider
@@ -62,6 +55,7 @@
         <activity android:name="com.nostra13.universalimageloader.sample.activity.ComplexImageActivity" />
         <activity
             android:name="com.openatlas.qrcode.MainActivity"
+            android:theme="@style/QrTheme"
             android:label="@string/app_name" >
         </activity>
         <activity
