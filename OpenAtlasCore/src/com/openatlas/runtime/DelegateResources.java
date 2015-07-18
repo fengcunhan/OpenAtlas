@@ -156,7 +156,7 @@ public class DelegateResources extends Resources {
 					declaredConstructor.setAccessible(true);
 					delegateResources = (Resources) declaredConstructor.newInstance(new Object[]{assetManager, resources.getDisplayMetrics(), resources.getConfiguration()});
 				}
-				RuntimeVariables.setDelegateResources(delegateResources);
+				RuntimeVariables.delegateResources=delegateResources;
 				AndroidHack.injectResources(application, delegateResources);
 				assetPathsHistory = generateNewAssetPaths;
 				if (log.isDebugEnabled()) {
@@ -298,7 +298,7 @@ public class DelegateResources extends Resources {
 
 	@Override
 	public String getString(int i) throws NotFoundException {
-		if (VERSION.SDK_INT < 21 || (i != 33816578 && i != 262146 && i != 50593794)) {
+		if (VERSION.SDK_INT < 21 || (i != 0x2040002 && i != 0x40002 && i != 0x3040002)) {
 			return super.getString(i);
 		}
 		return "Web View";

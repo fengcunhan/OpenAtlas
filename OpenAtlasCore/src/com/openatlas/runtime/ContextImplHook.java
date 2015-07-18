@@ -55,12 +55,12 @@ public class ContextImplHook extends ContextWrapper {
 
     @Override
 	public Resources getResources() {
-        return RuntimeVariables.getDelegateResources();
+        return RuntimeVariables.delegateResources;
     }
 
     @Override
 	public AssetManager getAssets() {
-        return RuntimeVariables.getDelegateResources().getAssets();
+        return RuntimeVariables.delegateResources.getAssets();
     }
 
     @Override

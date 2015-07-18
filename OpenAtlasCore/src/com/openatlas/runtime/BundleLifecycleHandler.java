@@ -109,7 +109,7 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
         try {
             DelegateResources.newDelegateResources(
                     RuntimeVariables.androidApplication,
-                    RuntimeVariables.getDelegateResources(),bundleImpl.getArchive().getArchiveFile().getAbsolutePath());
+                    RuntimeVariables.delegateResources,bundleImpl.getArchive().getArchiveFile().getAbsolutePath());
         } catch (Throwable e) {
             log.error(
                     "Could not load resource in bundle "

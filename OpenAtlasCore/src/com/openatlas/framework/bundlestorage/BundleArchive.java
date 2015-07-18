@@ -31,6 +31,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.jar.Manifest;
 
+import android.os.*;
 import android.text.TextUtils;
 
 import com.openatlas.framework.Framework;
@@ -38,6 +39,7 @@ import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
 import com.openatlas.log.OpenAtlasLog;
 import com.openatlas.runtime.RuntimeVariables;
+import com.openatlas.util.OpenAtlasUtils;
 import com.openatlas.util.StringUtils;
 
 public class BundleArchive implements Archive {
@@ -52,7 +54,7 @@ public class BundleArchive implements Archive {
 	public BundleArchive(String location, File bundleDir) throws IOException {
 		this.revisions = new TreeMap<Long, BundleArchiveRevision>();
 		File[] listFiles = bundleDir.listFiles();
-		String currentProcessName = Framework.getCurrentProcessName();
+		String currentProcessName = OpenAtlasUtils.getProcessNameByPID(android.os.Process.myPid());
 		if (listFiles != null) {
 			for (File file : listFiles) {
 				if (file.getName().startsWith(REVISION_DIRECTORY)) {
@@ -252,4 +254,17 @@ public class BundleArchive implements Archive {
 	@Override
 	public void close() {
 	}
+	/**
+	 * @version  start  from 1.0.0
+	 * **/
+	public static class MisMatchException extends RuntimeException {
+		public MisMatchException(String message) {
+			super(message);
+		}
+
+		public MisMatchException(String message, Throwable th) {
+			super(message, th);
+		}
+	}
+
 }

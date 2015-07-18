@@ -434,7 +434,7 @@ public class InstrumentationHook extends Instrumentation {
 				title, parent, id, lastNonConfigurationInstance);
 		if (RuntimeVariables.androidApplication.getPackageName().equals(activityInfo.packageName)
 				&& OpenAtlasHacks.ContextThemeWrapper_mResources != null) {
-			OpenAtlasHacks.ContextThemeWrapper_mResources.set(newActivity, RuntimeVariables.getDelegateResources());
+			OpenAtlasHacks.ContextThemeWrapper_mResources.set(newActivity, RuntimeVariables.delegateResources);
 		}
 		return newActivity;
 	}
@@ -486,7 +486,7 @@ public class InstrumentationHook extends Instrumentation {
 			newActivity = this.mBase.newActivity(cl, defaultBootActivityName, intent);
 		}
 		if ((cl instanceof DelegateClassLoader) && OpenAtlasHacks.ContextThemeWrapper_mResources != null) {
-			OpenAtlasHacks.ContextThemeWrapper_mResources.set(newActivity, RuntimeVariables.getDelegateResources());
+			OpenAtlasHacks.ContextThemeWrapper_mResources.set(newActivity, RuntimeVariables.delegateResources);
 		}
 		return newActivity;
 	}
@@ -603,7 +603,7 @@ public class InstrumentationHook extends Instrumentation {
 				validateActivityResource(activity);
 			} catch (Throwable th) {
 			}
-			OpenAtlasHacks.ContextThemeWrapper_mResources.set(activity, RuntimeVariables.getDelegateResources());
+			OpenAtlasHacks.ContextThemeWrapper_mResources.set(activity, RuntimeVariables.delegateResources);
 		}
 		if (!(OpenAtlasHacks.ContextThemeWrapper_mBase == null || OpenAtlasHacks.ContextThemeWrapper_mBase.getField() == null)) {
 			OpenAtlasHacks.ContextThemeWrapper_mBase.set(activity, contextImplHook);
@@ -628,7 +628,7 @@ public class InstrumentationHook extends Instrumentation {
 		} else {
 			resources = activity.getResources();
 		}
-		Resources delegateResource = RuntimeVariables.getDelegateResources();
+		Resources delegateResource = RuntimeVariables.delegateResources;
 		if (resources == delegateResource) {
 			return true;
 		}

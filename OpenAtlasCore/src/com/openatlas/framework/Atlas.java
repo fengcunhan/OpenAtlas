@@ -89,7 +89,7 @@ public class Atlas {
                 classLoader);
         Framework.systemClassLoader = classLoader;
         RuntimeVariables.delegateClassLoader = delegateClassLoader;
-        RuntimeVariables.setDelegateResources(application.getResources());
+        RuntimeVariables.delegateResources=initResources(application);
         RuntimeVariables.androidApplication = application;
         AndroidHack.injectClassLoader(packageName, delegateClassLoader);
         AndroidHack
@@ -103,7 +103,17 @@ public class Atlas {
         AndroidHack.hackH();
        // Framework.initialize(properties);
     }
-
+    /**
+    *@since  1.0.0
+    * **/
+    private Resources initResources(Application application) throws Exception {
+        Resources resources = application.getResources();
+        if (resources != null) {
+            return resources;
+        }
+        log.error(" !!! Failed to get init resources.");
+        return application.getPackageManager().getResourcesForApplication(application.getApplicationInfo());
+    }
     public void injectApplication(Application application, String packageName)
             throws Exception {
         OpenAtlasHacks.defineAndVerify();
@@ -155,6 +165,9 @@ public class Atlas {
     }
 
     public void updateBundle(String pkgName, File mBundleFile) throws BundleException {
+        if (!mBundleFile.exists()){
+            throw  new BundleException("file not  found"+mBundleFile.getAbsolutePath());
+        }
         Bundle bundle = Framework.getBundle(pkgName);
         if (bundle != null) {
             bundle.update(mBundleFile);
@@ -205,7 +218,7 @@ public class Atlas {
     }
 
     public Resources getDelegateResources() {
-        return RuntimeVariables.getDelegateResources();
+        return RuntimeVariables.delegateResources;
     }
 
     public ClassLoader getDelegateClassLoader() {

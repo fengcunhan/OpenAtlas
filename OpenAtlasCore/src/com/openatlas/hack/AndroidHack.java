@@ -184,7 +184,7 @@ public class AndroidHack {
             OpenAtlasHacks.LoadedApk_mClassLoader.set(activityThread,
                     RuntimeVariables.delegateClassLoader);
             OpenAtlasHacks.LoadedApk_mResources.set(activityThread,
-                    RuntimeVariables.getDelegateResources());
+                    RuntimeVariables.delegateResources);
         }
     }
 

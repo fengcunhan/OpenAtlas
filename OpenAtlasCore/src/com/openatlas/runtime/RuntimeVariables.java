@@ -27,15 +27,15 @@ import android.util.Log;
 public class RuntimeVariables {
     public static Application androidApplication;
     public static DelegateClassLoader delegateClassLoader;
-    private static Resources delegateResources;
+    public static Resources delegateResources;
 
-    public static Resources getDelegateResources() {
-        return delegateResources;
-    }
-
-    public static void setDelegateResources(Resources delegateResources) {
- 
-        Log.e("bunny", "setDelegateResources" + delegateResources.toString());
-        RuntimeVariables.delegateResources = delegateResources;
-    }
+//    public static Resources getDelegateResources() {
+//        return delegateResources;
+//    }
+//
+//    public static void setDelegateResources(Resources delegateResources) {
+//
+//        Log.e("bunny", "setDelegateResources" + delegateResources.toString());
+//        RuntimeVariables.delegateResources = delegateResources;
+//    }
 }

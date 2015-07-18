@@ -88,7 +88,7 @@ public class FrameworkLifecycleHandler implements FrameworkListener {
         try {
             DelegateResources.newDelegateResources(
                     RuntimeVariables.androidApplication,
-                    RuntimeVariables.getDelegateResources(),null);
+                    RuntimeVariables.delegateResources,null);
         } catch (Throwable e) {
             log.error("Failed to newDelegateResources", e);
         }

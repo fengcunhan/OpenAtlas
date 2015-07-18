@@ -43,6 +43,7 @@ import com.openatlas.android.initializer.OpenAtlasInitializer;
 import com.openatlas.boot.Globals;
 import com.openatlas.framework.Framework;
 import com.openatlas.runtime.ContextImplHook;
+import com.openatlas.util.OpenAtlasUtils;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
@@ -247,7 +248,7 @@ public class AtlasApp extends AtlasCompat {
 	}
 	@Override
 	public SQLiteDatabase openOrCreateDatabase(String str, int i, CursorFactory cursorFactory) {
-		String processName =Framework.getCurrentProcessName();
+		String processName = OpenAtlasUtils.getProcessNameByPID(Process.myPid());
 		if (!TextUtils.isEmpty(processName)) {
 			Log.i("SQLiteDatabase", processName);
 			if (!processName.equals(getPackageName())) {
