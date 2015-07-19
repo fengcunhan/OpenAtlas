@@ -74,11 +74,13 @@ import com.openatlas.boot.PlatformConfigure;
 import com.openatlas.framework.bundlestorage.BundleArchive;
 import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
+import com.openatlas.log.OpenAtlasMonitor;
 import com.openatlas.runtime.ClassNotFoundInterceptorCallback;
 import com.openatlas.runtime.RuntimeVariables;
 import com.openatlas.util.BundleLock;
 import com.openatlas.util.FileUtils;
 import com.openatlas.util.OpenAtlasFileLock;
+import com.openatlas.util.OpenAtlasUtils;
 import com.openatlas.util.StringUtils;
 
 public final class Framework {
@@ -582,24 +584,43 @@ public final class Framework {
 			return "SystemBundle";
 		}
 	}
-
-	static BundleImpl installNewBundle(String location, File apkFile) throws BundleException {
-		Bundle mBundle;
+//TODO // FIXME: 7/18/15
+static BundleImpl installNewBundle(String location, File apkFile) throws BundleException {
+        BundleImpl bundleImpl;
+        File  mBundleArchiveFile=null;
 		try {
 			BundleLock.WriteLock(location);
-			mBundle = Framework.getBundle(location);
-			if (mBundle != null) {
+            bundleImpl = (BundleImpl) Framework.getBundle(location);
+			if (bundleImpl != null) {
+                BundleLock.WriteUnLock(location);
 			} else {
-				mBundle = new BundleImpl(new File(Framework.STORAGE_LOCATION, location), location, new BundleContextImpl(), null, apkFile, true);
-			}
-		} catch (Throwable v0) {
+                mBundleArchiveFile = new File(STORAGE_LOCATION, location);
 
-			v0.printStackTrace();
+                    OpenAtlasFileLock.getInstance().LockExclusive(mBundleArchiveFile);
+                    if (mBundleArchiveFile.exists()) {
+                        bundleImpl = restoreFromExistedBundle(location, mBundleArchiveFile);
+                        if (bundleImpl != null) {
+                            BundleLock.WriteUnLock(location);
+                            if (mBundleArchiveFile != null) {
+                                OpenAtlasFileLock.getInstance().unLock(mBundleArchiveFile);
+                            }
+                        }
+                    }
+                    bundleImpl = new BundleImpl(mBundleArchiveFile, location, new BundleContextImpl(), null, apkFile, true);
+                    storeMetadata();
+                    BundleLock.WriteUnLock(location);
+                    if (mBundleArchiveFile != null) {
+                        OpenAtlasFileLock.getInstance().unLock(mBundleArchiveFile);
+                    }
+            }
+		} catch (Throwable e) {
+
+            e.printStackTrace();
 			BundleLock.WriteUnLock(location);
-			throw new BundleException(v0.getMessage());
+			throw new BundleException(e.getMessage());
 		}
 
-		return ((BundleImpl) mBundle);
+		return bundleImpl;
 	}
 
 	static boolean restoreBundle(String[] packageNames) {
@@ -618,21 +639,39 @@ public final class Framework {
 	}
 
 	static BundleImpl installNewBundle(String location, InputStream archiveInputStream) throws BundleException {
-		Bundle mBundle = null;
+		BundleImpl bundleImpl = null;
+		File mBundleArchiveFile=null;
 		try {
 			BundleLock.WriteLock(location);
-			mBundle = Framework.getBundle(location);
-			if (mBundle != null) {
+			bundleImpl = (BundleImpl) getBundle(location);
+			if (bundleImpl != null) {
+				BundleLock.WriteUnLock(location);
+
 			} else {
-				mBundle  = new BundleImpl(new File(Framework.STORAGE_LOCATION, location), location, new BundleContextImpl(), archiveInputStream, null, true);
-				Framework.storeMetadata();
-				return (BundleImpl) mBundle;
+				mBundleArchiveFile= new File(STORAGE_LOCATION, location);
+				OpenAtlasFileLock.getInstance().LockExclusive(mBundleArchiveFile);
+				if (mBundleArchiveFile.exists()) {
+					bundleImpl = restoreFromExistedBundle(location, mBundleArchiveFile);
+					if (bundleImpl != null) {
+						BundleLock.WriteUnLock(location);
+						if (location != null) {
+							OpenAtlasFileLock.getInstance().unLock(mBundleArchiveFile);
+						}
+					}
+				}
+				bundleImpl = new BundleImpl(mBundleArchiveFile, location, new BundleContextImpl(), archiveInputStream, null, true);
+				storeMetadata();
+				BundleLock.WriteUnLock(location);
+				if (mBundleArchiveFile != null) {
+					OpenAtlasFileLock.getInstance().unLock(mBundleArchiveFile);
+				}
+
 			}
 		} catch (Throwable v0) {
 			BundleLock.WriteUnLock(location);
 		}
 
-		return ((BundleImpl) mBundle);
+		return  bundleImpl;
 	}
 
 
@@ -861,53 +900,28 @@ public final class Framework {
 		}
 		storeMetadata();
 	}
-
 	static void storeMetadata() {
-		File file;
-		Throwable e;
-		try {
-			file = new File(STORAGE_LOCATION, "meta");
-			try {
-				if (!OpenAtlasFileLock.getInstance().LockExclusive(file)) {
-					log.error("Failed to get fileLock for " + file.getAbsolutePath());
-					OpenAtlasFileLock.getInstance().unLock(file);
-				} else if (file.length() > 0) {
-					OpenAtlasFileLock.getInstance().unLock(file);
-				} else {
-					DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(file));
-					dataOutputStream.writeInt(startlevel);
-					String join = StringUtils.join(writeAheads.toArray(), ",");
-					if (join == null) {
-						join = "";
-					}
-					dataOutputStream.writeUTF(join);
-					dataOutputStream.flush();
-					dataOutputStream.close();
-					OpenAtlasFileLock.getInstance().unLock(file);
-				}
-			} catch (IOException e2) {
-				e = e2;
-				try {
-					log.error("Could not save meta data.", e);
-					OpenAtlasFileLock.getInstance().unLock(file);
-				} catch (Throwable th) {
-					e = th;
-					OpenAtlasFileLock.getInstance().unLock(file);
-					throw e;
-				}
-			}
-		} catch (IOException e3) {
-			e = e3;
-			file = null;
-			log.error("Could not save meta data.", e);
-			OpenAtlasFileLock.getInstance().unLock(file);
-		} catch (Throwable th2) {
-			e = th2;
-			file = null;
-			OpenAtlasFileLock.getInstance().unLock(file);
 
+		try {
+			File metaFile = new File(STORAGE_LOCATION, "meta");
+
+				DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(metaFile));
+				dataOutputStream.writeInt(startlevel);
+				String join = StringUtils.join(writeAheads.toArray(), ",");
+				if (join == null) {
+					join = "";
+				}
+				dataOutputStream.writeUTF(join);
+				dataOutputStream.flush();
+				dataOutputStream.close();
+
+		} catch (IOException e) {
+			OpenAtlasMonitor.getInstance().trace(Integer.valueOf(OpenAtlasMonitor.WRITE_META_FAIL), "", "", "storeMetadata failed " , e);
+			log.error("Could not save meta data.", e);
 		}
 	}
+
+
 
 	private static int restoreProfile() {
 		try {
@@ -1028,6 +1042,16 @@ public final class Framework {
 			throw new BundleException("Cannot retrieve bundle from " + bundleName, e);
 		}
 	}
+	private static BundleImpl restoreFromExistedBundle(String location, File file) {
+
+		try {
+			return new BundleImpl(file, new BundleContextImpl());
+		} catch (Throwable e) {
+			OpenAtlasMonitor.getInstance().trace(Integer.valueOf(-1), "", "", "restore bundle failed " + location + e);
+			log.error("restore bundle failed" + location, e);
+			return null;
+		}
+	}
 
 	static void installOrUpdate(String[] locations, File[] archiveFiles) throws BundleException {
 		if (locations == null || archiveFiles == null || locations.length != archiveFiles.length) {
@@ -1133,7 +1157,7 @@ public final class Framework {
 	private static void MergeWirteAheads(File file) {
 		try {
 			File file2 = new File(STORAGE_LOCATION, "wal");
-			String curProcessName = Framework.getCurrentProcessName();
+			String curProcessName = OpenAtlasUtils.getProcessNameByPID(Process.myPid());
 			log.debug("restoreProfile in process " + curProcessName);
 			String packageName = RuntimeVariables.androidApplication.getPackageName();
 			if (curProcessName != null && packageName != null && curProcessName.equals(packageName)) {
@@ -1305,46 +1329,5 @@ public final class Framework {
 		classNotFoundCallback = classNotFoundInterceptorCallback;
 	}
 
-	public static String getCurrentProcessName() {
 
-		InputStreamReader reader = null;
-		BufferedReader br=null;
-		try {
-			reader = new InputStreamReader(new FileInputStream("/proc/"+Process.myPid()+"/cmdline"));
-			br = new BufferedReader(reader);
-			char[] data=new char[64];//定义数组  进程名字最长64
-			br.read(data);
-			int len=0;
-			for (char c : data) {
-				if (c==0) {
-					break;
-				}
-				len++;
-			}
-			return  new String(data,0,len);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}finally{
-			if (reader!=null) {
-				try {
-					reader.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (br!=null){
-				try{
-					br.close();
-				}catch (IOException e){}
-			}
-
-		}
-		return "";
-
-
-
-	}
 }

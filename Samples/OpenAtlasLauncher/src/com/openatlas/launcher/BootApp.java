@@ -27,8 +27,8 @@ import com.openatlas.framework.AtlasConfig;
 public class BootApp extends AtlasApp {
 	static{
 		AtlasConfig.DELAY = new String[]{"com.openatlas.qrcode"};
-		AtlasConfig.AUTO = new String[]{"com.openatlas.homelauncher","com.openatlas.qrcode","com.openatlas.android.game2","com.taobao.universalimageloader.sample0x6a"};
-		AtlasConfig.STORE = new String[]{"com.openatlas.android.appcenter","com.taobao.universalimageloader.sample0x6a"};
+		AtlasConfig.AUTO = new String[]{"com.openatlas.homelauncher","com.openatlas.qrcode","com.openatlas.android.game2","com.openatlas.universalimageloader.sample"};
+		AtlasConfig.STORE = new String[]{"com.openatlas.android.appcenter","com.openatlas.universalimageloader.sample"};
 	}
 
 	

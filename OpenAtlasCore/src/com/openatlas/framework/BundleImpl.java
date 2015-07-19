@@ -75,7 +75,7 @@ public final class BundleImpl implements Bundle {
 
     BundleImpl(File bundleDir, String location, BundleContextImpl bundleContextImpl,
             InputStream archiveInputStream, File archiveFile, boolean isInstall)
-            throws BundleException {
+            throws BundleException, IOException {
         this.persistently = false;
         this.domain = null;
         this.registeredServices = null;
@@ -90,12 +90,12 @@ public final class BundleImpl implements Bundle {
         this.currentStartlevel = Framework.initStartlevel;
         this.bundleDir = bundleDir;
         if (archiveInputStream != null) {
-            try {
+          //  try {
                 this.archive = new BundleArchive(location, bundleDir, archiveInputStream);
-            } catch (Throwable e) {
-                Framework.deleteDirectory(bundleDir);
-                throw new BundleException("Could not install bundle " + location, e);
-            }
+//            } catch (Throwable e) {
+//                Framework.deleteDirectory(bundleDir);
+//                throw new BundleException("Could not install bundle " + location, e);
+//            }
         } else if (archiveFile != null) {
             try {
                 this.archive = new BundleArchive(location, bundleDir, archiveFile);
@@ -105,12 +105,14 @@ public final class BundleImpl implements Bundle {
             }
         }
         this.state = BundleEvent.STARTED;
-        Framework.notifyBundleListeners(1, this);
+
         updateMetadata();
         if (isInstall) {
             Framework.bundles.put(location, this);
             resolveBundle(false);
+            Framework.notifyBundleListeners(1, this);
         }
+
         if (Framework.DEBUG_BUNDLES && log.isInfoEnabled()) {
             log.info("Framework: Bundle " + toString() + " created. "
                     + (System.currentTimeMillis() - currentTimeMillis) + " ms");
@@ -118,45 +120,29 @@ public final class BundleImpl implements Bundle {
     }
 
     BundleImpl(File file, BundleContextImpl bundleContextImpl) throws Exception {
-        this.persistently = false;
-        this.domain = null;
-        this.registeredServices = null;
-        this.registeredFrameworkListeners = null;
-        this.registeredBundleListeners = null;
-        this.registeredServiceListeners = null;
-        this.staleExportedPackages = null;
         long currentTimeMillis = System.currentTimeMillis();
-        File file2 = new File(file, "meta");
-        if (OpenAtlasFileLock.getInstance().LockExclusive(file2)) {
-            DataInputStream dataInputStream = new DataInputStream(
-                    new FileInputStream(file2));
-            this.location = dataInputStream.readUTF();
-            this.currentStartlevel = dataInputStream.readInt();
-            this.state = BundleEvent.STARTED;
-            this.persistently = dataInputStream.readBoolean();
-            dataInputStream.close();
-            OpenAtlasFileLock.getInstance().unLock(file2);
-            bundleContextImpl.bundle = this;
-            this.context = bundleContextImpl;
-            this.bundleDir = file;
-            try {
-                this.archive = new BundleArchive(this.location, file);
-                Framework.bundles.put(this.location, this);
-                resolveBundle(false);
-                if (Framework.DEBUG_BUNDLES && log.isInfoEnabled()) {
-                    log.info("Framework: Bundle " + toString() + " loaded. "
-                            + (System.currentTimeMillis() - currentTimeMillis)
-                            + " ms");
-                    return;
-                }
-                return;
-            } catch (Exception e) {
-                throw new BundleException("Could not load bundle "
-                        + this.location, e.getCause());
+        DataInputStream dataInputStream = new DataInputStream(new FileInputStream(new File(file, "meta")));
+        this.location = dataInputStream.readUTF();
+        this.currentStartlevel = dataInputStream.readInt();
+        this.persistently = dataInputStream.readBoolean();
+        dataInputStream.close();
+        bundleContextImpl.bundle = this;
+        this.context = bundleContextImpl;
+        this.bundleDir = file;
+        this.state = BundleEvent.STARTED;;
+        try {
+            this.archive = new BundleArchive(this.location, file);
+            resolveBundle(false);
+            Framework.bundles.put(this.location, this);
+            Framework.notifyBundleListeners(1, this);
+            if (Framework.DEBUG_BUNDLES && log.isInfoEnabled()) {
+                log.info("Framework: Bundle " + toString() + " loaded. " + (System.currentTimeMillis() - currentTimeMillis) + " ms");
             }
+        } catch (Exception e) {
+            throw new BundleException("Could not load bundle " + this.location, e.getCause());
         }
-        throw new BundleException("FileLock failed " + file2.getAbsolutePath());
     }
+
 
     private synchronized void resolveBundle(boolean recursive) throws BundleException {
         if (this.state != 4) {
@@ -347,35 +333,29 @@ public final class BundleImpl implements Bundle {
     @Override
 	public synchronized void uninstall() throws BundleException {
         if (this.state == BundleEvent.INSTALLED) {
-            throw new IllegalStateException("Bundle " + toString()
-                    + " is already uninstalled.");
+            throw new IllegalStateException("Bundle " + toString() + " is already uninstalled.");
         }
         if (this.state == BundleEvent.RESOLVED) {
             try {
                 stopBundle();
             } catch (Throwable th) {
-                Framework.notifyFrameworkListeners(BundleEvent.STARTED, this, th);
+                Framework.notifyFrameworkListeners(2, this, th);
             }
         }
         this.state = BundleEvent.INSTALLED;
-        File file = new File(this.bundleDir, "meta");
-        if (OpenAtlasFileLock.getInstance().LockExclusive(file)) {
-            file.delete();
-            OpenAtlasFileLock.getInstance().unLock(file);
-            if (this.classloader.originalExporter != null) {
-                this.classloader.originalExporter.cleanup(true);
-                this.classloader.originalExporter = null;
-            }
-            this.classloader.cleanup(true);
-            this.classloader = null;
-            Framework.bundles.remove(this);
-            Framework.notifyBundleListeners(16, this);
-            this.context.isValid = false;
-            this.context.bundle = null;
-        } else {
-            throw new BundleException("FileLock failed "
-                    + file.getAbsolutePath());
+        new File(this.bundleDir, "meta").delete();
+        if (this.classloader.originalExporter != null) {
+            this.classloader.originalExporter.cleanup(true);
+            this.classloader.originalExporter = null;
         }
+        this.classloader.cleanup(true);
+        this.classloader = null;
+        Framework.bundles.remove(this);
+        Framework.notifyBundleListeners(BundleEvent.UNINSTALLED, this);
+        this.context.isValid = false;
+        this.context.bundle = null;
+
+
     }
 
     @Override
@@ -496,94 +476,31 @@ public final class BundleImpl implements Bundle {
     }
 
     void updateMetadata() {
-        Throwable e;
         File file = new File(this.bundleDir, "meta");
         DataOutputStream dataOutputStream = null;
         try {
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
-            if (OpenAtlasFileLock.getInstance().LockExclusive(file)) {
-                OutputStream fileOutputStream = new FileOutputStream(file);
-                DataOutputStream dataOutputStream2 = new DataOutputStream(
-                        fileOutputStream);
-                try {
-                    dataOutputStream2.writeUTF(this.location);
-                    dataOutputStream2.writeInt(this.currentStartlevel);
-                    dataOutputStream2.writeBoolean(this.persistently);
-                    dataOutputStream2.flush();
-                    ((FileOutputStream) fileOutputStream).getFD().sync();
-                    OpenAtlasFileLock.getInstance().unLock(file);
-                    if (dataOutputStream2 != null) {
-                        try {
-                            dataOutputStream2.close();
-                            return;
-                        } catch (IOException e2) {
-                            e2.printStackTrace();
-                            return;
-                        }
-                    }
-                    return;
-                } catch (IOException e3) {
-                    e = e3;
-                    dataOutputStream = dataOutputStream2;
-                    try {
-                        log.error(
-                                "Could not save meta data "
-                                        + file.getAbsolutePath(), e);
-                        OpenAtlasFileLock.getInstance().unLock(file);
-                        if (dataOutputStream != null) {
-                            try {
-                                dataOutputStream.close();
-                            } catch (IOException e22) {
-                                e22.printStackTrace();
-                                return;
-                            }
-                        }
-                    } catch (Throwable th) {
-                        e = th;
-                        OpenAtlasFileLock.getInstance().unLock(file);
-                        if (dataOutputStream != null) {
-                            try {
-                                dataOutputStream.close();
-                            } catch (IOException e4) {
-                                e4.printStackTrace();
-                            }
-                        }
-
-                    }
-                } catch (Throwable th2) {
-                    e = th2;
-                    dataOutputStream = dataOutputStream2;
-                    OpenAtlasFileLock.getInstance().unLock(file);
-                    if (dataOutputStream != null) {
-                        dataOutputStream.close();
-                    }
-
-                }
-            }
-            log.error("Failed to get file lock for " + file.getAbsolutePath());
-            OpenAtlasFileLock.getInstance().unLock(file);
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                dataOutputStream= new DataOutputStream(fileOutputStream);
+                dataOutputStream.writeUTF(this.location);
+                dataOutputStream.writeInt(this.currentStartlevel);
+                dataOutputStream.writeBoolean(this.persistently);
+                dataOutputStream.flush();
+                fileOutputStream.getFD().sync();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
             if (dataOutputStream != null) {
                 try {
                     dataOutputStream.close();
-                } catch (IOException e222) {
-                    e222.printStackTrace();
-                }
-            }
-        } catch (IOException e5) {
-            e = e5;
-            log.error("Could not save meta data " + file.getAbsolutePath(), e);
-            OpenAtlasFileLock.getInstance().unLock(file);
-            if (dataOutputStream != null) {
-                try {
-                    dataOutputStream.close();
-                } catch (IOException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }
+
     }
 
     @Override

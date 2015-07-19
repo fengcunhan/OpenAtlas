@@ -210,12 +210,11 @@ public class BundleArchiveRevision {
 	BundleArchiveRevision(String location, long revisionNum, File revisionDir) throws IOException {
 		File metaFile = new File(revisionDir, "meta");
 		if (metaFile.exists()) {
-			OpenAtlasFileLock.getInstance().LockExclusive(metaFile);
 			DataInputStream dataInputStream = new DataInputStream(
 					new FileInputStream(metaFile));
 			this.revisionLocation = dataInputStream.readUTF();
 			dataInputStream.close();
-			OpenAtlasFileLock.getInstance().unLock(metaFile);
+
 			this.revisionNum = revisionNum;
 			this.revisionDir = revisionDir;
 			if (!this.revisionDir.exists()) {
@@ -244,12 +243,10 @@ public class BundleArchiveRevision {
 			if (!metaFile.getParentFile().exists()) {
 				metaFile.getParentFile().mkdirs();
 			}
-			if (OpenAtlasFileLock.getInstance().LockExclusive(metaFile)) {
 				dataOutputStream = new DataOutputStream(new FileOutputStream(metaFile));
 
 				dataOutputStream.writeUTF(this.revisionLocation);
 				dataOutputStream.flush();
-				OpenAtlasFileLock.getInstance().unLock(metaFile);
 				{
 					try {
 						dataOutputStream.close();
@@ -260,9 +257,8 @@ public class BundleArchiveRevision {
 					}
 				}
 
-			}
-			log.error("Failed to get fileLock for " + metaFile.getAbsolutePath());
-			OpenAtlasFileLock.getInstance().unLock(metaFile);
+
+
 
 		} catch (IOException e) {
 
