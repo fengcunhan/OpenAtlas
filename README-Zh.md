@@ -55,4 +55,4 @@ The MIT License (MIT) Copyright (c) 2015 Bunny Blue,achellies
 
 你的业务量小得时候的确没意义，当你到源码超过50W行的时候你就能体会了。
 
-###不要再open关于是否必须注册组件的issue，必须注册，这是OpenAtlas的限制。如果你想用代理方式的话不用注册，代理方式必须注册。
+###不要再open关于是否必须注册组件的issue，必须注册，这是OpenAtlas的限制。如果你想用代理方式的话不用注册，非代理方式必须注册。
