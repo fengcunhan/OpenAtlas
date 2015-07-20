@@ -1,10 +1,13 @@
 # OpenAtlasCore  non-Proxy  Android Dynamic Deployment Framework
+![](art/OpenAtlas_logo_full.png)<br>
  [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android%20OpenAtlas-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/2056)<br>
-[![Join the chat at https://gitter.im/bunnyblue/OpenAtlas](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bunnyblue/OpenAtlas?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/bunnyblue/OpenAtlas](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bunnyblue/OpenAtlas?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)<br>
  Build Status [![Build Status](https://travis-ci.org/bunnyblue/OpenAtlas.svg?branch=master)](https://travis-ci.org/bunnyblue/OpenAtlas)
- Branch Status [![Build Status](https://travis-ci.org/bunnyblue/OpenAtlas.svg?branch=bunny)](https://travis-ci.org/bunnyblue/OpenAtlas)<br>
 
-OpenAtlas ,Android Component Dynamic Deployment Framework(Android  Plugin Framework)<br>The MIT License (MIT) Copyright (c) 2015 Bunny Blue,achellies<br>
+
+OpenAtlas ,Android Component Dynamic Deployment Framework(Android  Plugin Framework)<br>
+
+The MIT License (MIT) Copyright (c) 2015 Bunny Blue,achellies<br>
 ###[README-中文](README-Zh.md)
 
 
