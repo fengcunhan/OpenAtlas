@@ -1,30 +1,25 @@
 /**
- *  OpenAtlasForAndroid Project
-The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software 
-without restriction, including without limitation the rights to use, copy, modify, 
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies 
-or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-@author BunnyBlue
- * **/
+ * OpenAtlasForAndroid Project
+ * The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all copies
+ * or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @author BunnyBlue
+ **/
 package com.openatlas.runtime;
-
-import java.util.List;
-
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkEvent;
-import org.osgi.framework.FrameworkListener;
 
 import android.os.AsyncTask;
 import android.os.Build.VERSION;
@@ -40,6 +35,12 @@ import com.openatlas.framework.Framework;
 import com.openatlas.util.ApkUtils;
 import com.openatlas.util.StringUtils;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkEvent;
+import org.osgi.framework.FrameworkListener;
+
+import java.util.List;
+
 public class SecurityFrameListener implements FrameworkListener {
     static final String TAG = "SecurityFrameListener";
     ShutdownProcessHandler shutdownProcessHandler;
@@ -53,7 +54,7 @@ public class SecurityFrameListener implements FrameworkListener {
         }
 
         @Override
-		protected Boolean doInBackground(String... strArr) {
+        protected Boolean doInBackground(String... strArr) {
             if (this.PUBLIC_KEY == null || this.PUBLIC_KEY.isEmpty()) {
                 return Boolean.valueOf(true);
             }
@@ -84,7 +85,7 @@ public class SecurityFrameListener implements FrameworkListener {
         }
 
         @Override
-		protected void onPostExecute(Boolean bool) {
+        protected void onPostExecute(Boolean bool) {
             if (bool != null && !bool.booleanValue()) {
                 Toast.makeText(
                         RuntimeVariables.androidApplication,
@@ -98,7 +99,7 @@ public class SecurityFrameListener implements FrameworkListener {
 
     public class ShutdownProcessHandler extends Handler {
         @Override
-		public void handleMessage(Message message) {
+        public void handleMessage(Message message) {
             Process.killProcess(Process.myPid());
         }
     }
@@ -108,16 +109,16 @@ public class SecurityFrameListener implements FrameworkListener {
     }
 
     @Override
-	public void frameworkEvent(FrameworkEvent frameworkEvent) {
+    public void frameworkEvent(FrameworkEvent frameworkEvent) {
         switch (frameworkEvent.getType()) {
-        case 1 /* 1 */:
-            if (VERSION.SDK_INT >= 11) {
-                new SecurityTask().executeOnExecutor(
-                        AsyncTask.THREAD_POOL_EXECUTOR, new String[0]);
-            } else {
-                new SecurityTask().execute(new String[0]);
-            }
-        default:
+            case 1 /* 1 */:
+                if (VERSION.SDK_INT >= 11) {
+                    new SecurityTask().executeOnExecutor(
+                            AsyncTask.THREAD_POOL_EXECUTOR);
+                } else {
+                    new SecurityTask().execute();
+                }
+            default:
         }
     }
 }

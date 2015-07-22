@@ -1,23 +1,24 @@
 /**
- *  OpenAtlasForAndroid Project
-The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software 
-without restriction, including without limitation the rights to use, copy, modify, 
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies 
-or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-@author BunnyBlue
- * **/
+ * OpenAtlasForAndroid Project
+ * The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all copies
+ * or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @author BunnyBlue
+ **/
 package com.openatlas.util;
 
 import java.util.ArrayList;
@@ -31,31 +32,30 @@ public class StringUtils {
      * @since 2.1
      */
     public static final int INDEX_NOT_FOUND = -1;
+
     public static boolean isEmpty(String str) {
-        if (str == null || str.length() == 0) {
-            return true;
-        }
-        return false;
+        return str == null || str.length() == 0;
     }
 
     public static boolean isNotEmpty(String str) {
         return str != null && str.length() > 0;
     }
+
     /** <p>Checks if a CharSequence is whitespace, empty ("") or null.</p>
-    *
-    * <pre>
-    * StringUtils.isBlank(null)      = true
-    * StringUtils.isBlank("")        = true
-    * StringUtils.isBlank(" ")       = true
-    * StringUtils.isBlank("bob")     = false
-    * StringUtils.isBlank("  bob  ") = false
-    * </pre>
-    *
-    * @param str  the CharSequence to check, may be null
-    * @return {@code true} if the CharSequence is null, empty or whitespace
-    * @since 2.0
-    * @since 3.0 Changed signature from isBlank(String) to isBlank(CharSequence)
-    */
+     *
+     * <pre>
+     * StringUtils.isBlank(null)      = true
+     * StringUtils.isBlank("")        = true
+     * StringUtils.isBlank(" ")       = true
+     * StringUtils.isBlank("bob")     = false
+     * StringUtils.isBlank("  bob  ") = false
+     * </pre>
+     *
+     * @param str  the CharSequence to check, may be null
+     * @return {@code true} if the CharSequence is null, empty or whitespace
+     * @since 2.0
+     * @since 3.0 Changed signature from isBlank(String) to isBlank(CharSequence)
+     */
     public static boolean isBlank(String str) {
         if (str != null) {
             int length = str.length();
@@ -88,7 +88,6 @@ public class StringUtils {
         }
         return str.equals(str2);
     }
-
 
 
     public static boolean contains(String[] strArr, String str) {
@@ -140,6 +139,7 @@ public class StringUtils {
         }
         return str.substring(0, pos);
     }
+
     /**
      * <p>Gets the substring after the first occurrence of a separator.
      * The separator is not returned.</p>
@@ -181,6 +181,7 @@ public class StringUtils {
         }
         return str.substring(pos + separator.length());
     }
+
     /**
      * <p>Gets the substring after the last occurrence of a separator.
      * The separator is not returned.</p>
@@ -380,6 +381,7 @@ public class StringUtils {
     public static boolean endsWith(final String str, final String suffix) {
         return endsWith(str, suffix, false);
     }
+
     /**
      * <p>Check if a CharSequence ends with a specified suffix (optionally case insensitive).</p>
      *
@@ -401,7 +403,7 @@ public class StringUtils {
         final int strOffset = str.length() - suffix.length();
         return regionMatches(str, ignoreCase, strOffset, suffix, 0, suffix.length());
     }
-    
+
     /**
      * Green implementation of regionMatches.
      *
@@ -414,7 +416,7 @@ public class StringUtils {
      * @return whether the region matched
      */
     static boolean regionMatches(final CharSequence cs, final boolean ignoreCase, final int thisStart,
-            final CharSequence substring, final int start, final int length)    {
+                                 final CharSequence substring, final int start, final int length) {
         if (cs instanceof String && substring instanceof String) {
             return ((String) cs).regionMatches(ignoreCase, thisStart, (String) substring, start, length);
         }
@@ -469,7 +471,7 @@ public class StringUtils {
      * @since 2.0
      */
     public static String[] split(final String str, final String separatorChar) {
-        return splitWorker(str, separatorChar,-1, false);
+        return splitWorker(str, separatorChar, -1, false);
     }
 
 

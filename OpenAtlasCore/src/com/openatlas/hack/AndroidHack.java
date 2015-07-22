@@ -1,29 +1,25 @@
 /**
- *  OpenAtlasForAndroid Project
-The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software 
-without restriction, including without limitation the rights to use, copy, modify, 
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies 
-or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-@author BunnyBlue
- * **/
+ * OpenAtlasForAndroid Project
+ * The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all copies
+ * or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @author BunnyBlue
+ **/
 package com.openatlas.hack;
-
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Map;
 
 import android.app.Application;
 import android.app.Instrumentation;
@@ -41,6 +37,11 @@ import com.openatlas.runtime.DelegateClassLoader;
 import com.openatlas.runtime.DelegateResources;
 import com.openatlas.runtime.RuntimeVariables;
 
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Map;
+
 public class AndroidHack {
     private static Object _mLoadedApk;
     private static Object _sActivityThread;
@@ -55,7 +56,7 @@ public class AndroidHack {
         }
 
         @Override
-		public boolean handleMessage(Message message) {
+        public boolean handleMessage(Message message) {
             try {
                 AndroidHack.ensureLoadedApk();
                 this.handler.handleMessage(message);
@@ -85,7 +86,7 @@ public class AndroidHack {
                                 RuntimeException runtimeException2 = new RuntimeException(
                                         "wrong classloader in loadedapk---"
                                                 + classLoader.getClass()
-                                                        .getName(), th2);
+                                                .getName(), th2);
                             }
                         }
                     }
@@ -105,11 +106,11 @@ public class AndroidHack {
         }
 
         @Override
-		public void run() {
+        public void run() {
             try {
                 AndroidHack._sActivityThread = OpenAtlasHacks.ActivityThread_currentActivityThread
-                        .invoke(OpenAtlasHacks.ActivityThread.getmClass(),
-                                new Object[0]);
+                        .invoke(OpenAtlasHacks.ActivityThread.getmClass()
+                        );
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -129,7 +130,7 @@ public class AndroidHack {
             if (Thread.currentThread().getId() == Looper.getMainLooper()
                     .getThread().getId()) {
                 _sActivityThread = OpenAtlasHacks.ActivityThread_currentActivityThread
-                        .invoke(null, new Object[0]);
+                        .invoke(null);
             } else {
                 Handler handler = new Handler(Looper.getMainLooper());
                 synchronized (OpenAtlasHacks.ActivityThread_currentActivityThread) {
@@ -189,14 +190,14 @@ public class AndroidHack {
     }
 
     public static Object getLoadedApk(Application application, Object obj,
-            String str) {
+                                      String str) {
         WeakReference weakReference = (WeakReference) ((Map) OpenAtlasHacks.ActivityThread_mPackages
                 .get(obj)).get(str);
         if (weakReference == null || weakReference.get() == null) {
             return null;
         }
         _mLoadedApk = weakReference.get();
-		return _mLoadedApk;
+        return _mLoadedApk;
     }
 
     public static Object createNewLoadedApk(Application application, Object obj) {
@@ -210,21 +211,20 @@ public class AndroidHack {
                 declaredMethod = resources
                         .getClass()
                         .getSuperclass()
-                        .getDeclaredMethod("getCompatibilityInfo", new Class[0]);
+                        .getDeclaredMethod("getCompatibilityInfo");
             } else {
                 declaredMethod = resources.getClass().getDeclaredMethod(
-                        "getCompatibilityInfo", new Class[0]);
+                        "getCompatibilityInfo");
             }
             declaredMethod.setAccessible(true);
             Class cls = Class.forName("android.content.res.CompatibilityInfo");
-            Object invoke = declaredMethod.invoke(application.getResources(),
-                    new Object[0]);
+            Object invoke = declaredMethod.invoke(application.getResources()
+            );
             Method declaredMethod2 = OpenAtlasHacks.ActivityThread.getmClass()
                     .getDeclaredMethod("getPackageInfoNoCheck",
-                            new Class[] { ApplicationInfo.class, cls });
+                            ApplicationInfo.class, cls);
             declaredMethod2.setAccessible(true);
-            invoke = declaredMethod2.invoke(obj, new Object[] {
-                    applicationInfo, invoke });
+            invoke = declaredMethod2.invoke(obj, applicationInfo, invoke);
             _mLoadedApk = invoke;
             return invoke;
         } catch (Throwable e) {
@@ -270,7 +270,7 @@ public class AndroidHack {
     }
 
     public static void injectResources(Application application,
-            Resources resources) throws Exception {
+                                       Resources resources) throws Exception {
         Object activityThread = getActivityThread();
         if (activityThread == null) {
             throw new Exception(
@@ -319,7 +319,7 @@ public class AndroidHack {
     }
 
     public static void injectContextHook(ContextWrapper contextWrapper,
-            ContextWrapper contextWrapper2) {
+                                         ContextWrapper contextWrapper2) {
         OpenAtlasHacks.ContextWrapper_mBase.set(contextWrapper, contextWrapper2);
     }
 }

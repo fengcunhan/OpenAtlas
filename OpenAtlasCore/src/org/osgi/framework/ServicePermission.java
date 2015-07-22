@@ -47,27 +47,26 @@ import java.util.Hashtable;
  * Untrusted bundles should not be able to detect the presence of certain services unless they have
  * the appropriate <tt>ServicePermission</tt> to get the specific service.
  *
- * @version $Revision: 1.8 $
  * @author Open Services Gateway Initiative
+ * @version $Revision: 1.8 $
  */
 
-final public class ServicePermission extends BasicPermission
-{
+final public class ServicePermission extends BasicPermission {
 
     /**
      * The action string <tt>get</tt> (Value is "get").
      */
-    public final static String GET  = "get";
+    public final static String GET = "get";
     /**
      * The action string <tt>register</tt> (Value is "register").
      */
     public final static String REGISTER = "register";
 
-    private final static int ACTION_GET             = 0x00000001;
-    private final static int ACTION_REGISTER        = 0x00000002;
-    private final static int ACTION_ALL             = ACTION_GET | ACTION_REGISTER;
-    private final static int ACTION_NONE            = 0;
-    private final static int ACTION_ERROR           = 0x80000000;
+    private final static int ACTION_GET = 0x00000001;
+    private final static int ACTION_REGISTER = 0x00000002;
+    private final static int ACTION_ALL = ACTION_GET | ACTION_REGISTER;
+    private final static int ACTION_NONE = 0;
+    private final static int ACTION_ERROR = 0x80000000;
 
     /**
      * The actions mask.
@@ -83,7 +82,7 @@ final public class ServicePermission extends BasicPermission
 
     /**
      * Create a new ServicePermission.
-     *
+     * <p>
      * <p>The name of the service is specified as a fully qualified class name.
      * <pre>
      * ClassName ::= &lt;class name&gt; | &lt;class name ending in ".*"&gt;
@@ -94,29 +93,27 @@ final public class ServicePermission extends BasicPermission
      *    org.osgi.service.http.*
      *    org.osgi.service.snmp.*
      * </pre>
-     *
+     * <p>
      * <p>There are two possible actions: <tt>get</tt> and <tt>register</tt>.
      * The <tt>get</tt> permission allows the owner of this permission
      * to obtain a service with this name. The <tt>register</tt> permission
      * allows the bundle to register a service under that name.
      *
-     * @param name class name
+     * @param name    class name
      * @param actions <tt>get</tt>, <tt>register</tt> (canonical order)
      */
 
-    public ServicePermission(String name, String actions)
-    {
+    public ServicePermission(String name, String actions) {
         this(name, getMask(actions));
     }
 
     /**
      * Package private constructor used by ServicePermissionCollection.
      *
-     * @param name class name
+     * @param name   class name
      * @param action mask
      */
-    ServicePermission(String name, int mask)
-    {
+    ServicePermission(String name, int mask) {
         super(name);
 
         init(mask);
@@ -127,11 +124,9 @@ final public class ServicePermission extends BasicPermission
      *
      * @param action mask
      */
-    private void init(int mask)
-    {
+    private void init(int mask) {
         if ((mask == ACTION_NONE) ||
-            ((mask & ACTION_ALL) != mask))
-        {
+                ((mask & ACTION_ALL) != mask)) {
             throw new IllegalArgumentException("invalid action string");
         }
 
@@ -144,89 +139,89 @@ final public class ServicePermission extends BasicPermission
      * @param actions Action string.
      * @return action mask.
      */
-    private static int getMask(String actions)
-    {
-    boolean seencomma = false;
+    private static int getMask(String actions) {
+        boolean seencomma = false;
 
-    int mask = ACTION_NONE;
+        int mask = ACTION_NONE;
 
-    if (actions == null) {
-        return mask;
-    }
-
-    char[] a = actions.toCharArray();
-
-    int i = a.length - 1;
-    if (i < 0)
-        return mask;
-
-    while (i != -1) {
-        char c;
-
-        // skip whitespace
-        while ((i!=-1) && ((c = a[i]) == ' ' ||
-                  c == '\r' ||
-                  c == '\n' ||
-                  c == '\f' ||
-                  c == '\t'))
-        i--;
-
-        // check for the known strings
-        int matchlen;
-
-        if (i >= 2 && (a[i-2] == 'g' || a[i-2] == 'G') &&
-              (a[i-1] == 'e' || a[i-1] == 'E') &&
-              (a[i] == 't' || a[i] == 'T'))
-        {
-        matchlen = 3;
-        mask |= ACTION_GET;
-
-        } else if (i >= 7 && (a[i-7] == 'r' || a[i-7] == 'R') &&
-                       (a[i-6] == 'e' || a[i-6] == 'E') &&
-                       (a[i-5] == 'g' || a[i-5] == 'G') &&
-                 (a[i-4] == 'i' || a[i-4] == 'I') &&
-                 (a[i-3] == 's' || a[i-3] == 'S') &&
-                 (a[i-2] == 't' || a[i-2] == 'T') &&
-                 (a[i-1] == 'e' || a[i-1] == 'E') &&
-                 (a[i] == 'r' || a[i] == 'R'))
-        {
-        matchlen = 8;
-        mask |= ACTION_REGISTER;
-
-        } else {
-        // parse error
-        throw new IllegalArgumentException(
-            "invalid permission: " + actions);
+        if (actions == null) {
+            return mask;
         }
 
-        // make sure we didn't just match the tail of a word
-        // like "ackbarfregister".  Also, skip to the comma.
-        seencomma = false;
-        while (i >= matchlen && !seencomma) {
-        switch(a[i-matchlen]) {
-        case ',':
-            seencomma = true;
+        char[] a = actions.toCharArray();
+
+        int i = a.length - 1;
+        if (i < 0)
+            return mask;
+
+        while (i != -1) {
+            char c;
+
+            // skip whitespace
+            while ((i != -1) && ((c = a[i]) == ' ' ||
+                    c == '\r' ||
+                    c == '\n' ||
+                    c == '\f' ||
+                    c == '\t'))
+                i--;
+
+            // check for the known strings
+            int matchlen;
+
+            if (i >= 2 && (a[i - 2] == 'g' || a[i - 2] == 'G') &&
+                    (a[i - 1] == 'e' || a[i - 1] == 'E') &&
+                    (a[i] == 't' || a[i] == 'T')) {
+                matchlen = 3;
+                mask |= ACTION_GET;
+
+            } else if (i >= 7 && (a[i - 7] == 'r' || a[i - 7] == 'R') &&
+                    (a[i - 6] == 'e' || a[i - 6] == 'E') &&
+                    (a[i - 5] == 'g' || a[i - 5] == 'G') &&
+                    (a[i - 4] == 'i' || a[i - 4] == 'I') &&
+                    (a[i - 3] == 's' || a[i - 3] == 'S') &&
+                    (a[i - 2] == 't' || a[i - 2] == 'T') &&
+                    (a[i - 1] == 'e' || a[i - 1] == 'E') &&
+                    (a[i] == 'r' || a[i] == 'R')) {
+                matchlen = 8;
+                mask |= ACTION_REGISTER;
+
+            } else {
+                // parse error
+                throw new IllegalArgumentException(
+                        "invalid permission: " + actions);
+            }
+
+            // make sure we didn't just match the tail of a word
+            // like "ackbarfregister".  Also, skip to the comma.
+            seencomma = false;
+            while (i >= matchlen && !seencomma) {
+                switch (a[i - matchlen]) {
+                    case ',':
+                        seencomma = true;
             /*FALLTHROUGH*/
-        case ' ': case '\r': case '\n':
-        case '\f': case '\t':
-            break;
-        default:
+                    case ' ':
+                    case '\r':
+                    case '\n':
+                    case '\f':
+                    case '\t':
+                        break;
+                    default:
+                        throw new IllegalArgumentException("invalid permission: " +
+                                actions);
+                }
+                i--;
+            }
+
+            // point i at the location of the comma minus one (or -1).
+            i -= matchlen;
+        }
+
+        if (seencomma) {
             throw new IllegalArgumentException("invalid permission: " +
-                             actions);
-        }
-        i--;
+                    actions);
         }
 
-        // point i at the location of the comma minus one (or -1).
-        i -= matchlen;
-    }
-
-    if (seencomma) {
-        throw new IllegalArgumentException("invalid permission: " +
-                        actions);
-    }
-
-    return mask;
+        return mask;
     }
 
     /**
@@ -239,41 +234,36 @@ final public class ServicePermission extends BasicPermission
      */
 
     @Override
-	public boolean implies(Permission p)
-    {
-        if (p instanceof ServicePermission)
-        {
+    public boolean implies(Permission p) {
+        if (p instanceof ServicePermission) {
             ServicePermission target = (ServicePermission) p;
 
-            return(((action_mask & target.action_mask)==target.action_mask) &&
-           super.implies(p));
+            return (((action_mask & target.action_mask) == target.action_mask) &&
+                    super.implies(p));
         }
 
-        return(false);
+        return (false);
     }
 
     /**
      * Returns the canonical string representation of the actions.
      * Always returns present actions in the following order:
      * <tt>get</tt>, <tt>register</tt>.
+     *
      * @return The canonical string representation of the actions.
      */
     @Override
-	public String getActions()
-    {
-        if (actions == null)
-        {
+    public String getActions() {
+        if (actions == null) {
             StringBuffer sb = new StringBuffer();
             boolean comma = false;
 
-            if ((action_mask & ACTION_GET) == ACTION_GET)
-            {
+            if ((action_mask & ACTION_GET) == ACTION_GET) {
                 sb.append(GET);
                 comma = true;
             }
 
-            if ((action_mask & ACTION_REGISTER) == ACTION_REGISTER)
-            {
+            if ((action_mask & ACTION_REGISTER) == ACTION_REGISTER) {
                 if (comma) sb.append(',');
                 sb.append(REGISTER);
             }
@@ -281,7 +271,7 @@ final public class ServicePermission extends BasicPermission
             actions = sb.toString();
         }
 
-        return(actions);
+        return (actions);
     }
 
     /**
@@ -292,14 +282,13 @@ final public class ServicePermission extends BasicPermission
      * <tt>ServicePermission</tt> objects.
      */
     @Override
-	public PermissionCollection newPermissionCollection()
-    {
+    public PermissionCollection newPermissionCollection() {
         return (new ServicePermissionCollection());
     }
 
     /**
      * Determines the equalty of two ServicePermission objects.
-     *
+     * <p>
      * Checks that specified object has the same class name
      * and action as this <tt>ServicePermission</tt>.
      *
@@ -308,22 +297,19 @@ final public class ServicePermission extends BasicPermission
      * same class name and actions as this <tt>ServicePermission</tt> object; <tt>false</tt> otherwise.
      */
     @Override
-	public boolean equals(Object obj)
-    {
-        if (obj == this)
-        {
-            return(true);
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return (true);
         }
 
-        if (!(obj instanceof ServicePermission))
-        {
-            return(false);
+        if (!(obj instanceof ServicePermission)) {
+            return (false);
         }
 
         ServicePermission p = (ServicePermission) obj;
 
-        return((action_mask == p.action_mask) &&
-        getName().equals(p.getName()));
+        return ((action_mask == p.action_mask) &&
+                getName().equals(p.getName()));
     }
 
     /**
@@ -333,9 +319,8 @@ final public class ServicePermission extends BasicPermission
      */
 
     @Override
-	public int hashCode()
-    {
-        return(getName().hashCode() ^ getActions().hashCode());
+    public int hashCode() {
+        return (getName().hashCode() ^ getActions().hashCode());
     }
 
     /**
@@ -344,8 +329,7 @@ final public class ServicePermission extends BasicPermission
      *
      * @return The actions mask.
      */
-    int getMask()
-    {
+    int getMask() {
         return (action_mask);
     }
 
@@ -356,8 +340,7 @@ final public class ServicePermission extends BasicPermission
      */
 
     private synchronized void writeObject(java.io.ObjectOutputStream s)
-        throws IOException
-    {
+            throws IOException {
         // Write out the actions. The superclass takes care of the name
         // call getActions to make sure actions field is initialized
         if (actions == null)
@@ -370,8 +353,7 @@ final public class ServicePermission extends BasicPermission
      * a stream.
      */
     private synchronized void readObject(java.io.ObjectInputStream s)
-        throws IOException, ClassNotFoundException
-    {
+            throws IOException, ClassNotFoundException {
         // Read in the action, then initialize the rest
         s.defaultReadObject();
         init(getMask(actions));
@@ -386,8 +368,7 @@ final public class ServicePermission extends BasicPermission
  * @see java.security.PermissionCollection
  */
 
-final class ServicePermissionCollection extends PermissionCollection
-{
+final class ServicePermissionCollection extends PermissionCollection {
 
     /**
      * Table of permissions.
@@ -405,11 +386,9 @@ final class ServicePermissionCollection extends PermissionCollection
 
     /**
      * Creates an empty ServicePermissions object.
-     *
      */
 
-    public ServicePermissionCollection()
-    {
+    public ServicePermissionCollection() {
         permissions = new Hashtable();
         all_allowed = false;
     }
@@ -419,18 +398,15 @@ final class ServicePermissionCollection extends PermissionCollection
      * the name.
      *
      * @param permission The Permission object to add.
-     *
-     * @exception IllegalArgumentException If the permission is not a ServicePermission object.
-     *
-     * @exception SecurityException If this <tt>ServicePermissionCollection</tt> object has been marked read-only.
+     * @throws IllegalArgumentException If the permission is not a ServicePermission object.
+     * @throws SecurityException        If this <tt>ServicePermissionCollection</tt> object has been marked read-only.
      */
 
     @Override
-	public void add(Permission permission)
-    {
-        if (! (permission instanceof ServicePermission))
-            throw new IllegalArgumentException("invalid permission: "+
-                                               permission);
+    public void add(Permission permission) {
+        if (!(permission instanceof ServicePermission))
+            throw new IllegalArgumentException("invalid permission: " +
+                    permission);
         if (isReadOnly())
             throw new SecurityException("attempt to add a Permission to a " +
                     "readonly PermissionCollection");
@@ -439,26 +415,21 @@ final class ServicePermissionCollection extends PermissionCollection
         String name = sp.getName();
 
         ServicePermission existing =
-        (ServicePermission) permissions.get(name);
+                (ServicePermission) permissions.get(name);
 
-        if (existing != null)
-        {
+        if (existing != null) {
             int oldMask = existing.getMask();
             int newMask = sp.getMask();
-            if (oldMask != newMask)
-            {
+            if (oldMask != newMask) {
                 permissions.put(name,
-                new ServicePermission(name,
-                            oldMask | newMask));
+                        new ServicePermission(name,
+                                oldMask | newMask));
             }
-        }
-        else
-        {
+        } else {
             permissions.put(name, permission);
         }
 
-        if (!all_allowed)
-        {
+        if (!all_allowed) {
             if (name.equals("*"))
                 all_allowed = true;
         }
@@ -469,14 +440,12 @@ final class ServicePermissionCollection extends PermissionCollection
      * expressed in <tt>permission</tt>.
      *
      * @param p The Permission object to compare.
-     *
      * @return <tt>true</tt> if <tt>permission</tt> is a proper subset of a permission in
      * the set; <tt>false</tt> otherwise.
      */
 
     @Override
-	public boolean implies(Permission permission)
-    {
+    public boolean implies(Permission permission) {
         if (!(permission instanceof ServicePermission))
             return (false);
 
@@ -487,11 +456,9 @@ final class ServicePermissionCollection extends PermissionCollection
         int effective = 0;
 
         // short circuit if the "*" Permission was added
-        if (all_allowed)
-        {
+        if (all_allowed) {
             x = (ServicePermission) permissions.get("*");
-            if (x != null)
-            {
+            if (x != null) {
                 effective |= x.getMask();
                 if ((effective & desired) == desired)
                     return (true);
@@ -506,8 +473,7 @@ final class ServicePermissionCollection extends PermissionCollection
 
         x = (ServicePermission) permissions.get(name);
 
-        if (x != null)
-        {
+        if (x != null) {
             // we have a direct hit!
             effective |= x.getMask();
             if ((effective & desired) == desired)
@@ -517,21 +483,19 @@ final class ServicePermissionCollection extends PermissionCollection
         // work our way up the tree...
         int last, offset;
 
-        offset = name.length()-1;
+        offset = name.length() - 1;
 
-        while ((last = name.lastIndexOf(".", offset)) != -1)
-        {
+        while ((last = name.lastIndexOf(".", offset)) != -1) {
 
-            name = name.substring(0, last+1) + "*";
+            name = name.substring(0, last + 1) + "*";
             x = (ServicePermission) permissions.get(name);
 
-            if (x != null)
-            {
+            if (x != null) {
                 effective |= x.getMask();
                 if ((effective & desired) == desired)
                     return (true);
             }
-            offset = last -1;
+            offset = last - 1;
         }
 
         // we don't have to check for "*" as it was already checked
@@ -547,8 +511,7 @@ final class ServicePermissionCollection extends PermissionCollection
      */
 
     @Override
-	public Enumeration elements()
-    {
+    public Enumeration elements() {
         return (permissions.elements());
     }
 }

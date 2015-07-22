@@ -1,24 +1,29 @@
 /**
- *  OpenAtlasForAndroid Project
-The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software 
-without restriction, including without limitation the rights to use, copy, modify, 
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies 
-or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-@author BunnyBlue
- * **/
+ * OpenAtlasForAndroid Project
+ * The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all copies
+ * or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @author BunnyBlue
+ **/
 package com.openatlas.util;
+
+import android.content.pm.ApplicationInfo;
+import android.content.pm.Signature;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -33,13 +38,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-import android.content.pm.ApplicationInfo;
-import android.content.pm.Signature;
-import android.util.Log;
-
 
 public class PackageValidate {
-
 
 
     public static final int INSTALL_PARSE_FAILED_UNEXPECTED_EXCEPTION = -102;
@@ -85,12 +85,12 @@ public class PackageValidate {
     }
 
     public static Certificate[] loadCertificates(JarFile jarFile, JarEntry je,
-                                           byte[] readBuffer) {
-		InputStream is = null;
+                                                 byte[] readBuffer) {
+        InputStream is = null;
         try {
             // We must read the stream for the JarEntry to retrieve
             // its certificates.
-			is = new BufferedInputStream(jarFile.getInputStream(je));
+            is = new BufferedInputStream(jarFile.getInputStream(je));
             while (is.read(readBuffer, 0, readBuffer.length) != -1) {
                 // not using
             }
@@ -102,21 +102,21 @@ public class PackageValidate {
         } catch (RuntimeException e) {
             Log.w(TAG, "Exception reading " + je.getName() + " in "
                     + jarFile.getName(), e);
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
 
         }
         return null;
     }
 
 
-    public  boolean isSignaturesSame(Signature[] s1, Signature[] s2) {
+    public boolean isSignaturesSame(Signature[] s1, Signature[] s2) {
         if (s1 == null) {
             return false;
         }
@@ -131,14 +131,11 @@ public class PackageValidate {
         for (Signature sig : s2) {
             set2.add(sig);
         }
-        if (set1.equals(set2)) {
-            return true;
-        }
-        return false;
+        return set1.equals(set2);
     }
 
     public boolean collectCertificates() {
-    	Package pkg=parsePackage();
+        Package pkg = parsePackage();
         pkg.mSignatures = null;
 
         WeakReference<byte[]> readBufferRef;
@@ -160,7 +157,7 @@ public class PackageValidate {
 
             Certificate[] certs = null;
 
-          {
+            {
                 Enumeration<JarEntry> entries = jarFile.entries();
                 final Manifest manifest = jarFile.getManifest();
                 while (entries.hasMoreElements()) {

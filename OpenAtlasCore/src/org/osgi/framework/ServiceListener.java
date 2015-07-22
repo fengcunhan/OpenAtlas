@@ -26,14 +26,14 @@ import java.util.EventListener;
  * <code>ServiceEvent</code> objects to a <code>ServiceListener</code> out
  * of order and may concurrently call and/or reenter a
  * <code>ServiceListener</code>.
- * 
+ * <p>
  * <p>
  * A <code>ServiceListener</code> object is registered with the Framework
  * using the <code>BundleContext.addServiceListener</code> method.
  * <code>ServiceListener</code> objects are called with a
  * <code>ServiceEvent</code> object when a service is registered, modified, or
  * is in the process of unregistering.
- * 
+ * <p>
  * <p>
  * <code>ServiceEvent</code> object delivery to <code>ServiceListener</code>
  * objects is filtered by the filter specified when the listener was registered.
@@ -42,17 +42,17 @@ import java.util.EventListener;
  * the listener if the bundle which defines the listener object's class has the
  * appropriate <code>ServicePermission</code> to get the service using at
  * least one of the named classes under which the service was registered.
- * 
+ *
+ * @version $Revision: 5673 $
  * @see ServiceEvent
  * @see ServicePermission
- * @version $Revision: 5673 $
  */
 
 public interface ServiceListener extends EventListener {
-	/**
-	 * Receives notification that a service has had a lifecycle change.
-	 * 
-	 * @param event The <code>ServiceEvent</code> object.
-	 */
-	public void serviceChanged(ServiceEvent event);
+    /**
+     * Receives notification that a service has had a lifecycle change.
+     *
+     * @param event The <code>ServiceEvent</code> object.
+     */
+    void serviceChanged(ServiceEvent event);
 }

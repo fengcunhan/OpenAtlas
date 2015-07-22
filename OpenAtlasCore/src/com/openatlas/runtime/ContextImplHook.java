@@ -1,26 +1,25 @@
 /**
- *  OpenAtlasForAndroid Project
-The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software 
-without restriction, including without limitation the rights to use, copy, modify, 
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies 
-or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-@author BunnyBlue
- * **/
+ * OpenAtlasForAndroid Project
+ * The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all copies
+ * or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @author BunnyBlue
+ **/
 package com.openatlas.runtime;
-
-import org.osgi.framework.BundleException;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -39,6 +38,8 @@ import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
 import com.openatlas.util.StringUtils;
 
+import org.osgi.framework.BundleException;
+
 public class ContextImplHook extends ContextWrapper {
     static final Logger log;
     private ClassLoader classLoader;
@@ -54,22 +55,22 @@ public class ContextImplHook extends ContextWrapper {
     }
 
     @Override
-	public Resources getResources() {
+    public Resources getResources() {
         return RuntimeVariables.delegateResources;
     }
 
     @Override
-	public AssetManager getAssets() {
+    public AssetManager getAssets() {
         return RuntimeVariables.delegateResources.getAssets();
     }
 
     @Override
-	public PackageManager getPackageManager() {
+    public PackageManager getPackageManager() {
         return getApplicationContext().getPackageManager();
     }
 
     @Override
-	public ClassLoader getClassLoader() {
+    public ClassLoader getClassLoader() {
         if (this.classLoader != null) {
             return this.classLoader;
         }
@@ -159,47 +160,47 @@ public class ContextImplHook extends ContextWrapper {
     }
 
 
-@Override
-public ComponentName startService(Intent service) {
-    String packageName;
-    String className;
-    if (service.getComponent() != null) {
-        packageName = service.getComponent().getPackageName();
-        className = service.getComponent().getClassName();
-    } else {
-        ResolveInfo resolveService = getBaseContext().getPackageManager().resolveService(service, 0);
-        if (resolveService == null || resolveService.serviceInfo == null) {
-            className = null;
-            packageName = null;
+    @Override
+    public ComponentName startService(Intent service) {
+        String packageName;
+        String className;
+        if (service.getComponent() != null) {
+            packageName = service.getComponent().getPackageName();
+            className = service.getComponent().getClassName();
         } else {
-            packageName = resolveService.serviceInfo.packageName;
-            className = resolveService.serviceInfo.name;
-        }
-    }
-    if (!StringUtils.equals(getBaseContext().getPackageName(), packageName)) {
-        return super.startService(service);
-    }
-    ClassLoadFromBundle.checkInstallBundleIfNeed(className);
-    packageName = DelegateComponent.locateComponent(className);
-    if (packageName != null) {
-        BundleImpl bundleImpl = (BundleImpl) Framework.getBundle(packageName);
-        if (bundleImpl != null) {
-            try {
-                bundleImpl.startBundle();
-            } catch (BundleException e) {
-                log.error(e.getMessage() + " Caused by: ", e.getNestedException());
+            ResolveInfo resolveService = getBaseContext().getPackageManager().resolveService(service, 0);
+            if (resolveService == null || resolveService.serviceInfo == null) {
+                className = null;
+                packageName = null;
+            } else {
+                packageName = resolveService.serviceInfo.packageName;
+                className = resolveService.serviceInfo.name;
             }
         }
-        return super.startService(service);
-    }
-    try {
-        if (Framework.getSystemClassLoader().loadClass(className) != null) {
+        if (!StringUtils.equals(getBaseContext().getPackageName(), packageName)) {
             return super.startService(service);
         }
-        return null;
-    } catch (ClassNotFoundException e2) {
-        log.error("Can't find class " + className);
-        return null;
+        ClassLoadFromBundle.checkInstallBundleIfNeed(className);
+        packageName = DelegateComponent.locateComponent(className);
+        if (packageName != null) {
+            BundleImpl bundleImpl = (BundleImpl) Framework.getBundle(packageName);
+            if (bundleImpl != null) {
+                try {
+                    bundleImpl.startBundle();
+                } catch (BundleException e) {
+                    log.error(e.getMessage() + " Caused by: ", e.getNestedException());
+                }
+            }
+            return super.startService(service);
+        }
+        try {
+            if (Framework.getSystemClassLoader().loadClass(className) != null) {
+                return super.startService(service);
+            }
+            return null;
+        } catch (ClassNotFoundException e2) {
+            log.error("Can't find class " + className);
+            return null;
+        }
     }
-}
 }

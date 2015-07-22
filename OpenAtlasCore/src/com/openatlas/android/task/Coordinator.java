@@ -1,24 +1,33 @@
 /**
- *  OpenAtlasForAndroid Project
-The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software 
-without restriction, including without limitation the rights to use, copy, modify, 
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies 
-or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-@author BunnyBlue
- * **/
+ * OpenAtlasForAndroid Project
+ * The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all copies
+ * or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @author BunnyBlue
+ **/
 package com.openatlas.android.task;
+
+import android.annotation.TargetApi;
+import android.os.AsyncTask;
+import android.os.Build.VERSION;
+import android.os.Debug;
+import android.os.Looper;
+import android.os.MessageQueue.IdleHandler;
+import android.util.Log;
 
 import java.lang.reflect.Field;
 import java.util.LinkedList;
@@ -33,14 +42,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import android.annotation.TargetApi;
-import android.os.AsyncTask;
-import android.os.Build.VERSION;
-import android.os.Debug;
-import android.os.Looper;
-import android.os.MessageQueue.IdleHandler;
-import android.util.Log;
-
 public class Coordinator {
     private static final String TAG = "Coord";
     private static final Executor mExecutor;
@@ -50,8 +51,8 @@ public class Coordinator {
     public static class CoordinatorRejectHandler implements
             RejectedExecutionHandler {
         @Override
-		public void rejectedExecution(Runnable runnable,
-                ThreadPoolExecutor threadPoolExecutor) {
+        public void rejectedExecution(Runnable runnable,
+                                      ThreadPoolExecutor threadPoolExecutor) {
             Object[] toArray = mPoolWorkQueue.toArray();
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append('[');
@@ -94,7 +95,7 @@ public class Coordinator {
         }
 
         @Override
-		public String toString() {
+        public String toString() {
             return getClass().getName() + "@" + this.tag;
         }
     }
@@ -103,7 +104,7 @@ public class Coordinator {
         private final TaggedRunnable mTaggedRunnable;
 
         @Override
-		protected Void doInBackground(Void... params) {
+        protected Void doInBackground(Void... params) {
             return process(params);
         }
 
@@ -117,7 +118,7 @@ public class Coordinator {
         }
 
         @Override
-		public String toString() {
+        public String toString() {
             return getClass().getSimpleName() + "@" + this.mTaggedRunnable;
         }
 
@@ -127,9 +128,9 @@ public class Coordinator {
     public static void postTask(TaggedRunnable taggedRunnable) {
         PostTask aVar = new PostTask(taggedRunnable);
         if (VERSION.SDK_INT < 11) {
-            aVar.execute(new Void[0]);
+            aVar.execute();
         } else {
-            aVar.executeOnExecutor(mExecutor, new Void[0]);
+            aVar.executeOnExecutor(mExecutor);
         }
     }
 
@@ -158,19 +159,19 @@ public class Coordinator {
     }
 
     public static void scheduleIdleTasks() {
-        Looper.myQueue().addIdleHandler(new  IdleHandler() {
-			
-			@Override
-			public boolean queueIdle() {
-		        TaggedRunnable taggedRunnable = Coordinator.mIdleTasks
-		                .poll();
-		        if (taggedRunnable == null) {
-		            return false;
-		        }
-		        Coordinator.postTask(taggedRunnable);
-		        return !Coordinator.mIdleTasks.isEmpty();
-		    }
-		});
+        Looper.myQueue().addIdleHandler(new IdleHandler() {
+
+            @Override
+            public boolean queueIdle() {
+                TaggedRunnable taggedRunnable = Coordinator.mIdleTasks
+                        .poll();
+                if (taggedRunnable == null) {
+                    return false;
+                }
+                Coordinator.postTask(taggedRunnable);
+                return !Coordinator.mIdleTasks.isEmpty();
+            }
+        });
     }
 
     private static void runWithTiming(TaggedRunnable taggedRunnable) {
@@ -197,7 +198,6 @@ public class Coordinator {
             }
         } catch (RuntimeException e) {
             System.out.println("Exception in " + taggedRunnable.tag);
-            ;
             if (isDebug) {
                 System.out.println("Timing - "
                         + Thread.currentThread().getName() + " "
@@ -208,7 +208,7 @@ public class Coordinator {
                         + "ms (real)");
             }
         } catch (Throwable th) {
-        	th.printStackTrace();
+            th.printStackTrace();
             int i = 1;
             if (isDebug) {
                 System.out.println("Timing - "
@@ -218,7 +218,6 @@ public class Coordinator {
                         + "ms (cpu) / "
                         + ((System.nanoTime() - nanoTime) / 1000000)
                         + "ms (real)");
-                ;
             }
         }
     }
@@ -246,20 +245,16 @@ public class Coordinator {
         mPoolWorkQueue = new LinkedBlockingQueue<Runnable>(128);
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(8, 16,
                 1, TimeUnit.SECONDS, mPoolWorkQueue, new ThreadFactory() {
-        	
-            private final AtomicInteger a= new AtomicInteger(1);
 
-          
+            private final AtomicInteger a = new AtomicInteger(1);
 
-     
-        	
-					
-					@Override
-					public Thread newThread(Runnable r) {
-						
-						  return new Thread(r, "CoordTask #" + this.a.getAndIncrement());
-					}
-				},
+
+            @Override
+            public Thread newThread(Runnable r) {
+
+                return new Thread(r, "CoordTask #" + this.a.getAndIncrement());
+            }
+        },
                 new CoordinatorRejectHandler());
         mExecutor = threadPoolExecutor;
         SaturativeExecutor

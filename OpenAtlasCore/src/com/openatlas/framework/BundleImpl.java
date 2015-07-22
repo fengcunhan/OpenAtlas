@@ -1,40 +1,30 @@
 /**
- *  OpenAtlasForAndroid Project
-The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software 
-without restriction, including without limitation the rights to use, copy, modify, 
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies 
-or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-@author BunnyBlue
- * **/
+ * OpenAtlasForAndroid Project
+ * The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all copies
+ * or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @author BunnyBlue
+ **/
 package com.openatlas.framework;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.security.ProtectionDomain;
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
+import com.openatlas.framework.bundlestorage.Archive;
+import com.openatlas.framework.bundlestorage.BundleArchive;
+import com.openatlas.log.Logger;
+import com.openatlas.log.LoggerFactory;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
@@ -45,11 +35,20 @@ import org.osgi.framework.FrameworkListener;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
-import com.openatlas.framework.bundlestorage.Archive;
-import com.openatlas.framework.bundlestorage.BundleArchive;
-import com.openatlas.log.Logger;
-import com.openatlas.log.LoggerFactory;
-import com.openatlas.util.OpenAtlasFileLock;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
 
 public final class BundleImpl implements Bundle {
     static final Logger log;
@@ -67,14 +66,14 @@ public final class BundleImpl implements Bundle {
     List<ServiceListener> registeredServiceListeners;
     List<ServiceReference> registeredServices;
     Package[] staleExportedPackages;
-    int state=0;
+    int state = 0;
 
     static {
         log = LoggerFactory.getInstance("BundleImpl");
     }
 
     BundleImpl(File bundleDir, String location, BundleContextImpl bundleContextImpl,
-            InputStream archiveInputStream, File archiveFile, boolean isInstall)
+               InputStream archiveInputStream, File archiveFile, boolean isInstall)
             throws BundleException, IOException {
         this.persistently = false;
         this.domain = null;
@@ -90,8 +89,8 @@ public final class BundleImpl implements Bundle {
         this.currentStartlevel = Framework.initStartlevel;
         this.bundleDir = bundleDir;
         if (archiveInputStream != null) {
-          //  try {
-                this.archive = new BundleArchive(location, bundleDir, archiveInputStream);
+            //  try {
+            this.archive = new BundleArchive(location, bundleDir, archiveInputStream);
 //            } catch (Throwable e) {
 //                Framework.deleteDirectory(bundleDir);
 //                throw new BundleException("Could not install bundle " + location, e);
@@ -129,7 +128,7 @@ public final class BundleImpl implements Bundle {
         bundleContextImpl.bundle = this;
         this.context = bundleContextImpl;
         this.bundleDir = file;
-        this.state = BundleEvent.STARTED;;
+        this.state = BundleEvent.STARTED;
         try {
             this.archive = new BundleArchive(this.location, file);
             resolveBundle(false);
@@ -160,17 +159,17 @@ public final class BundleImpl implements Bundle {
     }
 
     @Override
-	public long getBundleId() {
+    public long getBundleId() {
         return 0;
     }
 
     @Override
-	public Dictionary<String, String> getHeaders() {
+    public Dictionary<String, String> getHeaders() {
         return this.headers;
     }
 
     @Override
-	public String getLocation() {
+    public String getLocation() {
         return this.location;
     }
 
@@ -183,7 +182,7 @@ public final class BundleImpl implements Bundle {
     }
 
     @Override
-	public ServiceReference[] getRegisteredServices() {
+    public ServiceReference[] getRegisteredServices() {
         if (this.state == BundleEvent.INSTALLED) {
             throw new IllegalStateException("Bundle " + toString()
                     + "has been unregistered.");
@@ -197,7 +196,7 @@ public final class BundleImpl implements Bundle {
     }
 
     @Override
-	public URL getResource(String name) {
+    public URL getResource(String name) {
         if (this.state != BundleEvent.INSTALLED) {
             return this.classloader.getResource(name);
         }
@@ -206,7 +205,7 @@ public final class BundleImpl implements Bundle {
     }
 
     @Override
-	public ServiceReference[] getServicesInUse() {
+    public ServiceReference[] getServicesInUse() {
         if (this.state == BundleEvent.INSTALLED) {
             throw new IllegalStateException("Bundle " + toString()
                     + "has been unregistered.");
@@ -228,12 +227,12 @@ public final class BundleImpl implements Bundle {
     }
 
     @Override
-	public int getState() {
+    public int getState() {
         return this.state;
     }
 
     @Override
-	public boolean hasPermission(Object permission) {
+    public boolean hasPermission(Object permission) {
         if (this.state != BundleEvent.INSTALLED) {
             return true;
         }
@@ -242,7 +241,7 @@ public final class BundleImpl implements Bundle {
     }
 
     @Override
-	public synchronized void start() throws BundleException {
+    public synchronized void start() throws BundleException {
         this.persistently = true;
         updateMetadata();
         if (this.currentStartlevel <= Framework.startlevel) {
@@ -259,24 +258,24 @@ public final class BundleImpl implements Bundle {
             if (this.state == BundleEvent.STARTED) {
                 resolveBundle(true);
             }
-            this.state =BundleEvent.UPDATED;
+            this.state = BundleEvent.UPDATED;
             try {
-     
+
                 this.context.isValid = true;
-				// if (!(this.classloader.activatorClassName == null ||
-				// StringUtils
-				// .isBlank(this.classloader.activatorClassName))) {
-				// Class<?> loadClass = this.classloader
-				// .loadClass(this.classloader.activatorClassName);
-				// if (loadClass == null) {
-				// throw new ClassNotFoundException(
-				// this.classloader.activatorClassName);
-				// }
-				// this.classloader.activator = (BundleActivator) loadClass
-				// .newInstance();
-				// this.classloader.activator.start(this.context);
-				//
-				// }
+                // if (!(this.classloader.activatorClassName == null ||
+                // StringUtils
+                // .isBlank(this.classloader.activatorClassName))) {
+                // Class<?> loadClass = this.classloader
+                // .loadClass(this.classloader.activatorClassName);
+                // if (loadClass == null) {
+                // throw new ClassNotFoundException(
+                // this.classloader.activatorClassName);
+                // }
+                // this.classloader.activator = (BundleActivator) loadClass
+                // .newInstance();
+                // this.classloader.activator.start(this.context);
+                //
+                // }
                 this.state = BundleEvent.RESOLVED;
                 Framework.notifyBundleListeners(BundleEvent.STARTED, this);
                 if (Framework.DEBUG_BUNDLES && log.isInfoEnabled()) {
@@ -296,7 +295,7 @@ public final class BundleImpl implements Bundle {
     }
 
     @Override
-	public synchronized void stop() throws BundleException {
+    public synchronized void stop() throws BundleException {
         this.persistently = false;
         updateMetadata();
         stopBundle();
@@ -309,19 +308,19 @@ public final class BundleImpl implements Bundle {
         } else if (this.state == BundleEvent.RESOLVED) {
             this.state = BundleEvent.UNINSTALLED;
             try {
-				// if (this.classloader.activator != null) {
-				// this.classloader.activator.stop(this.context);
-				// }
+                // if (this.classloader.activator != null) {
+                // this.classloader.activator.stop(this.context);
+                // }
                 if (Framework.DEBUG_BUNDLES && log.isInfoEnabled()) {
                     log.info("Framework: Bundle " + toString() + " stopped.");
                 }
-				// this.classloader.activator = null;
+                // this.classloader.activator = null;
                 Framework.clearBundleTrace(this);
                 this.state = BundleEvent.STOPPED;
                 Framework.notifyBundleListeners(BundleEvent.STOPPED, this);
                 this.context.isValid = false;
             } catch (Throwable th) {
-				// this.classloader.activator = null;
+                // this.classloader.activator = null;
                 Framework.clearBundleTrace(this);
                 this.state = BundleEvent.STOPPED;
                 Framework.notifyBundleListeners(BundleEvent.STOPPED, this);
@@ -331,7 +330,7 @@ public final class BundleImpl implements Bundle {
     }
 
     @Override
-	public synchronized void uninstall() throws BundleException {
+    public synchronized void uninstall() throws BundleException {
         if (this.state == BundleEvent.INSTALLED) {
             throw new IllegalStateException("Bundle " + toString() + " is already uninstalled.");
         }
@@ -359,14 +358,14 @@ public final class BundleImpl implements Bundle {
     }
 
     @Override
-	public synchronized void update() throws BundleException {
+    public synchronized void update() throws BundleException {
         String str = this.headers.get(Constants.BUNDLE_UPDATELOCATION);
         try {
 
             if (str == null) {
-				str = this.location;
-			}
-			update(new URL(str).openConnection().getInputStream());
+                str = this.location;
+            }
+            update(new URL(str).openConnection().getInputStream());
         } catch (Throwable e) {
             throw new BundleException("Could not update " + toString()
                     + " from " + str, e);
@@ -374,7 +373,7 @@ public final class BundleImpl implements Bundle {
     }
 
     @Override
-	public synchronized void update(InputStream inputStream)
+    public synchronized void update(InputStream inputStream)
             throws BundleException {
         if (this.state == BundleEvent.INSTALLED) {
             throw new IllegalStateException("Cannot update uninstalled bundle "
@@ -390,7 +389,7 @@ public final class BundleImpl implements Bundle {
     }
 
     @Override
-	public synchronized void update(File bundleFile) throws BundleException {
+    public synchronized void update(File bundleFile) throws BundleException {
         if (this.state == BundleEvent.INSTALLED) {
             throw new IllegalStateException("Cannot update uninstalled bundle "
                     + toString());
@@ -482,16 +481,16 @@ public final class BundleImpl implements Bundle {
             if (!file.getParentFile().exists()) {
                 file.getParentFile().mkdirs();
             }
-                FileOutputStream fileOutputStream = new FileOutputStream(file);
-                dataOutputStream= new DataOutputStream(fileOutputStream);
-                dataOutputStream.writeUTF(this.location);
-                dataOutputStream.writeInt(this.currentStartlevel);
-                dataOutputStream.writeBoolean(this.persistently);
-                dataOutputStream.flush();
-                fileOutputStream.getFD().sync();
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            dataOutputStream = new DataOutputStream(fileOutputStream);
+            dataOutputStream.writeUTF(this.location);
+            dataOutputStream.writeInt(this.currentStartlevel);
+            dataOutputStream.writeBoolean(this.persistently);
+            dataOutputStream.flush();
+            fileOutputStream.getFD().sync();
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             if (dataOutputStream != null) {
                 try {
                     dataOutputStream.close();
@@ -504,7 +503,7 @@ public final class BundleImpl implements Bundle {
     }
 
     @Override
-	public String toString() {
+    public String toString() {
         return this.location;
     }
 }

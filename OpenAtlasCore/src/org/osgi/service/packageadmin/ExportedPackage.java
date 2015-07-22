@@ -31,10 +31,10 @@ import org.osgi.framework.Bundle;
 
 /**
  * An exported package.
- *
+ * <p>
  * Instances implementing this interface are created by the
  * Package Admin service.
- *
+ * <p>
  * <p>The information about an exported package provided by
  * this object is valid only until the next time
  * <tt>PackageAdmin.refreshPackages()</tt> is
@@ -46,8 +46,8 @@ import org.osgi.framework.Bundle;
  * old values, <tt>isRemovalPending()</tt> returns <tt>true</tt>, and <tt>getExportingBundle()</tt>
  * and <tt>getImportingBundles()</tt> return <tt>null</tt>.
  *
- * @version $Revision: 1.5 $
  * @author Open Services Gateway Initiative
+ * @version $Revision: 1.5 $
  */
 public interface ExportedPackage {
 
@@ -56,20 +56,20 @@ public interface ExportedPackage {
      *
      * @return The name of this <tt>ExportedPackage</tt> object.
      */
-    public String getName();
+    String getName();
 
     /**
      * Returns the bundle exporting the package associated with this <tt>ExportedPackage</tt> object.
      *
      * @return The exporting bundle, or <tt>null</tt> if this <tt>ExportedPackage</tt> object
-     *         has become stale.
+     * has become stale.
      */
-    public Bundle getExportingBundle();
+    Bundle getExportingBundle();
 
     /**
      * Returns the resolved bundles that are currently importing the package
      * associated with this <tt>ExportedPackage</tt> object.
-     *
+     * <p>
      * <p> The returned array always includes the bundle returned by
      * {@link #getExportingBundle}since an exporter always implicitly
      * imports its exported packages.
@@ -78,16 +78,16 @@ public interface ExportedPackage {
      * associated with this <tt>ExportedPackage</tt> object, or <tt>null</tt> if this <tt>ExportedPackage</tt>
      * object has become stale.
      */
-    public Bundle[] getImportingBundles();
+    Bundle[] getImportingBundles();
 
     /**
      * Returns the specification version of this <tt>ExportedPackage</tt>, as
      * specified in the exporting bundle's manifest file.
      *
      * @return The specification version of this <tt>ExportedPackage</tt> object, or
-     *         <tt>null</tt> if no version information is available.
+     * <tt>null</tt> if no version information is available.
      */
-    public String getSpecificationVersion();
+    String getSpecificationVersion();
 
     /**
      * Returns <tt>true</tt> if the package associated with this <tt>ExportedPackage</tt> object has been
@@ -97,5 +97,5 @@ public interface ExportedPackage {
      * exported by a bundle that has been updated or uninstalled, or if this
      * <tt>ExportedPackage</tt> object has become stale; <tt>false</tt> otherwise.
      */
-    public boolean isRemovalPending();
+    boolean isRemovalPending();
 }

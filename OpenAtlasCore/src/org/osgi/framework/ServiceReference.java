@@ -20,7 +20,7 @@ import java.util.Dictionary;
 
 /**
  * A reference to a service.
- * 
+ * <p>
  * <p>
  * The Framework returns <code>ServiceReference</code> objects from the
  * <code>BundleContext.getServiceReference</code> and
@@ -41,83 +41,82 @@ import java.util.Dictionary;
  * If the same service object is registered multiple times,
  * <code>ServiceReference</code> objects associated with different
  * <code>ServiceRegistration</code> objects are not equal.
- * 
+ *
+ * @version $Revision: 6374 $
  * @see BundleContext#getServiceReference
  * @see BundleContext#getServiceReferences
  * @see BundleContext#getService
- * @version $Revision: 6374 $
  */
 
-public interface ServiceReference  {
-	/**
-	 * Returns the property value to which the specified property key is mapped
-	 * in the properties <code>Dictionary</code> object of the service
-	 * referenced by this <code>ServiceReference</code> object.
-	 * 
-	 * <p>
-	 * Property keys are case-insensitive.
-	 * 
-	 * <p>
-	 * This method must continue to return property values after the service has
-	 * been unregistered. This is so references to unregistered services (for
-	 * example, <code>ServiceReference</code> objects stored in the log) can
-	 * still be interrogated.
-	 * 
-	 * @param key The property key.
-	 * @return The property value to which the key is mapped; <code>null</code>
-	 *         if there is no property named after the key.
-	 */
-	public Object getProperty(String key);
+public interface ServiceReference {
+    /**
+     * Returns the property value to which the specified property key is mapped
+     * in the properties <code>Dictionary</code> object of the service
+     * referenced by this <code>ServiceReference</code> object.
+     * <p>
+     * <p>
+     * Property keys are case-insensitive.
+     * <p>
+     * <p>
+     * This method must continue to return property values after the service has
+     * been unregistered. This is so references to unregistered services (for
+     * example, <code>ServiceReference</code> objects stored in the log) can
+     * still be interrogated.
+     *
+     * @param key The property key.
+     * @return The property value to which the key is mapped; <code>null</code>
+     * if there is no property named after the key.
+     */
+    Object getProperty(String key);
 
-	/**
-	 * Returns an array of the keys in the properties <code>Dictionary</code>
-	 * object of the service referenced by this <code>ServiceReference</code>
-	 * object.
-	 * 
-	 * <p>
-	 * This method will continue to return the keys after the service has been
-	 * unregistered. This is so references to unregistered services (for
-	 * example, <code>ServiceReference</code> objects stored in the log) can
-	 * still be interrogated.
-	 * 
-	 * <p>
-	 * This method is <i>case-preserving </i>; this means that every key in the
-	 * returned array must have the same case as the corresponding key in the
-	 * properties <code>Dictionary</code> that was passed to the
-	 * {@link BundleContext#registerService(String[],Object,Dictionary)} or
-	 * {@link ServiceRegistration#setProperties} methods.
-	 * 
-	 * @return An array of property keys.
-	 */
-	public String[] getPropertyKeys();
+    /**
+     * Returns an array of the keys in the properties <code>Dictionary</code>
+     * object of the service referenced by this <code>ServiceReference</code>
+     * object.
+     * <p>
+     * <p>
+     * This method will continue to return the keys after the service has been
+     * unregistered. This is so references to unregistered services (for
+     * example, <code>ServiceReference</code> objects stored in the log) can
+     * still be interrogated.
+     * <p>
+     * <p>
+     * This method is <i>case-preserving </i>; this means that every key in the
+     * returned array must have the same case as the corresponding key in the
+     * properties <code>Dictionary</code> that was passed to the
+     * {@link BundleContext#registerService(String[], Object, Dictionary)} or
+     * {@link ServiceRegistration#setProperties} methods.
+     *
+     * @return An array of property keys.
+     */
+    String[] getPropertyKeys();
 
-	/**
-	 * Returns the bundle that registered the service referenced by this
-	 * <code>ServiceReference</code> object.
-	 * 
-	 * <p>
-	 * This method must return <code>null</code> when the service has been
-	 * unregistered. This can be used to determine if the service has been
-	 * unregistered.
-	 * 
-	 * @return The bundle that registered the service referenced by this
-	 *         <code>ServiceReference</code> object; <code>null</code> if that
-	 *         service has already been unregistered.
-	 * @see BundleContext#registerService(String[],Object,Dictionary)
-	 */
-	public Bundle getBundle();
+    /**
+     * Returns the bundle that registered the service referenced by this
+     * <code>ServiceReference</code> object.
+     * <p>
+     * <p>
+     * This method must return <code>null</code> when the service has been
+     * unregistered. This can be used to determine if the service has been
+     * unregistered.
+     *
+     * @return The bundle that registered the service referenced by this
+     * <code>ServiceReference</code> object; <code>null</code> if that
+     * service has already been unregistered.
+     * @see BundleContext#registerService(String[], Object, Dictionary)
+     */
+    Bundle getBundle();
 
-	/**
-	 * Returns the bundles that are using the service referenced by this
-	 * <code>ServiceReference</code> object. Specifically, this method returns
-	 * the bundles whose usage count for that service is greater than zero.
-	 * 
-	 * @return An array of bundles whose usage count for the service referenced
-	 *         by this <code>ServiceReference</code> object is greater than
-	 *         zero; <code>null</code> if no bundles are currently using that
-	 *         service.
-	 * 
-	 * @since 1.1
-	 */
-	public Bundle[] getUsingBundles();
+    /**
+     * Returns the bundles that are using the service referenced by this
+     * <code>ServiceReference</code> object. Specifically, this method returns
+     * the bundles whose usage count for that service is greater than zero.
+     *
+     * @return An array of bundles whose usage count for the service referenced
+     * by this <code>ServiceReference</code> object is greater than
+     * zero; <code>null</code> if no bundles are currently using that
+     * service.
+     * @since 1.1
+     */
+    Bundle[] getUsingBundles();
 }

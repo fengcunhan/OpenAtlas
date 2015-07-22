@@ -188,9 +188,9 @@ public class WelcomeFragment extends Fragment implements Callback {
     private void startAnimationForWait() {
         for (int i = 0; i < this.pathViewArray.length; i++) {
             if (VERSION.SDK_INT >= MSG_CONSUME_FINISH) {
-                Animator ofFloat = ObjectAnimator.ofFloat(this.pathViewArray[i], "phase", new float[]{1.0f, 0.0f});
+                Animator ofFloat = ObjectAnimator.ofFloat(this.pathViewArray[i], "phase", 1.0f, 0.0f);
                 ofFloat.setDuration(4000);
-                Animator ofFloat2 = ObjectAnimator.ofFloat(this.pathViewArray[i], "fillTransparency", new float[]{0.0f, 1.0f});
+                Animator ofFloat2 = ObjectAnimator.ofFloat(this.pathViewArray[i], "fillTransparency", 0.0f, 1.0f);
                 ofFloat2.setDuration(4000);
                 AnimatorSet animatorSet = new AnimatorSet();
                 animatorSet.play(ofFloat).before(ofFloat2);
@@ -209,9 +209,9 @@ public class WelcomeFragment extends Fragment implements Callback {
         for (int i = 0; i < this.pathViewArray.length; i++) {
             if (VERSION.SDK_INT >= MSG_CONSUME_FINISH) {
                 AnimatorSet animatorSet = new AnimatorSet();
-                ObjectAnimator ofFloat = ObjectAnimator.ofFloat(this.pathViewArray[i], "scaleX", new float[]{1.0f, 1.1f});
-                ObjectAnimator ofFloat2 = ObjectAnimator.ofFloat(this.pathViewArray[i], "scaleY", new float[]{1.0f, 1.1f});
-                animatorSet.playTogether(new Animator[]{ofFloat, ofFloat2});
+                ObjectAnimator ofFloat = ObjectAnimator.ofFloat(this.pathViewArray[i], "scaleX", 1.0f, 1.1f);
+                ObjectAnimator ofFloat2 = ObjectAnimator.ofFloat(this.pathViewArray[i], "scaleY", 1.0f, 1.1f);
+                animatorSet.playTogether(ofFloat, ofFloat2);
                 animatorSet.setDuration(300);
                 ofFloat.setRepeatMode(2);
                 ofFloat.setRepeatCount(1);

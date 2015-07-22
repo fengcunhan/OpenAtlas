@@ -37,7 +37,7 @@ import java.util.Hashtable;
 
 /**
  * A bundle's authority to import or export a package.
- *
+ * <p>
  * <p>A package is a dot-separated string that defines a fully qualified Java
  * package.
  * <p>For example:
@@ -47,12 +47,11 @@ import java.util.Hashtable;
  * <p><tt>PackagePermission</tt> has two actions: <tt>EXPORT</tt> and <tt>IMPORT</tt>.
  * The <tt>EXPORT</tt> action implies the <tt>IMPORT</tt> action.
  *
- * @version $Revision: 1.10 $
  * @author Open Services Gateway Initiative
+ * @version $Revision: 1.10 $
  */
 
-public final class PackagePermission extends BasicPermission
-{
+public final class PackagePermission extends BasicPermission {
 
     /**
      * The action string <tt>export</tt>.
@@ -64,11 +63,11 @@ public final class PackagePermission extends BasicPermission
      */
     public final static String IMPORT = "import";
 
-    private final static int ACTION_EXPORT      = 0x00000001;
-    private final static int ACTION_IMPORT      = 0x00000002;
-    private final static int ACTION_ALL         = ACTION_EXPORT | ACTION_IMPORT;
-    private final static int ACTION_NONE        = 0;
-    private final static int ACTION_ERROR       = 0x80000000;
+    private final static int ACTION_EXPORT = 0x00000001;
+    private final static int ACTION_IMPORT = 0x00000002;
+    private final static int ACTION_ALL = ACTION_EXPORT | ACTION_IMPORT;
+    private final static int ACTION_NONE = 0;
+    private final static int ACTION_ERROR = 0x80000000;
 
     /**
      * The actions mask.
@@ -92,28 +91,27 @@ public final class PackagePermission extends BasicPermission
      * *
      * </pre>
      * <p>Package Permissions are granted over all possible versions of a package.
-     *
+     * <p>
      * A bundle that needs to export a package must have the appropriate <tt>PackagePermission</tt>
      * for that package; similarly, a bundle that needs to import a package must have the appropriate
      * <tt>PackagePermssion</tt> for that package.
      * <p>Permission is granted for both classes and resources.
-     * @param name Package name.
+     *
+     * @param name    Package name.
      * @param actions <tt>EXPORT</tt>, <tt>IMPORT</tt> (canonical order).
      */
 
-    public PackagePermission(String name, String actions)
-    {
+    public PackagePermission(String name, String actions) {
         this(name, getMask(actions));
     }
 
     /**
      * Package private constructor used by PackagePermissionCollection.
      *
-     * @param name class name
+     * @param name   class name
      * @param action mask
      */
-    PackagePermission(String name, int mask)
-    {
+    PackagePermission(String name, int mask) {
         super(name);
         init(mask);
     }
@@ -123,11 +121,9 @@ public final class PackagePermission extends BasicPermission
      *
      * @param action mask
      */
-    private void init(int mask)
-    {
+    private void init(int mask) {
         if ((mask == ACTION_NONE) ||
-            ((mask & ACTION_ALL) != mask))
-        {
+                ((mask & ACTION_ALL) != mask)) {
             throw new IllegalArgumentException("invalid action string");
         }
 
@@ -140,14 +136,12 @@ public final class PackagePermission extends BasicPermission
      * @param actions Action string.
      * @return action mask.
      */
-    private static int getMask(String actions)
-    {
+    private static int getMask(String actions) {
         boolean seencomma = false;
 
         int mask = ACTION_NONE;
 
-        if (actions == null)
-        {
+        if (actions == null) {
             return (mask);
         }
 
@@ -157,57 +151,49 @@ public final class PackagePermission extends BasicPermission
         if (i < 0)
             return (mask);
 
-        while (i != -1)
-        {
+        while (i != -1) {
             char c;
 
             // skip whitespace
-            while ((i!=-1) && ((c = a[i]) == ' ' ||
-                               c == '\r' ||
-                               c == '\n' ||
-                               c == '\f' ||
-                               c == '\t'))
+            while ((i != -1) && ((c = a[i]) == ' ' ||
+                    c == '\r' ||
+                    c == '\n' ||
+                    c == '\f' ||
+                    c == '\t'))
                 i--;
 
             // check for the known strings
             int matchlen;
 
-            if (i >= 5 && (a[i-5] == 'i' || a[i-5] == 'I') &&
-                (a[i-4] == 'm' || a[i-4] == 'M') &&
-                (a[i-3] == 'p' || a[i-3] == 'P') &&
-                (a[i-2] == 'o' || a[i-2] == 'O') &&
-                (a[i-1] == 'r' || a[i-1] == 'R') &&
-                (a[i] == 't' || a[i] == 'T'))
-            {
+            if (i >= 5 && (a[i - 5] == 'i' || a[i - 5] == 'I') &&
+                    (a[i - 4] == 'm' || a[i - 4] == 'M') &&
+                    (a[i - 3] == 'p' || a[i - 3] == 'P') &&
+                    (a[i - 2] == 'o' || a[i - 2] == 'O') &&
+                    (a[i - 1] == 'r' || a[i - 1] == 'R') &&
+                    (a[i] == 't' || a[i] == 'T')) {
                 matchlen = 6;
                 mask |= ACTION_IMPORT;
 
-            }
-            else if (i >= 5 && (a[i-5] == 'e' || a[i-5] == 'E') &&
-                     (a[i-4] == 'x' || a[i-4] == 'X') &&
-                     (a[i-3] == 'p' || a[i-3] == 'P') &&
-                     (a[i-2] == 'o' || a[i-2] == 'O') &&
-                     (a[i-1] == 'r' || a[i-1] == 'R') &&
-                     (a[i] == 't' || a[i] == 'T'))
-            {
+            } else if (i >= 5 && (a[i - 5] == 'e' || a[i - 5] == 'E') &&
+                    (a[i - 4] == 'x' || a[i - 4] == 'X') &&
+                    (a[i - 3] == 'p' || a[i - 3] == 'P') &&
+                    (a[i - 2] == 'o' || a[i - 2] == 'O') &&
+                    (a[i - 1] == 'r' || a[i - 1] == 'R') &&
+                    (a[i] == 't' || a[i] == 'T')) {
                 matchlen = 6;
                 mask |= ACTION_EXPORT | ACTION_IMPORT;
 
-            }
-            else
-            {
+            } else {
                 // parse error
                 throw new IllegalArgumentException("invalid permission: " +
-                                                   actions);
+                        actions);
             }
 
             // make sure we didn't just match the tail of a word
             // like "ackbarfimport".  Also, skip to the comma.
             seencomma = false;
-            while (i >= matchlen && !seencomma)
-            {
-                switch (a[i-matchlen])
-                {
+            while (i >= matchlen && !seencomma) {
+                switch (a[i - matchlen]) {
                     case ',':
                         seencomma = true;
                         /*FALLTHROUGH*/
@@ -219,7 +205,7 @@ public final class PackagePermission extends BasicPermission
                         break;
                     default:
                         throw new IllegalArgumentException("invalid permission: " +
-                                                           actions);
+                                actions);
                 }
                 i--;
             }
@@ -228,10 +214,9 @@ public final class PackagePermission extends BasicPermission
             i -= matchlen;
         }
 
-        if (seencomma)
-        {
+        if (seencomma) {
             throw new IllegalArgumentException("invalid permission: " +
-                                               actions);
+                    actions);
         }
 
         return (mask);
@@ -239,7 +224,7 @@ public final class PackagePermission extends BasicPermission
 
     /**
      * Determines if the specified permission is implied by this object.
-     *
+     * <p>
      * <p>This method checks that the package name of the target is implied by the package name
      * of this object. The list of <tt>PackagePermission</tt> actions must either match or allow
      * for the list of the target object to imply the target <tt>PackagePermission</tt> action.
@@ -257,43 +242,38 @@ public final class PackagePermission extends BasicPermission
      */
 
     @Override
-	public boolean implies(Permission p)
-    {
-        if (p instanceof PackagePermission)
-        {
+    public boolean implies(Permission p) {
+        if (p instanceof PackagePermission) {
             PackagePermission target = (PackagePermission) p;
 
-            return(((action_mask & target.action_mask)==target.action_mask) &&
-                   super.implies(p));
+            return (((action_mask & target.action_mask) == target.action_mask) &&
+                    super.implies(p));
         }
 
-        return(false);
+        return (false);
     }
 
     /**
      * Returns the canonical string representation of the <tt>PackagePermission</tt> actions.
-     *
+     * <p>
      * <p>Always returns present <tt>PackagePermission</tt> actions in the following order:
      * <tt>EXPORT</tt>, <tt>IMPORT</tt>.
+     *
      * @return Canonical string representation of the <tt>PackagePermission</tt> actions.
      */
 
     @Override
-	public String getActions()
-    {
-        if (actions == null)
-        {
+    public String getActions() {
+        if (actions == null) {
             StringBuffer sb = new StringBuffer();
             boolean comma = false;
 
-            if ((action_mask & ACTION_EXPORT) == ACTION_EXPORT)
-            {
+            if ((action_mask & ACTION_EXPORT) == ACTION_EXPORT) {
                 sb.append(EXPORT);
                 comma = true;
             }
 
-            if ((action_mask & ACTION_IMPORT) == ACTION_IMPORT)
-            {
+            if ((action_mask & ACTION_IMPORT) == ACTION_IMPORT) {
                 if (comma) sb.append(',');
                 sb.append(IMPORT);
             }
@@ -301,7 +281,7 @@ public final class PackagePermission extends BasicPermission
             actions = sb.toString();
         }
 
-        return(actions);
+        return (actions);
     }
 
     /**
@@ -311,14 +291,13 @@ public final class PackagePermission extends BasicPermission
      * @return A new <tt>PermissionCollection</tt> object.
      */
     @Override
-	public PermissionCollection newPermissionCollection()
-    {
-        return(new PackagePermissionCollection());
+    public PermissionCollection newPermissionCollection() {
+        return (new PackagePermissionCollection());
     }
 
     /**
      * Determines the equality of two <tt>PackagePermission</tt> objects.
-     *
+     * <p>
      * This method checks that specified package has the same package name
      * and <tt>PackagePermission</tt> actions as this <tt>PackagePermission</tt> object.
      *
@@ -327,22 +306,19 @@ public final class PackagePermission extends BasicPermission
      * same package name and actions as this <tt>PackagePermission</tt> object; <tt>false</tt> otherwise.
      */
     @Override
-	public boolean equals(Object obj)
-    {
-        if (obj == this)
-        {
-            return(true);
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return (true);
         }
 
-        if (!(obj instanceof PackagePermission))
-        {
-            return(false);
+        if (!(obj instanceof PackagePermission)) {
+            return (false);
         }
 
         PackagePermission p = (PackagePermission) obj;
 
-        return((action_mask == p.action_mask) &&
-               getName().equals(p.getName()));
+        return ((action_mask == p.action_mask) &&
+                getName().equals(p.getName()));
     }
 
     /**
@@ -352,9 +328,8 @@ public final class PackagePermission extends BasicPermission
      */
 
     @Override
-	public int hashCode()
-    {
-        return(getName().hashCode() ^ getActions().hashCode());
+    public int hashCode() {
+        return (getName().hashCode() ^ getActions().hashCode());
     }
 
     /**
@@ -363,9 +338,8 @@ public final class PackagePermission extends BasicPermission
      *
      * @return Current action mask.
      */
-    int getMask()
-    {
-        return(action_mask);
+    int getMask() {
+        return (action_mask);
     }
 
     /**
@@ -375,8 +349,7 @@ public final class PackagePermission extends BasicPermission
      */
 
     private synchronized void writeObject(java.io.ObjectOutputStream s)
-    throws IOException
-    {
+            throws IOException {
         // Write out the actions. The superclass takes care of the name
         // call getActions to make sure actions field is initialized
         if (actions == null)
@@ -389,8 +362,7 @@ public final class PackagePermission extends BasicPermission
      * a stream.
      */
     private synchronized void readObject(java.io.ObjectInputStream s)
-    throws IOException, ClassNotFoundException
-    {
+            throws IOException, ClassNotFoundException {
         // Read in the action, then initialize the rest
         s.defaultReadObject();
         init(getMask(actions));
@@ -405,8 +377,7 @@ public final class PackagePermission extends BasicPermission
  * @see java.security.PermissionCollection
  */
 
-final class PackagePermissionCollection extends PermissionCollection
-{
+final class PackagePermissionCollection extends PermissionCollection {
 
     /**
      * Table of permissions.
@@ -424,11 +395,9 @@ final class PackagePermissionCollection extends PermissionCollection
 
     /**
      * Create an empty PackagePermissions object.
-     *
      */
 
-    public PackagePermissionCollection()
-    {
+    public PackagePermissionCollection() {
         permissions = new Hashtable();
         all_allowed = false;
     }
@@ -438,49 +407,41 @@ final class PackagePermissionCollection extends PermissionCollection
      * the name.
      *
      * @param permission The <tt>PackagePermission</tt> object to add.
-     *
-     * @exception IllegalArgumentException If the permission is not a
-     * <tt>PackagePermission</tt> instance.
-     *
-     * @exception SecurityException If this <tt>PackagePermissionCollection</tt>
-     * object has been marked read-only.
+     * @throws IllegalArgumentException If the permission is not a
+     *                                  <tt>PackagePermission</tt> instance.
+     * @throws SecurityException        If this <tt>PackagePermissionCollection</tt>
+     *                                  object has been marked read-only.
      */
 
     @Override
-	public void add(Permission permission)
-    {
-        if (! (permission instanceof PackagePermission))
-            throw new IllegalArgumentException("invalid permission: "+
-                                               permission);
+    public void add(Permission permission) {
+        if (!(permission instanceof PackagePermission))
+            throw new IllegalArgumentException("invalid permission: " +
+                    permission);
         if (isReadOnly())
             throw new SecurityException("attempt to add a Permission to a " +
-                                        "readonly PermissionCollection");
+                    "readonly PermissionCollection");
 
         PackagePermission pp = (PackagePermission) permission;
         String name = pp.getName();
 
         PackagePermission existing =
-        (PackagePermission) permissions.get(name);
+                (PackagePermission) permissions.get(name);
 
-        if (existing != null)
-        {
+        if (existing != null) {
             int oldMask = existing.getMask();
             int newMask = pp.getMask();
-            if (oldMask != newMask)
-            {
+            if (oldMask != newMask) {
                 permissions.put(name,
-                                new PackagePermission(name,
-                                                      oldMask | newMask));
+                        new PackagePermission(name,
+                                oldMask | newMask));
 
             }
-        }
-        else
-        {
+        } else {
             permissions.put(name, permission);
         }
 
-        if (!all_allowed)
-        {
+        if (!all_allowed) {
             if (name.equals("*"))
                 all_allowed = true;
         }
@@ -491,16 +452,14 @@ final class PackagePermissionCollection extends PermissionCollection
      * expressed in <tt>permission</tt>.
      *
      * @param p The Permission object to compare with this <tt>PackagePermission</tt> object.
-     *
      * @return <tt>true</tt> if <tt>permission</tt> is a proper subset of a permission in
      * the set; <tt>false</tt> otherwise.
      */
 
     @Override
-	public boolean implies(Permission permission)
-    {
+    public boolean implies(Permission permission) {
         if (!(permission instanceof PackagePermission))
-            return(false);
+            return (false);
 
         PackagePermission pp = (PackagePermission) permission;
         PackagePermission x;
@@ -509,14 +468,12 @@ final class PackagePermissionCollection extends PermissionCollection
         int effective = 0;
 
         // short circuit if the "*" Permission was added
-        if (all_allowed)
-        {
+        if (all_allowed) {
             x = (PackagePermission) permissions.get("*");
-            if (x != null)
-            {
+            if (x != null) {
                 effective |= x.getMask();
                 if ((effective & desired) == desired)
-                    return(true);
+                    return (true);
             }
         }
 
@@ -528,37 +485,34 @@ final class PackagePermissionCollection extends PermissionCollection
 
         x = (PackagePermission) permissions.get(name);
 
-        if (x != null)
-        {
+        if (x != null) {
             // we have a direct hit!
             effective |= x.getMask();
             if ((effective & desired) == desired)
-                return(true);
+                return (true);
         }
 
         // work our way up the tree...
         int last, offset;
 
-        offset = name.length()-1;
+        offset = name.length() - 1;
 
-        while ((last = name.lastIndexOf(".", offset)) != -1)
-        {
+        while ((last = name.lastIndexOf(".", offset)) != -1) {
 
-            name = name.substring(0, last+1) + "*";
+            name = name.substring(0, last + 1) + "*";
             x = (PackagePermission) permissions.get(name);
 
-            if (x != null)
-            {
+            if (x != null) {
                 effective |= x.getMask();
                 if ((effective & desired) == desired)
-                    return(true);
+                    return (true);
             }
-            offset = last -1;
+            offset = last - 1;
         }
 
         // we don't have to check for "*" as it was already checked
         // at the top (all_allowed), so we just return false
-        return(false);
+        return (false);
     }
 
     /**
@@ -569,9 +523,8 @@ final class PackagePermissionCollection extends PermissionCollection
      */
 
     @Override
-	public Enumeration elements()
-    {
-        return(permissions.elements());
+    public Enumeration elements() {
+        return (permissions.elements());
     }
 }
 

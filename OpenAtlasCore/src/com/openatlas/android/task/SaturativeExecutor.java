@@ -1,24 +1,28 @@
 /**
- *  OpenAtlasForAndroid Project
-The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software 
-without restriction, including without limitation the rights to use, copy, modify, 
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies 
-or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-@author BunnyBlue
- * **/
+ * OpenAtlasForAndroid Project
+ * The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all copies
+ * or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @author BunnyBlue
+ **/
 package com.openatlas.android.task;
+
+import android.os.AsyncTask;
+import android.os.Build.VERSION;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -35,9 +39,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 import java.util.regex.Pattern;
-
-import android.os.AsyncTask;
-import android.os.Build.VERSION;
 
 public class SaturativeExecutor extends ThreadPoolExecutor {
     private static final boolean DEBUG = false;
@@ -56,7 +57,7 @@ public class SaturativeExecutor extends ThreadPoolExecutor {
         }
 
         @Override
-		public void run() {
+        public void run() {
             mNumRunning.incrementAndGet();
             try {
                 this.mRunnable.run();
@@ -84,7 +85,7 @@ public class SaturativeExecutor extends ThreadPoolExecutor {
         }
 
         @Override
-		public boolean add(T t) {
+        public boolean add(T t) {
             if (!this.mExecutor.isReallyUnsaturated()) {
                 return super.add(t);
             }
@@ -92,18 +93,18 @@ public class SaturativeExecutor extends ThreadPoolExecutor {
         }
 
         @Override
-		public boolean offer(T t) {
+        public boolean offer(T t) {
             return this.mExecutor.isReallyUnsaturated() ? DEBUG : super
                     .offer(t);
         }
 
         @Override
-		public void put(T t) {
+        public void put(T t) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-		public boolean offer(T t, long j, TimeUnit timeUnit) {
+        public boolean offer(T t, long j, TimeUnit timeUnit) {
             throw new UnsupportedOperationException();
         }
     }
@@ -111,26 +112,25 @@ public class SaturativeExecutor extends ThreadPoolExecutor {
     static {
         PATTERN_CPU_ENTRIES = Pattern.compile("cpu[0-9]+");
         sThreadFactory = new ThreadFactory() {
-			
 
-            private final AtomicInteger a= new AtomicInteger(1);;
 
-      
+            private final AtomicInteger a = new AtomicInteger(1);
+
 
             @Override
-        	public Thread newThread(Runnable runnable) {
+            public Thread newThread(Runnable runnable) {
                 Thread thread = new Thread(runnable, "SaturativeThread #"
                         + this.a.getAndIncrement());
                 SaturativeExecutor.collectThread(thread);
                 return thread;
             }
 
-		};
+        };
         mThreads = new HashSet<Thread>();
     }
 
     @Override
-	public void execute(Runnable runnable) {
+    public void execute(Runnable runnable) {
         super.execute(new CountedTask(runnable));
     }
 
@@ -147,9 +147,9 @@ public class SaturativeExecutor extends ThreadPoolExecutor {
         }
         try {
             Method method = AsyncTask.class.getMethod("setDefaultExecutor",
-                    new Class[] { Executor.class });
+                    Executor.class);
             method.setAccessible(true);
-            method.invoke(null, new Object[] { threadPoolExecutor });
+            method.invoke(null, threadPoolExecutor);
             return true;
         } catch (Exception e2) {
             Field declaredField;
@@ -184,7 +184,7 @@ public class SaturativeExecutor extends ThreadPoolExecutor {
         // SaturationAwareBlockingQueue(1024);
         // mQueue = saturationAwareBlockingQueue;
         mQueue = (SaturationAwareBlockingQueue<Runnable>) getQueue();
-       
+
         ((SaturationAwareBlockingQueue<?>) getQueue()).setExecutor(this);
     }
 
@@ -223,11 +223,7 @@ public class SaturativeExecutor extends ThreadPoolExecutor {
                 size = i;
             }
         }
-        if (size >= corePoolSize) {
-            z = true;
-        } else {
-            z = false;
-        }
+        z = size >= corePoolSize;
         return z;
     }
 
@@ -246,13 +242,13 @@ public class SaturativeExecutor extends ThreadPoolExecutor {
     private static int countCpuCores() {
         try {
             return new File("/sys/devices/system/cpu/").listFiles(new FileFilter() {
-				
+
                 @Override
-            	public boolean accept(File file) {
+                public boolean accept(File file) {
                     return SaturativeExecutor.PATTERN_CPU_ENTRIES.matcher(file.getName())
                             .matches();
                 }
-			}).length;
+            }).length;
         } catch (Exception e) {
             return 0;
         }

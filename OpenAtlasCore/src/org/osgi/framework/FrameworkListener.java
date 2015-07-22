@@ -25,24 +25,24 @@ import java.util.EventListener;
  * <code>FrameworkListener</code>. The Framework delivers
  * <code>FrameworkEvent</code> objects to a <code>FrameworkListener</code>
  * in order and must not concurrently call a <code>FrameworkListener</code>.
- * 
+ * <p>
  * <p>
  * A <code>FrameworkListener</code> object is registered with the Framework
  * using the {@link BundleContext#addFrameworkListener} method.
  * <code>FrameworkListener</code> objects are called with a
  * <code>FrameworkEvent</code> objects when the Framework starts and when
  * asynchronous errors occur.
- * 
- * @see FrameworkEvent
+ *
  * @version $Revision: 5673 $
+ * @see FrameworkEvent
  */
 
 public interface FrameworkListener extends EventListener {
 
-	/**
-	 * Receives notification of a general <code>FrameworkEvent</code> object.
-	 * 
-	 * @param event The <code>FrameworkEvent</code> object.
-	 */
-	public void frameworkEvent(FrameworkEvent event);
+    /**
+     * Receives notification of a general <code>FrameworkEvent</code> object.
+     *
+     * @param event The <code>FrameworkEvent</code> object.
+     */
+    void frameworkEvent(FrameworkEvent event);
 }

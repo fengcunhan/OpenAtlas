@@ -1,26 +1,25 @@
 /**
- *  OpenAtlasForAndroid Project
-The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-and associated documentation files (the "Software"), to deal in the Software 
-without restriction, including without limitation the rights to use, copy, modify, 
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies 
-or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE 
-FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-@author BunnyBlue
- * **/
+ * OpenAtlasForAndroid Project
+ * The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in all copies
+ * or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @author BunnyBlue
+ **/
 package com.openatlas.android.compat;
-
-import java.util.ArrayList;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -28,11 +27,13 @@ import android.app.Application;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 
+import java.util.ArrayList;
+
 public class AtlasCompat extends Application {
     private final ArrayList<ActivityLifecycleCallbacksCompat> mActivityLifecycleCallbacks;
 
-    public static interface ActivityLifecycleCallbacksCompat {
-        void onActivityCreated(Activity activity,  Bundle bundle);
+    public interface ActivityLifecycleCallbacksCompat {
+        void onActivityCreated(Activity activity, Bundle bundle);
 
         void onActivityDestroyed(Activity activity);
 
@@ -49,31 +50,31 @@ public class AtlasCompat extends Application {
 
     public static class AbstractActivityLifecycleCallbacks implements ActivityLifecycleCallbacksCompat {
         @Override
-		public void onActivityCreated(Activity activity,  Bundle bundle) {
+        public void onActivityCreated(Activity activity, Bundle bundle) {
         }
 
         @Override
-		public void onActivityStarted(Activity activity) {
+        public void onActivityStarted(Activity activity) {
         }
 
         @Override
-		public void onActivityResumed(Activity activity) {
+        public void onActivityResumed(Activity activity) {
         }
 
         @Override
-		public void onActivityPaused(Activity activity) {
+        public void onActivityPaused(Activity activity) {
         }
 
         @Override
-		public void onActivityStopped(Activity activity) {
+        public void onActivityStopped(Activity activity) {
         }
 
         @Override
-		public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
+        public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
         }
 
         @Override
-		public void onActivityDestroyed(Activity activity) {
+        public void onActivityDestroyed(Activity activity) {
         }
     }
 
@@ -176,55 +177,53 @@ public class AtlasCompat extends Application {
         }
         return activityLifecycleCallbacksCompatArr;
     }
-    
-    
 
-  
+
     class ActivityLifecycleCallbacksImpl implements ActivityLifecycleCallbacks {
         private final ActivityLifecycleCallbacksCompat mActivityLifecycleCallbacksCompat;
 
         @Override
-		public void onActivityCreated(Activity activity, Bundle bundle) {
+        public void onActivityCreated(Activity activity, Bundle bundle) {
             this.mActivityLifecycleCallbacksCompat.onActivityCreated(activity, bundle);
         }
 
         @Override
-		public void onActivityStarted(Activity activity) {
+        public void onActivityStarted(Activity activity) {
             this.mActivityLifecycleCallbacksCompat.onActivityStarted(activity);
         }
 
         @Override
-		public void onActivityResumed(Activity activity) {
+        public void onActivityResumed(Activity activity) {
             this.mActivityLifecycleCallbacksCompat.onActivityResumed(activity);
         }
 
         @Override
-		public void onActivityPaused(Activity activity) {
+        public void onActivityPaused(Activity activity) {
             this.mActivityLifecycleCallbacksCompat.onActivityPaused(activity);
         }
 
         @Override
-		public void onActivityStopped(Activity activity) {
+        public void onActivityStopped(Activity activity) {
             this.mActivityLifecycleCallbacksCompat.onActivityStopped(activity);
         }
 
         @Override
-		public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
+        public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
             this.mActivityLifecycleCallbacksCompat.onActivitySaveInstanceState(activity, bundle);
         }
 
         @Override
-		public void onActivityDestroyed(Activity activity) {
+        public void onActivityDestroyed(Activity activity) {
             this.mActivityLifecycleCallbacksCompat.onActivityDestroyed(activity);
         }
 
         @Override
-		public int hashCode() {
+        public int hashCode() {
             return this.mActivityLifecycleCallbacksCompat.hashCode();
         }
 
         @Override
-		public boolean equals( Object obj) {
+        public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
             }

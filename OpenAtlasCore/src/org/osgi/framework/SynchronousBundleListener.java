@@ -41,12 +41,12 @@ package org.osgi.framework;
  * <p>
  * <code>AdminPermission[bundle,LISTENER]</code> is required to add or remove
  * a <code>SynchronousBundleListener</code> object.
- * 
- * @since 1.1
- * @see BundleEvent
+ *
  * @version $Revision: 5673 $
+ * @see BundleEvent
+ * @since 1.1
  */
 
 public interface SynchronousBundleListener extends BundleListener {
-	// This is a marker interface
+    // This is a marker interface
 }
