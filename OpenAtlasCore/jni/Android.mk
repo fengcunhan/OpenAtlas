@@ -19,4 +19,5 @@ include $(CLEAR_VARS)
 LOCAL_MODULE    := dexopt
 LOCAL_SRC_FILES := dexopt.cpp
 LOCAL_LDLIBS := -llog
+LOCAL_CFLAGS := -DDEXOPT_DEBUG
 include $(BUILD_SHARED_LIBRARY)

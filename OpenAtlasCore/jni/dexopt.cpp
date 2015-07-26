@@ -3,181 +3,147 @@
 #include <android/log.h>
 #include <sys/file.h>
 #include <errno.h>
-#define LOG_TAG "dexopt"
 
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
-#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-char *dexoptBin = "/bin/dexopt";
-void dexopt(const char* apkPath,const char* dexPath,const char* args );
+int dexopt(const char *apkPath, const char *dexPath, const char *args);
 
-JNIEXPORT void JNICALL Java_com_openatlas_dexopt_InitExecutor_dexopt(JNIEnv *env, jclass clazz, jstring japkPtah , jstring jdexPtah, jstring jargs){
+JNIEXPORT void JNICALL Java_com_openatlas_dexopt_InitExecutor_dexopt(JNIEnv *env,jclass clazz, jstring japkPtah, jstring jdexPtah, jstring jargs){
 
-	const char* apkPath = env->GetStringUTFChars(japkPtah, 0);
+const char *apkPath = env->GetStringUTFChars(japkPtah, 0);
 
-	const char* dexPath = env->GetStringUTFChars(jdexPtah, 0);
-	const char* args = env->GetStringUTFChars(jargs, 0);
+const char *dexPath = env->GetStringUTFChars(jdexPtah, 0);
+const char *args = env->GetStringUTFChars(jargs, 0);
 
-	dexopt(apkPath,dexPath,args);
+dexopt(apkPath, dexPath, args);
 
-	env->ReleaseStringUTFChars( japkPtah, apkPath);
-	env->ReleaseStringUTFChars( jdexPtah, dexPath);
-	env->ReleaseStringUTFChars( jargs, args);
+env->ReleaseStringUTFChars( japkPtah, apkPath);
+env->ReleaseStringUTFChars( jdexPtah, dexPath);
+env->ReleaseStringUTFChars( jargs, args);
 }
 
 
-void dexopt(const char* apkPath,const char* dexPath,const char* args ){
+void runDexopt(int zipFd, int odexFd, const char *inputFileName, const char *kDexOptBin,
+               const char *args) {
+    static const int kMaxIntLen = 12; // '-'+10dig+'\0' -OR- 0x+8dig
+    char zipNum[kMaxIntLen];
+    char odexNum[kMaxIntLen];
+    char *execFile;
 
+    execFile = (char *) malloc(strlen(kDexOptBin) + 1);
+    sprintf(execFile, "%s%s", "/", kDexOptBin);
 
-    char *ANDROID_ROOT = getenv("ANDROID_ROOT");
-    int sizeANDROID_ROOT = 0;
-    if (ANDROID_ROOT != NULL) {
-        sizeANDROID_ROOT = strlen(ANDROID_ROOT);
+    sprintf(zipNum, "%d", zipFd);
+    sprintf(odexNum, "%d", odexFd);
+    //  *   0. (name of dexopt command -- ignored)  4.2
+    //  270 *   1. "--zip"
+    //  271 *   2. zip fd (input, read-only)
+    //  272 *   3. cache fd (output, read-write, locked with flock)
+    //  273 *   4. filename of zipfile being optimized (used for debug messages and
+    //  274 *      for comparing against BOOTCLASSPATH; does not need to be
+    //  275 *      accessible or even exist)
+    //  276 *   5. dexopt flags
+    execl(execFile, execFile, "--zip", zipNum, odexNum, inputFileName,
+          args, (char *) NULL);
+    LOGE("execl(%s) %s execFile failed: %s\n", kDexOptBin, execFile, strerror(errno));
+}
+
+/*
+ * Run dexopt on the specified Jar/APK.
+ *
+ * This uses fork() and exec() to mimic the way this would work in an
+ * installer; in practice for something this simple you could just exec()
+ * unless you really wanted the status messages.
+ *
+ * Returns 0 on success.
+ */
+int dexopt(const char *zipName, const char *odexName, const char *args) {
+    const char *kDexOptBin = "/bin/dexopt";
+    char *execFile;
+    const char *androidRoot;
+    /* full path to optimizer */
+    androidRoot = getenv("ANDROID_ROOT");
+    if (androidRoot == NULL) {
+        LOGE("ANDROID_ROOT not set, defaulting to /system");
+        androidRoot = "/system";
     }
-    else {
-        __android_log_print(6, "DexInv", "ANDROID_ROOT not set, defaulting to /system");
-        sizeANDROID_ROOT = 7;
-        ANDROID_ROOT = "/system";
+    execFile = (char *) alloca(strlen(androidRoot) + strlen(kDexOptBin) + 1);
+    strcpy(execFile, androidRoot);
+    strcat(execFile, kDexOptBin);
+
+
+    int zipFd, odexFd;
+
+    /*
+     * Open the zip archive and the odex file, creating the latter (and
+     * failing if it already exists).  This must be done while we still
+     * have sufficient privileges to read the source file and create a file
+     * in the target directory.  The "classes.dex" file will be extracted.
+     */
+    zipFd = open(zipName, O_RDONLY, 0);
+    if (zipFd < 0) {
+        LOGE("Unable to open '%s': %s\n", zipName, strerror(errno));
+        return 1;
     }
 
-
-    int sizedexoptBin = strlen(dexoptBin);
-    char *dest = (char *) malloc(sizedexoptBin + sizeANDROID_ROOT + 1);
-    strcpy(dest, ANDROID_ROOT);
-    strcat(dest, dexoptBin);
-
-    struct stat statApkPath;
-
-
-    stat(apkPath, &statApkPath);
-    int fdApk = open(apkPath, 0, 0);
-    if (fdApk < 0) {
-
-        __android_log_print(6, "DexInv", "DexInv cannot open '%s' for input\n", apkPath);
-        return;
+    odexFd = open(odexName, O_RDWR | O_CREAT | O_EXCL, 0644);
+    if (odexFd < 0) {
+        LOGE("Unable to create '%s': %s\n",
+             odexName, strerror(errno));
+        close(zipFd);
+        return 1;
     }
 
-    if (access(dexPath, 0) != -1) {
-        __android_log_print(3, "DexInv", "Skip DexInv");
-        return;
-    }
+    LOGI("--- BEGIN '%s' (bootstrap=%d) ---\n", zipName, 0);
 
 
-    int fdDex = open(dexPath, 66, 420);
-
-    if (fdDex >= 0) {
-        int lockVal = flock(fdDex, 6);
-
-        if (lockVal != 0) {
+    pid_t pid = fork();
+    if (pid == 0) {
 
 
-            char *error = strerror(errno);
-
-            __android_log_print(6, "DexInv", "flock(%s) failed: %s\n", dexPath, error);
-
-            flock(fdDex, 8);
-            close(fdDex);
-            return;
+        /* lock the input file */
+        if (flock(odexFd, LOCK_EX | LOCK_NB) != 0) {
+            LOGE("Unable to lock '%s': %s\n",
+                 odexName, strerror(errno));
+            exit(65);
         }
 
-        __android_log_print(3, "DexInv", "DexInv: --- BEGIN '%s' --- flags='%s'\n", apkPath, args);
+        runDexopt(zipFd, odexFd, zipName, execFile, args); /* does not return */
+        exit(67);                   /* usually */
+    } else {
+        /* parent -- wait for child to finish */
+        LOGI("--- waiting for verify+opt, pid=%d\n", (int) pid);
+        int status, oldStatus;
+        pid_t gotPid;
+
+        close(zipFd);
+        close(odexFd);
+
         /*
-         * Parse arguments.  We want:
-         *   0. (name of dexopt command -- ignored)
-         *   1. "--zip"
-         *   2. zip fd (input, read-only)
-         *   3. cache fd (output, read-write, locked with flock)
-         *   4. filename of file being optimized (used for debug messages and
-         *      for comparing against BOOTCLASSPATH -- does not need to be
-         *      accessible or even exist)
-         *
-         * The BOOTCLASSPATH environment variable is assumed to hold the correct
-         * boot class path.  If the filename provided appears in the boot class
-         * path, the path will be truncated just before that entry (so that, if
-         * you were to dexopt "core.jar", your bootclasspath would be empty).
-         *
-         * This does not try to normalize the boot class path name, so the
-         * filename test won't catch you if you get creative.
+         * Wait for the optimization process to finish.
          */
-
-
-
-
-        pid_t pid = fork();
-        if (pid > -1) {
-
-            char fdZipBuf[16];
-            char fdDexBuf[16];
-            sprintf(fdZipBuf, "%d", fdApk);//
-            sprintf(fdDexBuf, "%d", fdDex);
-            execl(dest, dest, "--zip", fdZipBuf, fdDexBuf, args);
-
-            char *error = strerror(errno);
-            __android_log_print(6, "DexInv", "execl(%s) failed: %s\n", dest, error);
-            exit(67);
-
-        }
-
-        int status;
-        pid_t pidWaited;
-        while (1) {
-            pidWaited = waitpid(pid, &status, 0);
-
-            if (pidWaited != -1)
+        while (true) {
+            gotPid = waitpid(pid, &status, 0);
+            if (gotPid == -1 && errno == EINTR) {
+                LOGI("waitpid interrupted, retrying\n");
+            } else {
                 break;
-            //			v11 = _errno(-1);
-            //			if ( *(_DWORD *)v11 != 4 )
-            //				break;
-            puts("waitpid interrupted, retrying");
-        }
-
-
-        if (pidWaited == pid) {
-            if (!(status << 25) && !((unsigned int) (status << 16) >> 24)) {
-                int dexPathLock = flock(fdDex, 8);
-                if (!dexPathLock) {
-                    __android_log_print(3, "DexInv", "DexInv: ---  dexPathLock (success) ---\n");
-                    close(dexPathLock);
-                    close(fdDex);
-
-                }
-
-                __android_log_print(3, "DexInv", "DexInv: --- END '%s' (success) ---status%d\n",
-                                    apkPath, status);
-                return;
-            }
-            __android_log_print(5, "DexInv",
-                                "DexInv: --- END '%s' --- status=0x%04x, process failed\n", apkPath,
-                                status);
-            // v13 = apkPath1;
-            struct utimbuf dexPathutimbuf;
-            if (!status) {
-
-                //	int utime(const char * filename,struct utimbuf * buf);
-                //  apkPath0 = v38;
-                utime(dexPath, &dexPathutimbuf);
-                int dexPathLock = flock(fdDex, 8);
-                if (!dexPathLock) {
-                    __android_log_print(3, "DexInv", "DexInv: ---  dexPathLock (success) ---\n");
-                    close(dexPathLock);
-                    close(fdDex);
-                    return;
-                }
-
-                __android_log_print(6, "DexInv", "unlock(%s) failed: %s\n", dexPath,
-                                    strerror(errno));
-                //  goto LABEL_28;
             }
         }
-        else {
+        if (gotPid != pid) {
+            LOGE("waitpid failed: wanted %d, got %d: %s\n",
+                 (int) pid, (int) gotPid, strerror(errno));
+            return 1;
+        }
 
-            __android_log_print(5, "DexInv", "waitpid failed: wanted %d, got %d: %s\n", pidWaited,
-                                pid, strerror(errno));
-
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+            LOGI("--- END '%s' (success) ---\n", zipName);
+            return 0;
+        } else {
+            LOGI("--- END '%s' --- status=0x%04x, process failed\n",
+                 zipName, status);
+            return 1;
         }
     }
 
-
-
-
+    /* notreached */
 }
