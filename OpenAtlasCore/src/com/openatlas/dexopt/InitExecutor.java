@@ -29,7 +29,12 @@ import com.openatlas.log.LoggerFactory;
 public class InitExecutor {
     static final Logger log;
     private static boolean sDexOptLoaded;
+static  boolean  isART=false;
+    static {
 
+       String vm=System.getProperty("java.vm.version");//. If ART is in use, the property's value is "2.0.0" or higher.
+        isART= Character.getNumericValue(vm.charAt(0))>=2;
+    }
     private static native void dexopt(String srcDexPath, String oDexFilePath, String args);
 
     static {
@@ -46,7 +51,7 @@ public class InitExecutor {
     /****在低于Android 4.4的系统上调用dexopt进行优化Bundle****/
     public static boolean optDexFile(String srcDexPath, String oDexFilePath) {
         try {
-            if (sDexOptLoaded && VERSION.SDK_INT <= 18) {
+            if (sDexOptLoaded && !isART) {
                 dexopt(srcDexPath, oDexFilePath, "v=n,o=v");
                 return true;
             }
