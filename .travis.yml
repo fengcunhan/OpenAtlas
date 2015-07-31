@@ -1,13 +1,16 @@
 language: android
 jdk: oraclejdk7
-env:
-  matrix:
-    - ANDROID_TARGET=android-19   ANDROID_ABI=armeabi-v7a
+#env:
+#  matrix:
+#    - ANDROID_TARGET=android-22
 
 android:
   components:
     - build-tools-22.0.1
-     - sys-img-armeabi-v7a-android-19
+    - android-22
+  licenses:
+    - 'android-sdk-license-.+'
+
 
 before_script:
   # Create and start emulator

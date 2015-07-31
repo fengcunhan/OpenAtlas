@@ -34,7 +34,10 @@
         <activity
             android:name="com.openatlas.homelauncher.MainActivity"
             android:label="@string/app_name" >
-        </activity>
+        </activity><activity
+        android:name="com.openatlas.homelauncher.NativeFragmentActivity"
+        android:label="NativeFragmentActivity" >
+    </activity>
 
         <provider
             android:name="com.openatlas.launcher.mirrorProvider.GameProviderProxy"

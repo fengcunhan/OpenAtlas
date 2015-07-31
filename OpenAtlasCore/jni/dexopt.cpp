@@ -3,18 +3,21 @@
 #include <android/log.h>
 #include <sys/file.h>
 #include <errno.h>
+#include "dexopt.h"
+#include <jni.h>
+#define PKG_PATH_MAX 256
+//void run_dex2oat(int zip_fd, int oat_fd, const char* input_file_name,const  char *output_file_name, const char *instruction_set, bool vm_safe_mode);
+void run_dex2oat(int zip_fd, int oat_fd, const char* input_file_name, const char* output_file_name, const char *instruction_set, bool vm_safe_mode);
+int dexopt(const char *apkPath, const char *dexPath, bool isART, const char *defaultInstuction);
 
-
-int dexopt(const char *apkPath, const char *dexPath, const char *args);
-
-JNIEXPORT void JNICALL Java_com_openatlas_dexopt_InitExecutor_dexopt(JNIEnv *env,jclass clazz, jstring japkPtah, jstring jdexPtah, jstring jargs){
+JNIEXPORT void JNICALL Java_com_openatlas_dexopt_InitExecutor_dexopt(JNIEnv *env,jclass clazz, jstring japkPtah, jstring jdexPtah,jboolean jRuntime, jstring jargs){
 
 const char *apkPath = env->GetStringUTFChars(japkPtah, 0);
 
 const char *dexPath = env->GetStringUTFChars(jdexPtah, 0);
 const char *args = env->GetStringUTFChars(jargs, 0);
 
-dexopt(apkPath, dexPath, args);
+dexopt(apkPath, dexPath,jRuntime==JNI_TRUE, args);
 
 env->ReleaseStringUTFChars( japkPtah, apkPath);
 env->ReleaseStringUTFChars( jdexPtah, dexPath);
@@ -22,16 +25,27 @@ env->ReleaseStringUTFChars( jargs, args);
 }
 
 
-void runDexopt(int zipFd, int odexFd, const char *inputFileName, const char *kDexOptBin,
-               const char *args) {
+void run_dexopt(int zipFd, int odexFd, const char *inputFileName, const char *args) {
+
+    const char *kDexOptBin = "/bin/dexopt";
+    char *execFile;
+    const char *androidRoot;
+    /* full path to optimizer */
+    androidRoot = getenv("ANDROID_ROOT");
+    if (androidRoot == NULL) {
+#ifdef OPENATLAS_DEXOPT_DEBUG
+        LOGE("ANDROID_ROOT not set, defaulting to /system");
+#endif
+        androidRoot = "/system";
+    }
+    execFile = (char *) alloca(strlen(androidRoot) + strlen(kDexOptBin) + 1);
+    strcpy(execFile, androidRoot);
+    strcat(execFile, kDexOptBin);
+
+
     static const int kMaxIntLen = 12; // '-'+10dig+'\0' -OR- 0x+8dig
     char zipNum[kMaxIntLen];
     char odexNum[kMaxIntLen];
-    char *execFile;
-
-    execFile = (char *) malloc(strlen(kDexOptBin) + 1);
-    sprintf(execFile, "%s%s", "/", kDexOptBin);
-
     sprintf(zipNum, "%d", zipFd);
     sprintf(odexNum, "%d", odexFd);
     //  *   0. (name of dexopt command -- ignored)  4.2
@@ -44,7 +58,9 @@ void runDexopt(int zipFd, int odexFd, const char *inputFileName, const char *kDe
     //  276 *   5. dexopt flags
     execl(execFile, execFile, "--zip", zipNum, odexNum, inputFileName,
           args, (char *) NULL);
+#ifdef OPENATLAS_DEXOPT_DEBUG
     LOGE("execl(%s) %s execFile failed: %s\n", kDexOptBin, execFile, strerror(errno));
+#endif
 }
 
 /*
@@ -56,19 +72,8 @@ void runDexopt(int zipFd, int odexFd, const char *inputFileName, const char *kDe
  *
  * Returns 0 on success.
  */
-int dexopt(const char *zipName, const char *odexName, const char *args) {
-    const char *kDexOptBin = "/bin/dexopt";
-    char *execFile;
-    const char *androidRoot;
-    /* full path to optimizer */
-    androidRoot = getenv("ANDROID_ROOT");
-    if (androidRoot == NULL) {
-        LOGE("ANDROID_ROOT not set, defaulting to /system");
-        androidRoot = "/system";
-    }
-    execFile = (char *) alloca(strlen(androidRoot) + strlen(kDexOptBin) + 1);
-    strcpy(execFile, androidRoot);
-    strcat(execFile, kDexOptBin);
+int dexopt(const char *zipName, const char *odexName,bool isART, const char *defaultInstuction) {
+
 
 
     int zipFd, odexFd;
@@ -81,20 +86,23 @@ int dexopt(const char *zipName, const char *odexName, const char *args) {
      */
     zipFd = open(zipName, O_RDONLY, 0);
     if (zipFd < 0) {
+#ifdef OPENATLAS_DEXOPT_DEBUG
         LOGE("Unable to open '%s': %s\n", zipName, strerror(errno));
+#endif
         return 1;
     }
 
     odexFd = open(odexName, O_RDWR | O_CREAT | O_EXCL, 0644);
     if (odexFd < 0) {
-        LOGE("Unable to create '%s': %s\n",
-             odexName, strerror(errno));
+#ifdef OPENATLAS_DEXOPT_DEBUG
+        LOGE("Unable to create '%s': %s\n", odexName, strerror(errno));
+#endif
         close(zipFd);
         return 1;
     }
-
+#ifdef OPENATLAS_DEXOPT_DEBUG
     LOGI("--- BEGIN '%s' (bootstrap=%d) ---\n", zipName, 0);
-
+#endif
 
     pid_t pid = fork();
     if (pid == 0) {
@@ -102,16 +110,24 @@ int dexopt(const char *zipName, const char *odexName, const char *args) {
 
         /* lock the input file */
         if (flock(odexFd, LOCK_EX | LOCK_NB) != 0) {
-            LOGE("Unable to lock '%s': %s\n",
-                 odexName, strerror(errno));
+#ifdef OPENATLAS_DEXOPT_DEBUG
+            LOGE("Unable to lock '%s': %s\n",odexName, strerror(errno));
+#endif
             exit(65);
         }
 
-        runDexopt(zipFd, odexFd, zipName, execFile, args); /* does not return */
+       if(isART){//run dex2oat  vm safe is false
+           run_dex2oat(zipFd, odexFd, zipName,odexName,defaultInstuction,false);
+       } else{//
+           run_dexopt(zipFd, odexFd, zipName, "v=n,o=v");
+       }
+
         exit(67);                   /* usually */
     } else {
         /* parent -- wait for child to finish */
+#ifdef OPENATLAS_DEXOPT_DEBUG
         LOGI("--- waiting for verify+opt, pid=%d\n", (int) pid);
+#endif
         int status, oldStatus;
         pid_t gotPid;
 
@@ -124,26 +140,198 @@ int dexopt(const char *zipName, const char *odexName, const char *args) {
         while (true) {
             gotPid = waitpid(pid, &status, 0);
             if (gotPid == -1 && errno == EINTR) {
+                #ifdef OPENATLAS_DEXOPT_DEBUG
                 LOGI("waitpid interrupted, retrying\n");
+                #endif
             } else {
                 break;
             }
         }
         if (gotPid != pid) {
-            LOGE("waitpid failed: wanted %d, got %d: %s\n",
-                 (int) pid, (int) gotPid, strerror(errno));
+#ifdef OPENATLAS_DEXOPT_DEBUG
+            LOGE("waitpid failed: wanted %d, got %d: %s\n", (int) pid, (int) gotPid, strerror(errno));
+#endif
             return 1;
         }
 
         if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+#ifdef OPENATLAS_DEXOPT_DEBUG
             LOGI("--- END '%s' (success) ---\n", zipName);
+#endif
             return 0;
         } else {
+#ifdef OPENATLAS_DEXOPT_DEBUG
             LOGI("--- END '%s' --- status=0x%04x, process failed\n",
                  zipName, status);
+#endif
             return 1;
         }
     }
 
     /* notreached */
 }
+
+void run_dex2oat(int zip_fd, int oat_fd, const char* input_file_name,
+                        const char* output_file_name, const char *instruction_set,
+                        bool vm_safe_mode)
+{
+    static const unsigned int MAX_INSTRUCTION_SET_LEN = 7;
+
+    if (strlen(instruction_set) >= MAX_INSTRUCTION_SET_LEN) {
+#ifdef  OPENATLAS_DEXOPT_DEBUG
+        LOGE("Instruction set %s longer than max length of %d",
+              instruction_set, MAX_INSTRUCTION_SET_LEN);
+#endif
+        return;
+    }
+
+    char prop_buf[PROPERTY_VALUE_MAX];
+    bool profiler = (openatlas_property_get("dalvik.vm.profiler", prop_buf, "0") > 0) && (prop_buf[0] == '1');
+
+    char dex2oat_Xms_flag[PROPERTY_VALUE_MAX];
+    bool have_dex2oat_Xms_flag = openatlas_property_get("dalvik.vm.dex2oat-Xms", dex2oat_Xms_flag, NULL) > 0;
+
+    char dex2oat_Xmx_flag[PROPERTY_VALUE_MAX];
+    bool have_dex2oat_Xmx_flag = openatlas_property_get("dalvik.vm.dex2oat-Xmx", dex2oat_Xmx_flag, NULL) > 0;
+
+    char dex2oat_compiler_filter_flag[PROPERTY_VALUE_MAX];
+    bool have_dex2oat_compiler_filter_flag = openatlas_property_get("dalvik.vm.dex2oat-filter",
+                                                          dex2oat_compiler_filter_flag, NULL) > 0;
+
+    char dex2oat_isa_features_key[PROPERTY_KEY_MAX];
+    sprintf(dex2oat_isa_features_key, "dalvik.vm.isa.%s.features", instruction_set);
+    char dex2oat_isa_features[PROPERTY_VALUE_MAX];
+    bool have_dex2oat_isa_features = openatlas_property_get(dex2oat_isa_features_key,
+                                                  dex2oat_isa_features, NULL) > 0;
+
+    char dex2oat_flags[PROPERTY_VALUE_MAX];
+    bool have_dex2oat_flags = openatlas_property_get("dalvik.vm.dex2oat-flags", dex2oat_flags, NULL) > 0;
+
+#ifdef OPENATLAS_DEXOPT_DEBUG
+    LOGI("dalvik.vm.dex2oat-flags=%s\n", dex2oat_flags);
+#endif
+    // If we booting without the real /data, don't spend time compiling.
+    char vold_decrypt[PROPERTY_VALUE_MAX];
+    bool have_vold_decrypt = openatlas_property_get("vold.decrypt", vold_decrypt, "") > 0;
+    bool skip_compilation = (have_vold_decrypt &&
+                             (strcmp(vold_decrypt, "trigger_restart_min_framework") == 0 ||
+                              (strcmp(vold_decrypt, "1") == 0)));
+
+    static const char* DEX2OAT_BIN = "/system/bin/dex2oat";
+
+    static const char* RUNTIME_ARG = "--runtime-arg";
+
+    static const int MAX_INT_LEN = 12;      // '-'+10dig+'\0' -OR- 0x+8dig
+
+    char zip_fd_arg[strlen("--zip-fd=") + MAX_INT_LEN];
+    char zip_location_arg[strlen("--zip-location=") + PKG_PATH_MAX];
+    char oat_fd_arg[strlen("--oat-fd=") + MAX_INT_LEN];
+    char oat_location_arg[strlen("--oat-location=") + PKG_PATH_MAX];
+    char instruction_set_arg[strlen("--instruction-set=") + MAX_INSTRUCTION_SET_LEN];
+    char instruction_set_features_arg[strlen("--instruction-set-features=") + PROPERTY_VALUE_MAX];
+    char profile_file_arg[strlen("--profile-file=") + PKG_PATH_MAX];
+    char top_k_profile_threshold_arg[strlen("--top-k-profile-threshold=") + PROPERTY_VALUE_MAX];
+    char dex2oat_Xms_arg[strlen("-Xms") + PROPERTY_VALUE_MAX];
+    char dex2oat_Xmx_arg[strlen("-Xmx") + PROPERTY_VALUE_MAX];
+    char dex2oat_compiler_filter_arg[strlen("--compiler-filter=") + PROPERTY_VALUE_MAX];
+    bool have_dex2oat_swap_fd = false;
+   // char dex2oat_swap_fd[strlen("--swap-fd=") + MAX_INT_LEN];
+
+    sprintf(zip_fd_arg, "--zip-fd=%d", zip_fd);
+    sprintf(zip_location_arg, "--zip-location=%s", input_file_name);
+    sprintf(oat_fd_arg, "--oat-fd=%d", oat_fd);
+    sprintf(oat_location_arg, "--oat-location=%s", output_file_name);
+    sprintf(instruction_set_arg, "--instruction-set=%s", instruction_set);
+    sprintf(instruction_set_features_arg, "--instruction-set-features=%s", dex2oat_isa_features);
+//    if (swap_fd >= 0) {
+//        have_dex2oat_swap_fd = true;
+//        sprintf(dex2oat_swap_fd, "--swap-fd=%d", swap_fd);
+//    }
+
+    bool have_profile_file = false;
+    bool have_top_k_profile_threshold = false;
+//    if (profiler && (strcmp(pkgname, "*") != 0)) {
+//        char profile_file[PKG_PATH_MAX];
+//        snprintf(profile_file, sizeof(profile_file), "%s/%s",
+//                 DALVIK_CACHE_PREFIX "profiles", pkgname);
+//        struct stat st;
+//        if ((stat(profile_file, &st) == 0) && (st.st_size > 0)) {
+//            sprintf(profile_file_arg, "--profile-file=%s", profile_file);
+//            have_profile_file = true;
+//            if (openatlas_property_get("dalvik.vm.profile.top-k-thr", prop_buf, NULL) > 0) {
+//                snprintf(top_k_profile_threshold_arg, sizeof(top_k_profile_threshold_arg),
+//                         "--top-k-profile-threshold=%s", prop_buf);
+//                have_top_k_profile_threshold = true;
+//            }
+//        }
+//    }
+
+    if (have_dex2oat_Xms_flag) {
+        sprintf(dex2oat_Xms_arg, "-Xms%s", dex2oat_Xms_flag);
+    }
+    if (have_dex2oat_Xmx_flag) {
+        sprintf(dex2oat_Xmx_arg, "-Xmx%s", dex2oat_Xmx_flag);
+    }
+    if (skip_compilation) {
+        strcpy(dex2oat_compiler_filter_arg, "--compiler-filter=verify-none");
+        have_dex2oat_compiler_filter_flag = true;
+    } else if (vm_safe_mode) {
+        strcpy(dex2oat_compiler_filter_arg, "--compiler-filter=interpret-only");
+        have_dex2oat_compiler_filter_flag = true;
+    } else if (have_dex2oat_compiler_filter_flag) {
+        sprintf(dex2oat_compiler_filter_arg, "--compiler-filter=%s", dex2oat_compiler_filter_flag);
+    }
+#ifdef OPENATLAS_DEXOPT_DEBUG
+    LOGI("Running %s in=%s out=%s\n", DEX2OAT_BIN, input_file_name, output_file_name);
+#endif
+    char* argv[7  // program name, mandatory arguments and the final NULL
+               + (have_dex2oat_isa_features ? 1 : 0)
+               + (have_profile_file ? 1 : 0)
+               + (have_top_k_profile_threshold ? 1 : 0)
+               + (have_dex2oat_Xms_flag ? 2 : 0)
+               + (have_dex2oat_Xmx_flag ? 2 : 0)
+               + (have_dex2oat_compiler_filter_flag ? 1 : 0)
+               + (have_dex2oat_flags ? 1 : 0)
+               + (have_dex2oat_swap_fd ? 1 : 0)];
+    int i = 0;
+    argv[i++] = (char*)DEX2OAT_BIN;
+    argv[i++] = zip_fd_arg;
+    argv[i++] = zip_location_arg;
+    argv[i++] = oat_fd_arg;
+    argv[i++] = oat_location_arg;
+    argv[i++] = instruction_set_arg;
+    if (have_dex2oat_isa_features) {
+        argv[i++] = instruction_set_features_arg;
+    }
+    if (have_profile_file) {
+        argv[i++] = profile_file_arg;
+    }
+    if (have_top_k_profile_threshold) {
+        argv[i++] = top_k_profile_threshold_arg;
+    }
+    if (have_dex2oat_Xms_flag) {
+        argv[i++] = (char*)RUNTIME_ARG;
+        argv[i++] = dex2oat_Xms_arg;
+    }
+    if (have_dex2oat_Xmx_flag) {
+        argv[i++] = (char*)RUNTIME_ARG;
+        argv[i++] = dex2oat_Xmx_arg;
+    }
+    if (have_dex2oat_compiler_filter_flag) {
+        argv[i++] = dex2oat_compiler_filter_arg;
+    }
+    if (have_dex2oat_flags) {
+        argv[i++] = dex2oat_flags;
+    }
+    if (have_dex2oat_swap_fd) {
+       // argv[i++] = dex2oat_swap_fd;
+    }
+    // Do not add after dex2oat_flags, they should override others for debugging.
+    argv[i] = NULL;
+
+    execv(DEX2OAT_BIN, (char* const *)argv);
+#ifdef OPENATLAS_DEXOPT_DEBUG
+    LOGE("execl(%s) failed: %s\n", DEX2OAT_BIN, strerror(errno));
+#endif
+}
+
