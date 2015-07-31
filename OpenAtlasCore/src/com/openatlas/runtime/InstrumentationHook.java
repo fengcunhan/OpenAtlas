@@ -41,6 +41,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
@@ -276,7 +277,6 @@ public class InstrumentationHook extends Instrumentation {
     public InstrumentationHook(Instrumentation instrumentation, Context context) {
         this.context = context;
         this.mBase = instrumentation;
-
         try {
             mInstrumentationInvoke = Hack.into("android.app.Instrumentation");
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
@@ -286,7 +286,7 @@ public class InstrumentationHook extends Instrumentation {
                 mExecStartActivity = mInstrumentationInvoke.method("execStartActivity", Context.class,
                         IBinder.class, IBinder.class, Activity.class, Intent.class, int.class);
             }
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1||Build.VERSION.SDK_INT<Build.VERSION_CODES.LOLLIPOP) {
                 mExecStartActivityFragment = mInstrumentationInvoke.method("execStartActivity", Context.class,
                         IBinder.class, IBinder.class, Fragment.class, Intent.class, int.class, Bundle.class);
             } else {
