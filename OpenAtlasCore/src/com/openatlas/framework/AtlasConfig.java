@@ -35,4 +35,6 @@ public class AtlasConfig {
 
     /**plugin preload  dir ******/
     public static String PRELOAD_DIR = "armeabi";
+    /**enable opt dex on ART ****/
+    public static boolean  optART=true;
 }
