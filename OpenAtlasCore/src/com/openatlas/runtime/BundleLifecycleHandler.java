@@ -112,8 +112,7 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
                     RuntimeVariables.androidApplication,
                     RuntimeVariables.delegateResources, bundleImpl.getArchive().getArchiveFile().getAbsolutePath());
         } catch (Throwable e) {
-            log.error(
-                    "Could not load resource in bundle "
+            log.error("Could not load resource in bundle "
                             + bundleImpl.getLocation(), e);
         }
         if (DelegateComponent.getPackage(bundle.getLocation()) == null) {
@@ -191,10 +190,10 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
         log.info("started() spend " + (System.currentTimeMillis() - currentTimeMillis) + " milliseconds");
     }
 
-    protected static Application newApplication(String str, ClassLoader classLoader) throws Exception {
-        Class loadClass = classLoader.loadClass(str);
+    protected static Application newApplication(String applicationClassName, ClassLoader classLoader) throws Exception {
+        Class loadClass = classLoader.loadClass(applicationClassName);
         if (loadClass == null) {
-            throw new ClassNotFoundException(str);
+            throw new ClassNotFoundException(applicationClassName);
         }
         Application application = (Application) loadClass.newInstance();
         OpenAtlasHacks.Application_attach.invoke(application, RuntimeVariables.androidApplication);

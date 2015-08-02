@@ -66,8 +66,6 @@ public class Atlas {
 
 
     public static Atlas getInstance() {
-
-
         if (instance != null) {
             return instance;
         }
@@ -85,15 +83,13 @@ public class Atlas {
         String packageName = application.getPackageName();
         OpenAtlasHacks.defineAndVerify();
         ClassLoader classLoader = Atlas.class.getClassLoader();
-        DelegateClassLoader delegateClassLoader = new DelegateClassLoader(
-                classLoader);
+        DelegateClassLoader delegateClassLoader = new DelegateClassLoader(classLoader);
         Framework.systemClassLoader = classLoader;
         RuntimeVariables.delegateClassLoader = delegateClassLoader;
         RuntimeVariables.delegateResources = initResources(application);
         RuntimeVariables.androidApplication = application;
         AndroidHack.injectClassLoader(packageName, delegateClassLoader);
-        AndroidHack
-                .injectInstrumentationHook(new InstrumentationHook(AndroidHack
+        AndroidHack.injectInstrumentationHook(new InstrumentationHook(AndroidHack
                         .getInstrumentation(), application.getBaseContext()));
         injectApplication(application, packageName);
         this.bundleLifecycleHandler = new BundleLifecycleHandler();
@@ -214,8 +210,7 @@ public class Atlas {
                 return;
             }
         }
-        throw new BundleException("Could not uninstall bundle " + pkgName
-                + ", because could not find it");
+        throw new BundleException("Could not uninstall bundle " + pkgName + ", because could not find it");
     }
 
     public List<Bundle> getBundles() {

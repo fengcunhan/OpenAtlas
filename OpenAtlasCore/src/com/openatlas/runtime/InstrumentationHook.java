@@ -348,58 +348,58 @@ public class InstrumentationHook extends Instrumentation {
 
     private ActivityResult execStartActivityInternal(Context context, Intent intent, ExecStartActivityCallback execStartActivityCallback) {
         String packageName = null;
-        String className = null;
+        String mComponentName = null;
         ActivityResult activityResult = null;
         if (intent.getComponent() != null) {
             packageName = intent.getComponent().getPackageName();
-            className = intent.getComponent().getClassName();
+            mComponentName = intent.getComponent().getClassName();
         } else {
             ResolveInfo resolveActivity = context.getPackageManager().resolveActivity(intent, 0);
             if (resolveActivity == null || resolveActivity.activityInfo == null) {
             } else {
                 packageName = resolveActivity.activityInfo.packageName;
-                className = resolveActivity.activityInfo.name;
+                mComponentName = resolveActivity.activityInfo.name;
             }
         }
-        if (className == null) {
+        if (mComponentName == null) {
             try {
                 return execStartActivityCallback.execStartActivity();
             } catch (Exception e) {
-                log.error("Failed to start Activity for " + packageName + " " + className + e);
+                log.error("Failed to start Activity for " + packageName + " " + mComponentName + e);
                 return activityResult;
             }
         }
         try {
-            ClassLoadFromBundle.checkInstallBundleIfNeed(className);
+            ClassLoadFromBundle.checkInstallBundleIfNeed(mComponentName);
             if (!StringUtils.equals(context.getPackageName(), packageName)) {
                 return execStartActivityCallback.execStartActivity();
             }
-            if (DelegateComponent.locateComponent(className) != null) {
+            if (DelegateComponent.locateComponent(mComponentName) != null) {
                 return execStartActivityCallback.execStartActivity();
             }
             try {
-                if (Framework.getSystemClassLoader().loadClass(className) != null) {
+                if (Framework.getSystemClassLoader().loadClass(mComponentName) != null) {
                     return execStartActivityCallback.execStartActivity();
                 }
                 return activityResult;
             } catch (ClassNotFoundException e) {
-                OpenAtlasMonitor.getInstance().trace(OpenAtlasMonitor.BUNDLE_INSTALL_FAIL, className, "",
+                OpenAtlasMonitor.getInstance().trace(OpenAtlasMonitor.BUNDLE_INSTALL_FAIL, mComponentName, "",
                         "Failed to load bundle even in system classloader", e);
-                log.error("Can't find class " + className);
-                fallBackToClassNotFoundCallback(context, intent, className);
+                log.error("Can't find class " + mComponentName);
+                fallBackToClassNotFoundCallback(context, intent, mComponentName);
                 return activityResult;
             }
         } catch (Exception e3) {
-            log.error("Failed to load bundle for " + className + e3);
-            fallBackToClassNotFoundCallback(context, intent, className);
+            log.error("Failed to load bundle for " + mComponentName + e3);
+            fallBackToClassNotFoundCallback(context, intent, mComponentName);
             return activityResult;
         }
     }
 
-    private void fallBackToClassNotFoundCallback(Context context, Intent intent, String str) {
+    private void fallBackToClassNotFoundCallback(Context context, Intent intent, String className) {
         if (Framework.getClassNotFoundCallback() != null) {
-            if (intent.getComponent() == null && !TextUtils.isEmpty(str)) {
-                intent.setClassName(context, str);
+            if (intent.getComponent() == null && !TextUtils.isEmpty(className)) {
+                intent.setClassName(context, className);
             }
             if (intent.getComponent() != null) {
                 Framework.getClassNotFoundCallback().returnIntent(intent);

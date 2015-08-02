@@ -43,9 +43,9 @@ public class FrameworkLifecycleHandler implements FrameworkListener {
     @Override
     public void frameworkEvent(FrameworkEvent frameworkEvent) {
         switch (frameworkEvent.getType()) {
-            case 0 /* 0 */:
+            case FrameworkEvent.STARTING:
                 starting();
-            case FrameworkEvent.STARTED /* 1 */:
+            case FrameworkEvent.STARTED:
                 started();
             default:
         }
