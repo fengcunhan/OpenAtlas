@@ -1,16 +1,16 @@
 /**
  * OpenAtlasForAndroid Project
  * The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
- * <p>
+ * <p/>
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software
  * without restriction, including without limitation the rights to use, copy, modify,
  * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * <p>
+ * <p/>
  * The above copyright notice and this permission notice shall be included in all copies
  * or substantial portions of the Software.
- * <p>
+ * <p/>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
  * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
@@ -157,21 +157,17 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
 
                         try {
                             int i;
-                            for (Application newApplication2 : DelegateComponent.apkApplications
-                                    .values()) {
-                                if (newApplication2.getClass().getName()
-                                        .equals(trim)) {
+                            for (Application newApplication2 : DelegateComponent.apkApplications.values()) {
+                                if (newApplication2.getClass().getName().equals(trim)) {
                                     i = 1;
                                     break;
                                 }
                             }
                             i = 0;
                             if (i == 0) {
-                                Application newApplication2 = newApplication(
-                                        trim, bundleImpl.getClassLoader());
+                                Application newApplication2 = newApplication(trim, bundleImpl.getClassLoader());
                                 newApplication2.onCreate();
-                                DelegateComponent.apkApplications.put("system:"
-                                        + trim, newApplication2);
+                                DelegateComponent.apkApplications.put("system:" + trim, newApplication2);
                             }
                         } catch (Throwable th) {
                             log.error("Error to start application", th);
@@ -180,8 +176,7 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
                 }
             }
         } else {
-            PackageLite packageLite = DelegateComponent.getPackage(bundleImpl
-                    .getLocation());
+            PackageLite packageLite = DelegateComponent.getPackage(bundleImpl.getLocation());
             if (packageLite != null) {
                 String applicationClassName = packageLite.applicationClassName;
                 if (StringUtils.isNotEmpty(applicationClassName)) {
@@ -193,20 +188,16 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
                 }
             }
         }
-        log.info("started() spend "
-                + (System.currentTimeMillis() - currentTimeMillis)
-                + " milliseconds");
+        log.info("started() spend " + (System.currentTimeMillis() - currentTimeMillis) + " milliseconds");
     }
 
-    protected static Application newApplication(String str,
-                                                ClassLoader classLoader) throws Exception {
+    protected static Application newApplication(String str, ClassLoader classLoader) throws Exception {
         Class loadClass = classLoader.loadClass(str);
         if (loadClass == null) {
             throw new ClassNotFoundException(str);
         }
         Application application = (Application) loadClass.newInstance();
-        OpenAtlasHacks.Application_attach.invoke(application,
-                RuntimeVariables.androidApplication);
+        OpenAtlasHacks.Application_attach.invoke(application, RuntimeVariables.androidApplication);
         return application;
     }
 

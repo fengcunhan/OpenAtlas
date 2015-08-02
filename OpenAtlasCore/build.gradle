@@ -1,6 +1,14 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
+
+Properties properties = new Properties()
+if(file(project.rootDir.getAbsolutePath()+File.separator+'local.properties').exists()){
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+}else{
+
+    println "local.properties not found ,disable deploy"
+}
 ext {
     bintrayRepo = 'OpenAtlas'
     bintrayName = 'OpenAtlasCore'
@@ -14,7 +22,7 @@ ext {
     siteUrl = 'https://github.com/bunnyblue/OpenAtlas'
     gitUrl = 'https://github.com/bunnyblue/OpenAtlas.git'
 
-    libraryVersion = '0.3.2'
+    libraryVersion = properties.getProperty("coreVersion")
 
     developerId = 'bunnyblue'
     developerName = 'Bunny Blue'
@@ -123,13 +131,7 @@ artifacts {
 }
 
 // Bintray
-Properties properties = new Properties()
-if(file(project.rootDir.getAbsolutePath()+File.separator+'local.properties').exists()){
-  properties.load(project.rootProject.file('local.properties').newDataInputStream())
-}else{
 
-  println "local.properties not found ,disable deploy"
-}
 
 bintray {
     user = properties.getProperty("bintray.user")
