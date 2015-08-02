@@ -3,7 +3,7 @@
  [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android%20OpenAtlas-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/2056)<br>
 [![Join the chat at https://gitter.im/bunnyblue/OpenAtlas](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/bunnyblue/OpenAtlas?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)<br>
  Build Status [![Build Status](https://travis-ci.org/bunnyblue/OpenAtlas.svg?branch=master)](https://travis-ci.org/bunnyblue/OpenAtlas)<br>
- 
+
 
 
 OpenAtlasCore Android动态部署框架（你可以认为是插件，但又与插件不一样），与传统意义上的插件不一样<br>The MIT License (MIT) Copyright (c) 2015 Bunny Blue,achellies<br>
@@ -12,7 +12,7 @@ OpenAtlasCore Android动态部署框架（你可以认为是插件，但又与�
 
   <br>代码遵循MIT License，Android动态部署框架，与通过代理方式实现的插件区别很大，用过代理的应该知道，代理方式会有各种莫名其妙的问题，有bug的话可以在issue里面提交。</br>
 
-### 鉴于仓库体积有点大，示例以及编译工具已经移动到 https://github.com/bunnyblue/OpenAtlasExt
+### 鉴于仓库体积有点大，示例以及编译工具已经移动到 https://github.com/bunnyblue/OpenAtlasExtension
 
 
 ### Contributors
@@ -46,7 +46,7 @@ versionName:"1.0.1"
  点我下载Demo.apk
 </a>
 
-![Sample Gif](https://github.com/bunnyblue/OpenAtlas/raw/bunny/art/demo.gif)
+![Sample Gif](https://github.com/bunnyblue/OpenAtlasExtension/raw/master/art/demo.gif)
 
 ## License
 The MIT License (MIT) Copyright (c) 2015 Bunny Blue,achellies
