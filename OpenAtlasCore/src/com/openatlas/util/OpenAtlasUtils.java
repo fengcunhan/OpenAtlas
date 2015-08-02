@@ -40,7 +40,7 @@ public class OpenAtlasUtils {
         try {
             reader = new InputStreamReader(new FileInputStream("/proc/" + pid + "/cmdline"));
             br = new BufferedReader(reader);
-            char[] data = new char[64];//定义数组  进程名字最长64
+            char[] data = new char[256];
             br.read(data);
             int len = 0;
             for (char c : data) {

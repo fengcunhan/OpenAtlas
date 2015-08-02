@@ -37,4 +37,6 @@ public class AtlasConfig {
     public static String PRELOAD_DIR = "armeabi";
     /**enable opt dex on ART ****/
     public static boolean  optART=true;
+    /********disable compile code****/
+    public  static  final  boolean CODE_Deprecated=true;
 }

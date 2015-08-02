@@ -200,8 +200,7 @@ public final class BundleClassLoader extends ClassLoader {
                     return;
                 }
             }
-            throw new BundleException("Platform does not provide EEs "
-                    + Arrays.asList(strArr));
+            throw new BundleException("Platform does not provide EEs " + Arrays.asList(strArr));
         }
     }
 

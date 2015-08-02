@@ -282,14 +282,12 @@ public final class BundleImpl implements Bundle {
                     log.info("Framework: Bundle " + toString() + " started.");
                 }
             } catch (Throwable th) {
-                Throwable th2 = th;
+
                 Framework.clearBundleTrace(this);
                 this.state = BundleEvent.STOPPED;
                 String str = "Error starting bundle " + toString();
-                if (th2.getCause() != null) {
-                    th2 = th2.getCause();
-                }
-                BundleException bundleException = new BundleException(str, th2);
+
+                BundleException bundleException = new BundleException(str, th);
             }
         }
     }
@@ -338,7 +336,7 @@ public final class BundleImpl implements Bundle {
             try {
                 stopBundle();
             } catch (Throwable th) {
-                Framework.notifyFrameworkListeners(2, this, th);
+                Framework.notifyFrameworkListeners(BundleEvent.STARTED, this, th);
             }
         }
         this.state = BundleEvent.INSTALLED;
@@ -359,16 +357,16 @@ public final class BundleImpl implements Bundle {
 
     @Override
     public synchronized void update() throws BundleException {
-        String str = this.headers.get(Constants.BUNDLE_UPDATELOCATION);
+        String locationUpdate = this.headers.get(Constants.BUNDLE_UPDATELOCATION);
         try {
 
-            if (str == null) {
-                str = this.location;
+            if (locationUpdate == null) {
+                locationUpdate = this.location;
             }
-            update(new URL(str).openConnection().getInputStream());
+            update(new URL(locationUpdate).openConnection().getInputStream());
         } catch (Throwable e) {
             throw new BundleException("Could not update " + toString()
-                    + " from " + str, e);
+                    + " from " + locationUpdate, e);
         }
     }
 

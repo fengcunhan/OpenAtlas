@@ -48,7 +48,7 @@ import java.util.Dictionary;
  * @see BundleContext#getService
  */
 
-public interface ServiceReference {
+public interface ServiceReference<T> {
     /**
      * Returns the property value to which the specified property key is mapped
      * in the properties <code>Dictionary</code> object of the service

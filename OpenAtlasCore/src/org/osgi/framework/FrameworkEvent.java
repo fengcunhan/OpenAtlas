@@ -50,7 +50,7 @@ public class FrameworkEvent extends EventObject {
      * Type of event.
      */
     private final int type;
-
+    public final static int STARTING = 0x00000000;
     /**
      * The Framework has started.
      * <p>

@@ -54,7 +54,7 @@ public interface Filter {
      * @return <code>true</code> if the service's properties match this
      * <code>Filter</code>; <code>false</code> otherwise.
      */
-    boolean match(ServiceReference reference);
+    boolean match(ServiceReference<?> reference);
 
     /**
      * Filter using a <code>Dictionary</code>. This <code>Filter</code> is
@@ -68,7 +68,7 @@ public interface Filter {
      * @throws IllegalArgumentException If <code>dictionary</code> contains case
      *                                  variants of the same key name.
      */
-    boolean match(Dictionary dictionary);
+    boolean match(Dictionary<String, ?> dictionary);
 
     /**
      * Returns this <code>Filter</code>'s filter string.
