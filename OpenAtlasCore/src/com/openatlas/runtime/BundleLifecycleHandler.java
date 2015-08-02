@@ -72,6 +72,7 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
                     if (Looper.myLooper() == null) {
                         Looper.prepare();
                     }
+                    Thread.dumpStack();
                     started(bundleEvent.getBundle());
                 } else if (Framework.isFrameworkStartupShutdown()) {
                     BundleStartTask bundleStartTask = new BundleStartTask();
@@ -139,9 +140,6 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
 
     private void started(Bundle bundle) {
         BundleImpl bundleImpl = (BundleImpl) bundle;
-       if (bundleImpl.isApplicationInited()){//if Application Inited,skiped reinit,// FIXME: 8/2/15 https://github.com/bunnyblue/OpenAtlas/issues/171
-           return;
-       }
         long currentTimeMillis = System.currentTimeMillis();
         String mBundleApplicationNames = bundleImpl.getHeaders().get("Bundle-Application");
         if (StringUtils.isNotEmpty(mBundleApplicationNames)) {
@@ -189,7 +187,6 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
                 if (StringUtils.isNotEmpty(applicationClassName)) {
                     try {
                         newApplication(applicationClassName, bundleImpl.getClassLoader()).onCreate();
-                        bundleImpl.setApplicationInited(true);
                     } catch (Throwable throwable) {
                         log.error("Error to start application >>>", throwable);
                     }
