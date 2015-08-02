@@ -67,6 +67,7 @@ public final class BundleImpl implements Bundle {
     List<ServiceReference> registeredServices;
     Package[] staleExportedPackages;
     int state = 0;
+    boolean applicationInited=false;
 
     static {
         log = LoggerFactory.getInstance("BundleImpl");
@@ -506,4 +507,12 @@ public final class BundleImpl implements Bundle {
     public String toString() {
         return this.location;
     }
+    public boolean isApplicationInited() {
+        return applicationInited;
+    }
+
+    public void setApplicationInited(boolean applicationInited) {
+        this.applicationInited = applicationInited;
+    }
+
 }

@@ -95,10 +95,9 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
                 break;
             case BundleEvent.UNINSTALLED:
 
-            {//TODO notice  plugin is uninstall !!!!
-                Thread.currentThread().dumpStack();
+            {
                 uninstalled(bundleEvent.getBundle());
-
+                break;
             }
             default:
         }
@@ -140,13 +139,16 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
 
     private void started(Bundle bundle) {
         BundleImpl bundleImpl = (BundleImpl) bundle;
+       if (bundleImpl.isApplicationInited()){//if Application Inited,skiped reinit,// FIXME: 8/2/15 https://github.com/bunnyblue/OpenAtlas/issues/171
+           return;
+       }
         long currentTimeMillis = System.currentTimeMillis();
-        String str = bundleImpl.getHeaders().get("Bundle-Application");
-        if (StringUtils.isNotEmpty(str)) {
+        String mBundleApplicationNames = bundleImpl.getHeaders().get("Bundle-Application");
+        if (StringUtils.isNotEmpty(mBundleApplicationNames)) {
             String[] strArr;
-            String[] split = StringUtils.split(str, ",");
+            String[] split = StringUtils.split(mBundleApplicationNames, ",");
             if (split == null || split.length == 0) {
-                strArr = new String[]{str};
+                strArr = new String[]{mBundleApplicationNames};
             } else {
                 strArr = split;
             }
@@ -156,7 +158,6 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
                     if (StringUtils.isNotEmpty(trim)) {
 
                         try {
-
                             int i;
                             for (Application newApplication2 : DelegateComponent.apkApplications
                                     .values()) {
@@ -184,13 +185,13 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
             PackageLite packageLite = DelegateComponent.getPackage(bundleImpl
                     .getLocation());
             if (packageLite != null) {
-                String str2 = packageLite.applicationClassName;
-                if (StringUtils.isNotEmpty(str2)) {
+                String applicationClassName = packageLite.applicationClassName;
+                if (StringUtils.isNotEmpty(applicationClassName)) {
                     try {
-                        newApplication(str2, bundleImpl.getClassLoader())
-                                .onCreate();
-                    } catch (Throwable th2) {
-                        log.error("Error to start application >>>", th2);
+                        newApplication(applicationClassName, bundleImpl.getClassLoader()).onCreate();
+                        bundleImpl.setApplicationInited(true);
+                    } catch (Throwable throwable) {
+                        log.error("Error to start application >>>", throwable);
                     }
                 }
             }
