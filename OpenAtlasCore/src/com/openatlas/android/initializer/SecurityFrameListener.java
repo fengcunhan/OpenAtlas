@@ -28,6 +28,7 @@
 package com.openatlas.android.initializer;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Build.VERSION;
@@ -38,6 +39,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.framework.Atlas;
 import com.openatlas.runtime.RuntimeVariables;
 import com.openatlas.util.ApkUtils;
@@ -148,7 +150,7 @@ public class SecurityFrameListener implements FrameworkListener {
 
     /*****程序公钥不匹配******/
     private void storeBadSIG(String errPublicKey) {
-        Editor edit = RuntimeVariables.androidApplication.getSharedPreferences("atlas_configs", 0).edit();
+        Editor edit = RuntimeVariables.androidApplication.getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE, Context.MODE_PRIVATE).edit();
         edit.putString("BadSignature", errPublicKey);
         edit.commit();
     }

@@ -26,7 +26,6 @@ import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Process;
 
-import com.openatlas.boot.PlatformConfigure;
 import com.openatlas.framework.bundlestorage.BundleArchive;
 import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
@@ -870,8 +869,8 @@ public final class Framework {
         if (properties == null) {
             return defaultValue;
         }
-        String str2 = (String) properties.get(key);
-        return str2 != null ? Integer.parseInt(str2) : defaultValue;
+        String value = (String) properties.get(key);
+        return value != null ? Integer.parseInt(value) : defaultValue;
     }
 
     public static String getProperty(String key) {
@@ -1032,8 +1031,8 @@ public final class Framework {
 
     static BundleImpl installNewBundle(String bundleName) throws BundleException {
         try {
-            String str2 = bundleName.indexOf(":") > -1 ? bundleName : BUNDLE_LOCATION + File.separatorChar + bundleName;
-            return installNewBundle(str2, new URL(str2).openConnection().getInputStream());
+            String location = bundleName.indexOf(":") > -1 ? bundleName : BUNDLE_LOCATION + File.separatorChar + bundleName;
+            return installNewBundle(location, new URL(location).openConnection().getInputStream());
         } catch (Throwable e) {
             throw new BundleException("Cannot retrieve bundle from " + bundleName, e);
         }

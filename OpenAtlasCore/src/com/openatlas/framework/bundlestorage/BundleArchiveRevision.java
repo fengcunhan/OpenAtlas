@@ -414,7 +414,7 @@ public class BundleArchiveRevision {
         return null;
     }
 
-    public InputStream openNonAssetInputStream(String str) throws IOException {
+    public InputStream openNonAssetInputStream(String assetName) throws IOException {
         try {
             AssetManager assetManager = AssetManager.class
                     .newInstance();
@@ -422,7 +422,7 @@ public class BundleArchiveRevision {
                     .invoke(assetManager, this.bundleFile.getAbsolutePath()))
                     .intValue();
             if (intValue != 0) {
-                return assetManager.openNonAssetFd(intValue, str)
+                return assetManager.openNonAssetFd(intValue, assetName)
                         .createInputStream();
             }
         } catch (Throwable e) {
@@ -430,14 +430,9 @@ public class BundleArchiveRevision {
         }
         return null;
     }
-
-    // TODO impl
-    public Manifest getManifest() throws IOException {
-        InputStream open;
-        InputStream inputStream = null;
-        Throwable th;
-        Exception e;
-        InputStream inputStream2 = null;
+   @Deprecated
+    public Manifest getManifest() throws IOException {//disable OSGI.MF
+        InputStream open = null;
         if (this.manifest != null) {
             return this.manifest;
         }
@@ -449,94 +444,39 @@ public class BundleArchiveRevision {
                     .intValue() != 0) {
                 try {
                     open = assetManager.open("OSGI.MF");
-                } catch (FileNotFoundException e2) {
-                    inputStream = null;
-                    try {
-                        log.warn("Could not find OSGI.MF in "
-                                + this.bundleFile.getAbsolutePath());
-                    } catch (Throwable e3) {
-                        Throwable th2 = e3;
-                        open = inputStream;
-                        th = th2;
-                        log.error("Exception while parse OSGI.MF >>>", th);
-                        return null;
-                    }
+                } catch (FileNotFoundException e) {
+                    log.warn("Could not find OSGI.MF in "
+                            + this.bundleFile.getAbsolutePath());
                     return null;
-                } catch (Exception e4) {
-
-
-                    try {
-                        //                    	if (inputStream!=null) {
-                        //							inputStream.close();
-                        //						}
-                        e4.printStackTrace();
-
-                    } catch (Exception e5) {
-                        th = e5;
-                        log.error("Exception while parse OSGI.MF >>>", th);
-                        return null;
-                    }
-                    return null;
-                } catch (Throwable th3) {
-                    th = th3;
-                    throw th;
                 }
-                try {
-                    this.manifest = new Manifest(open);
-                    Manifest manifest = this.manifest;
                     if (open == null) {
                         return manifest;
                     }
-                    open.close();
+                    this.manifest = new Manifest(open);
                     return manifest;
-                } catch (FileNotFoundException e6) {
-                    inputStream = open;
-                    log.warn("Could not find OSGI.MF in "
-                            + this.bundleFile.getAbsolutePath());
-                    if (inputStream != null) {
-                        inputStream.close();
-                    }
-                    return null;
-                } catch (Exception e7) {
-                    e = e7;
-                    e.printStackTrace();
-                    inputStream = open;
-                    if (inputStream != null) {
-                        inputStream.close();
-                    }
-                    return null;
-                }
+
             }
-            inputStream = null;
-            if (inputStream != null) {
-                inputStream.close();
-            }
+
+
+        } catch (Exception e) {
+            log.error("Exception while parse OSGI.MF >>>", e);
             return null;
-        } catch (Exception e8) {
-            th = e8;
-            open = null;
+        } finally {
             try {
-                log.error("Exception while parse OSGI.MF >>>", th);
+
+                if (open != null) {
+                    open.close();
+                    open=null;
+                }
+            } catch (Throwable throwable) {
+
                 if (open != null) {
                     open.close();
                 }
-            } catch (Throwable th4) {
-                th = th4;
-                inputStream2 = open;
-                if (inputStream2 != null) {
-                    inputStream2.close();
-                }
                 // throw th;
             }
-            return null;
-        } catch (Throwable th32) {
-            th = th32;
-            if (inputStream2 != null) {
-                inputStream2.close();
-            }
-            // throw th;
         }
-        return manifest;
+     return manifest;
     }
 
     Class<?> findClass(String str, ClassLoader classLoader)

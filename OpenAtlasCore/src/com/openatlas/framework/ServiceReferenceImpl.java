@@ -22,6 +22,7 @@
 package com.openatlas.framework;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleEvent;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceFactory;
 import org.osgi.framework.ServiceReference;
@@ -96,7 +97,7 @@ final class ServiceReferenceImpl implements ServiceReference {
                     ServiceReferenceImpl.this.properties.put(str, obj);
                 }
             }
-            Framework.notifyServiceListeners(2, ServiceReferenceImpl.this);
+            Framework.notifyServiceListeners(BundleEvent.STARTED, ServiceReferenceImpl.this);
         }
 
         @Override
@@ -139,11 +140,11 @@ final class ServiceReferenceImpl implements ServiceReference {
             }
         }
         this.properties.put(Constants.OBJECTCLASS, clazzes);
-        Dictionary<String, Object> dictionary2 = this.properties;
-        String str2 = Constants.SERVICE_ID;
+        Dictionary<String, Object> dictionary = this.properties;
+        String serviceId = Constants.SERVICE_ID;
         long j = nextServiceID + 1;
         nextServiceID = j;
-        dictionary2.put(str2, Long.valueOf(j));
+        dictionary.put(serviceId, Long.valueOf(j));
         Integer num = properties == null ? null : (Integer) properties
                 .get(Constants.SERVICE_RANKING);
         this.properties.put(Constants.SERVICE_RANKING,
@@ -192,25 +193,25 @@ final class ServiceReferenceImpl implements ServiceReference {
 
     @Override
     public Object getProperty(String key) {
-        Object obj = this.properties.get(key);
-        if (obj != null) {
-            return obj;
+        Object value = this.properties.get(key);
+        if (value != null) {
+            return value;
         }
-        obj = this.properties.get(key.toLowerCase(Locale.US));
-        if (obj != null) {
-            return obj;
+        value = this.properties.get(key.toLowerCase(Locale.US));
+        if (value != null) {
+            return value;
         }
-        Object obj2;
+
         Enumeration<String> keys = this.properties.keys();
         while (keys.hasMoreElements()) {
-            String str2 = keys.nextElement();
-            if (str2.equalsIgnoreCase(key)) {
-                obj2 = this.properties.get(str2);
+            String localKey = keys.nextElement();
+            if (localKey.equalsIgnoreCase(key)) {
+                value = this.properties.get(localKey);
                 break;
             }
         }
-        obj2 = obj;
-        return obj2;
+
+        return value;
     }
 
     @Override

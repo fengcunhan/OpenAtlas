@@ -169,19 +169,19 @@ public class BundleListing {
             this.mServiceList = list;
         }
 
-        public boolean contains(String str, int i) {
-            if (str == null) {
+        public boolean contains(String compment, int type) {
+            if (compment == null) {
                 return false;
             }
-            if (i == BundleListing.CLASS_TYPE_ACTIVITY && this.mActivitiyList != null) {
-                for (String str2 : this.mActivitiyList) {
-                    if (str2 != null && str2.equals(str)) {
+            if (type == BundleListing.CLASS_TYPE_ACTIVITY && this.mActivitiyList != null) {
+                for (String mCompment : this.mActivitiyList) {
+                    if (mCompment != null && mCompment.equals(compment)) {
                         return true;
                     }
                 }
-            } else if (i == BundleListing.CLASS_TYPE_SERVICE && this.mServiceList != null) {
-                for (String str22 : this.mServiceList) {
-                    if (str22 != null && str22.equals(str)) {
+            } else if (type == BundleListing.CLASS_TYPE_SERVICE && this.mServiceList != null) {
+                for (String mCompment : this.mServiceList) {
+                    if (mCompment != null && mCompment.equals(compment)) {
                         return true;
                     }
                 }
@@ -198,14 +198,14 @@ public class BundleListing {
         this.bundles = list;
     }
 
-    public Component resolveBundle(String str, int i) {
-        if (str == null) {
+    public Component resolveBundle(String mComponent, int type) {
+        if (mComponent == null) {
             return null;
         }
         if (this.bundles != null) {
-            for (Component aVar : this.bundles) {
-                if (aVar != null && aVar.contains(str, i)) {
-                    return aVar;
+            for (Component component : this.bundles) {
+                if (component != null && component.contains(mComponent, type)) {
+                    return component;
                 }
             }
         }

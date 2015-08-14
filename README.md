@@ -8,13 +8,12 @@
 OpenAtlas ,Android Component Dynamic Deployment Framework(Android  Plugin Framework)<br>
 
 The MIT License (MIT) Copyright (c) 2015 Bunny Blue,achellies<br>
-###[README-中文](README-Zh.md)
+### [README-中文](README-Zh.md)
 
 
+  <br>use patched aapt  to build Dynamic Module，it's different with  some plugin frameworks which  implement through proxy，any  question open a issue</br>
 
-  <br>MIT License，use patched aapt  to build Dynamic Module，it's different with  some plugin frameworks which  implement through proxy，any  question open a issue</br>
-
-## Simple Project& Build System(aapt and ...) has Moved to https://github.com/bunnyblue/OpenAtlasExt
+# Simple Project& Build System(aapt and ...) has Moved to https://github.com/bunnyblue/OpenAtlasExtension
 
 
 ### Contributors
@@ -35,10 +34,9 @@ also you can define package change packageName "com.myapp.pkgname" to " com.myap
 
 ![Sample Gif](https://github.com/bunnyblue/OpenAtlasExtension/raw/master/art/demo.gif)
 
-## License
+# License
+ [![License](https://img.shields.io/badge/License-MIT%20License-brightgreen.svg)]()<br>
 The MIT License (MIT) Copyright (c) 2015 Bunny Blue,achellies
-
-
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

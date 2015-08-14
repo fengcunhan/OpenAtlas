@@ -31,7 +31,7 @@ import android.app.Application;
 import android.content.Intent;
 import android.util.Log;
 
-import com.openatlas.boot.PlatformConfigure;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.framework.Atlas;
 import com.openatlas.framework.AtlasConfig;
 import com.openatlas.framework.BundleImpl;

@@ -42,7 +42,7 @@ import android.util.Log;
 import com.openatlas.android.task.Coordinator;
 import com.openatlas.android.task.Coordinator.TaggedRunnable;
 import com.openatlas.boot.Globals;
-import com.openatlas.boot.PlatformConfigure;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.bundleInfo.BundleInfoList;
 import com.openatlas.bundleInfo.BundleInfoList.BundleInfo;
 import com.openatlas.bundleInfo.BundleListing;
@@ -117,9 +117,9 @@ public class OpenAtlasInitializer {
 //            declaredField = Globals.class.getDeclaredField("sClassLoader");
 //            declaredField.setAccessible(true);
 //            declaredField.set(null, Atlas.getInstance().getDelegateClassLoader());
-//            Globals.init(this.mApp, Atlas.getInstance().getDelegateClassLoader());
+              Globals.init(this.mApp, Atlas.getInstance().getDelegateClassLoader());
             if (this.mApp.getPackageName().equals(this.pkgName)) {
-                if (verifyRumtime() || !ApkUtils.isRootSystem()) {
+                if (verifyRuntime() || !ApkUtils.isRootSystem()) {
                     properties.put(PlatformConfigure.OPENATLAS_PUBLIC_KEY, SecurityFrameListener.PUBLIC_KEY);
                     Atlas.getInstance().addFrameworkListener(new SecurityFrameListener());
                 }
@@ -236,26 +236,26 @@ public class OpenAtlasInitializer {
             return null;
         }
         ArrayList<BundleInfo> arrayList = new ArrayList<BundleInfo>();
-        for (BundleListing.Component aVar : bundleListing.getBundles()) {
-            if (aVar != null) {
+        for (BundleListing.Component component : bundleListing.getBundles()) {
+            if (component != null) {
                 BundleInfo bundleInfo = new BundleInfo();
-                List<String> arrayList2 = new ArrayList<String>();
-                if (aVar.getActivities() != null) {
-                    arrayList2.addAll(aVar.getActivities());
+                List<String> componmentList = new ArrayList<String>();
+                if (component.getActivities() != null) {
+                    componmentList.addAll(component.getActivities());
                 }
-                if (aVar.getServices() != null) {
-                    arrayList2.addAll(aVar.getServices());
+                if (component.getServices() != null) {
+                    componmentList.addAll(component.getServices());
                 }
-                if (aVar.getReceivers() != null) {
-                    arrayList2.addAll(aVar.getReceivers());
+                if (component.getReceivers() != null) {
+                    componmentList.addAll(component.getReceivers());
                 }
-                if (aVar.getContentProviders() != null) {
-                    arrayList2.addAll(aVar.getContentProviders());
+                if (component.getContentProviders() != null) {
+                    componmentList.addAll(component.getContentProviders());
                 }
-                bundleInfo.hasSO = aVar.isHasSO();
-                bundleInfo.bundleName = aVar.getPkgName();
-                bundleInfo.Components = arrayList2;
-                bundleInfo.DependentBundles = aVar.getDependency();
+                bundleInfo.hasSO = component.isHasSO();
+                bundleInfo.bundleName = component.getPkgName();
+                bundleInfo.Components = componmentList;
+                bundleInfo.DependentBundles = component.getDependency();
                 arrayList.add(bundleInfo);
             }
         }
@@ -263,22 +263,21 @@ public class OpenAtlasInitializer {
     }
 
     @SuppressLint({"DefaultLocale"})
-    private boolean verifyRumtime() {
+    private boolean verifyRuntime() {
         return !((Build.BRAND == null || !Build.BRAND.toLowerCase().contains("xiaomi") || Build.HARDWARE == null || !Build.HARDWARE.toLowerCase().contains("mt65")) && VERSION.SDK_INT >= 14);
     }
 
     private boolean isMatchVersion() {
         try {
             PackageInfo packageInfo = this.mApp.getPackageManager().getPackageInfo(this.mApp.getPackageName(), 0);
-            SharedPreferences sharedPreferences = this.mApp.getSharedPreferences("atlas_configs", 0);
+            SharedPreferences sharedPreferences = this.mApp.getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE, 0);
             int last_version_code = sharedPreferences.getInt("last_version_code", 0);
             CharSequence last_version_name = sharedPreferences.getString("last_version_name", "");
-            SharedPreferences sharedPreferences2 = this.mApp.getSharedPreferences("atlas_configs", 0);
-            CharSequence string2 = sharedPreferences2.getString("isMiniPackage", "");
+            CharSequence miniPackage = sharedPreferences.getString("isMiniPackage", "");
             this.isMiniPackage = false;
             System.out.println("resetForOverrideInstall = " + this.isMiniPackage);
-            if (TextUtils.isEmpty(string2) || this.isMiniPackage) {
-                Editor edit = sharedPreferences2.edit();
+            if (TextUtils.isEmpty(miniPackage) || this.isMiniPackage) {
+                Editor edit = sharedPreferences.edit();
                 edit.clear();
                 edit.putString("isMiniPackage", "false");
                 edit.commit();

@@ -41,11 +41,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
-import com.openatlas.boot.PlatformConfigure;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.bundleInfo.BundleInfoList;
 import com.openatlas.framework.BundleClassLoader;
 import com.openatlas.framework.BundleImpl;

@@ -21,7 +21,6 @@
  **/
 package com.openatlas.framework;
 
-import com.openatlas.boot.PlatformConfigure;
 import com.openatlas.framework.bundlestorage.Archive;
 import com.openatlas.framework.bundlestorage.BundleArchiveRevision.DexLoadException;
 import com.openatlas.hack.OpenAtlasHacks;
@@ -63,13 +62,13 @@ public final class BundleClassLoader extends ClassLoader {
     // String activatorClassName;
     final Archive archive;
     BundleImpl bundle;
-    private String[] dynamicImports;
-    String[] exports;
+    private String[] dynamicImports=new String[0];
+    String[] exports=new String[0];
     Map<String, BundleClassLoader> importDelegations;
-    String[] imports;
+    String[] imports=new String[0];
     private File[] nativeLibraryDirectories;
     BundleClassLoader originalExporter;
-    String[] requires;
+    String[] requires=new String[0];
 
     /***
      * remove next version
@@ -77,53 +76,40 @@ public final class BundleClassLoader extends ClassLoader {
     @SuppressWarnings("unused")
     @Deprecated
     private static final class BundleURLHandler extends URLStreamHandler {
-        private final InputStream input;
+        private final InputStream inputStream;
 
-        class AnonymousClass_1 extends InputStream {
-            final InputStream stream;
+        private BundleURLHandler(final InputStream inputStream) {
+            this.inputStream = new InputStream() {
+                @Override
+                public int read() throws IOException {
+                    return inputStream.read();
+                }
 
-            AnonymousClass_1(InputStream inputStream) {
-                this.stream = inputStream;
-            }
-
-            @Override
-            public int read() throws IOException {
-                return this.stream.read();
-            }
-
-            @Override
-            public int read(byte[] bArr) throws IOException {
-                return this.stream.read(bArr);
-            }
-        }
-
-        class AnonymousClass_2 extends URLConnection {
-            AnonymousClass_2(URL url) {
-                super(url);
-            }
-
-            @Override
-            public InputStream getInputStream() throws IOException {
-                return BundleURLHandler.this.input;
-            }
-
-            @Override
-            public void connect() throws IOException {
-            }
-        }
-
-        private BundleURLHandler(InputStream inputStream) {
-            this.input = new AnonymousClass_1(inputStream);
+                @Override
+                public int read(byte[] buffer) throws IOException {
+                    return inputStream.read(buffer);
+                }
+            };
         }
 
         @Override
         protected URLConnection openConnection(URL url) throws IOException {
-            return new AnonymousClass_2(url);
+            return new URLConnection(url) {
+                @Override
+                public void connect() throws IOException {
+
+                }
+
+                @Override
+                public InputStream getInputStream() throws IOException {
+                    return inputStream;
+                }
+            };
         }
 
         @Override
         protected int hashCode(URL url) {
-            return this.input.hashCode();
+            return this.inputStream.hashCode();
         }
     }
 
@@ -144,25 +130,25 @@ public final class BundleClassLoader extends ClassLoader {
         this.requires = new String[0];
         // this.activatorClassName = null;
         // this.activator = null;
-        this.dynamicImports = null;
-        this.originalExporter = null;
         this.bundle = bundleImpl;
         this.archive = bundleImpl.archive;
         if (this.archive == null) {
             throw new BundleException("Not Component valid bundle: " + bundleImpl.location);
         }
-        try {
-            processManifest(this.archive.getManifest());
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new BundleException("Not Component valid bundle: " + bundleImpl.location);
+        if (PlatformConfigure.CODE_ENABLE_COMPILE) {//disable compile code
+            try {
+                processManifest(this.archive.getManifest());
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new BundleException("Not Component valid bundle: " + bundleImpl.location);
+            }
         }
     }
 
     public BundleImpl getBundle() {
         return this.bundle;
     }
-
+    @Deprecated
     private void processManifest(Manifest manifest) throws BundleException {
         Attributes mainAttributes;
         if (manifest != null) {
@@ -333,11 +319,11 @@ public final class BundleClassLoader extends ClassLoader {
     }
 
     @Override
-    protected Class<?> findClass(String str) throws ClassNotFoundException {
-        if (FRAMEWORK_PACKAGES.contains(packageOf(str))) {
-            return Framework.systemClassLoader.loadClass(str);
+    protected Class<?> findClass(String clazz) throws ClassNotFoundException {
+        if (FRAMEWORK_PACKAGES.contains(packageOf(clazz))) {
+            return Framework.systemClassLoader.loadClass(clazz);
         }
-        Class<?> findOwnClass = findOwnClass(str);
+        Class<?> findOwnClass = findOwnClass(clazz);
         if (findOwnClass != null) {
             return findOwnClass;
         }
@@ -351,7 +337,7 @@ public final class BundleClassLoader extends ClassLoader {
                     for (int i2 = 0; i2 < packageArr.length; i2++) {
                         if (packageArr[i2].matches(this.dynamicImports[i])) {
                             Class<?> findDelegatedClass = findDelegatedClass(
-                                    packageArr[i2].classloader, str);
+                                    packageArr[i2].classloader, clazz);
                             if (findDelegatedClass != null) {
                                 return findDelegatedClass;
                             }
@@ -360,10 +346,10 @@ public final class BundleClassLoader extends ClassLoader {
                     continue;
                 } else {
                     Package packageR = Framework.exportedPackages
-                            .get(new Package(packageOf(str), null, false));
+                            .get(new Package(packageOf(clazz), null, false));
                     if (packageR != null) {
                         findOwnClass = findDelegatedClass(packageR.classloader,
-                                str);
+                                clazz);
                         if (findOwnClass != null) {
                             return findOwnClass;
                         }
@@ -375,28 +361,28 @@ public final class BundleClassLoader extends ClassLoader {
         }
         if (this.importDelegations != null) {
             BundleClassLoader bundleClassLoader = this.importDelegations
-                    .get(packageOf(str));
+                    .get(packageOf(clazz));
             if (bundleClassLoader != null) {
-                findOwnClass = findDelegatedClass(bundleClassLoader, str);
+                findOwnClass = findDelegatedClass(bundleClassLoader, clazz);
                 if (findOwnClass != null) {
                     return findOwnClass;
                 }
             }
         }
         try {
-            findOwnClass = Framework.systemClassLoader.loadClass(str);
+            findOwnClass = Framework.systemClassLoader.loadClass(clazz);
             if (findOwnClass != null) {
                 return findOwnClass;
             }
         } catch (Exception e) {
         }
-        throw new ClassNotFoundException("Can't find class " + str
+        throw new ClassNotFoundException("Can't find class " + clazz
                 + " in BundleClassLoader: " + this.bundle.getLocation());
     }
 
-    private Class<?> findOwnClass(String str) {
+    private Class<?> findOwnClass(String clazz) {
         try {
-            return this.archive.findClass(str, this);
+            return this.archive.findClass(clazz, this);
         } catch (Exception e) {
             if (!(e instanceof DexLoadException)) {
                 return null;
@@ -406,12 +392,12 @@ public final class BundleClassLoader extends ClassLoader {
     }
 
     private static Class<?> findDelegatedClass(
-            BundleClassLoader bundleClassLoader, String str) {
+            BundleClassLoader bundleClassLoader, String clazz) {
         Class<?> findLoadedClass;
         synchronized (bundleClassLoader) {
-            findLoadedClass = bundleClassLoader.findLoadedClass(str);
+            findLoadedClass = bundleClassLoader.findLoadedClass(clazz);
             if (findLoadedClass == null) {
-                findLoadedClass = bundleClassLoader.findOwnClass(str);
+                findLoadedClass = bundleClassLoader.findOwnClass(clazz);
             }
         }
         return findLoadedClass;

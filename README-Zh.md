@@ -48,8 +48,10 @@ versionName:"1.0.1"
 
 ![Sample Gif](https://github.com/bunnyblue/OpenAtlasExtension/raw/master/art/demo.gif)
 
-## License
+# License
+ [![License](https://img.shields.io/badge/License-MIT%20License-brightgreen.svg)]()<br>
 The MIT License (MIT) Copyright (c) 2015 Bunny Blue,achellies
+
 
 ##QA
 ###1 Activity必须在宿主的manifest注册？那这样动态部署有什么意义？

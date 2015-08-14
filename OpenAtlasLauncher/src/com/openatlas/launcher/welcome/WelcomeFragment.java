@@ -49,7 +49,7 @@ import android.view.animation.AnimationUtils;
 
 import com.eftimoff.androipathview.PathView;
 import com.openatlas.boot.Globals;
-import com.openatlas.boot.PlatformConfigure;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.launcher.R;
 
 
