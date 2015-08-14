@@ -117,7 +117,7 @@ public class OpenAtlasInitializer {
 //            declaredField = Globals.class.getDeclaredField("sClassLoader");
 //            declaredField.setAccessible(true);
 //            declaredField.set(null, Atlas.getInstance().getDelegateClassLoader());
-//            Globals.init(this.mApp, Atlas.getInstance().getDelegateClassLoader());
+              Globals.init(this.mApp, Atlas.getInstance().getDelegateClassLoader());
             if (this.mApp.getPackageName().equals(this.pkgName)) {
                 if (verifyRumtime() || !ApkUtils.isRootSystem()) {
                     properties.put(PlatformConfigure.OPENATLAS_PUBLIC_KEY, SecurityFrameListener.PUBLIC_KEY);
