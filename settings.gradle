@@ -1,2 +1,2 @@
-include ':Samples:OpenAtlasLauncher'
+include ':OpenAtlasLauncher'
 include ':OpenAtlasCore'

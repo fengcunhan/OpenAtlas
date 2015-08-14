@@ -42,6 +42,10 @@ public class Globals {
         }
         return application;
     }
+    public  static  void  init(Application mApp,ClassLoader cl){
+        sApplication=mApp;
+        sClassLoader=cl;
+    }
 
     public static synchronized ClassLoader getClassLoader() {
         ClassLoader classLoader;

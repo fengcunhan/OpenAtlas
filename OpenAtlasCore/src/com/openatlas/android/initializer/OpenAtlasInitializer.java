@@ -50,7 +50,6 @@ import com.openatlas.framework.Atlas;
 import com.openatlas.util.ApkUtils;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -112,13 +111,13 @@ public class OpenAtlasInitializer {
         properties.put(PlatformConfigure.ATLAS_APP_DIRECTORY, this.mApp.getFilesDir().getParent());
 
         try {
-            Field declaredField = Globals.class.getDeclaredField("sApplication");
-            declaredField.setAccessible(true);
-            declaredField.set(null, this.mApp);
-            declaredField = Globals.class.getDeclaredField("sClassLoader");
-            declaredField.setAccessible(true);
-            declaredField.set(null, Atlas.getInstance().getDelegateClassLoader());
-            //  this.d = new AwbDebug();
+//            Field declaredField = Globals.class.getDeclaredField("sApplication");
+//            declaredField.setAccessible(true);
+//            declaredField.set(null, this.mApp);
+//            declaredField = Globals.class.getDeclaredField("sClassLoader");
+//            declaredField.setAccessible(true);
+//            declaredField.set(null, Atlas.getInstance().getDelegateClassLoader());
+//            Globals.init(this.mApp, Atlas.getInstance().getDelegateClassLoader());
             if (this.mApp.getPackageName().equals(this.pkgName)) {
                 if (verifyRumtime() || !ApkUtils.isRootSystem()) {
                     properties.put(PlatformConfigure.OPENATLAS_PUBLIC_KEY, SecurityFrameListener.PUBLIC_KEY);
