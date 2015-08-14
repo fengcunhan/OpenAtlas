@@ -188,7 +188,7 @@ public class BundleArchive implements Archive {
     public InputStream openNonAssetInputStream(String name) throws IOException {
         return this.currentRevision.openNonAssetInputStream(name);
     }
-
+    @Deprecated
     @Override
     public Manifest getManifest() throws IOException {
         return this.currentRevision.getManifest();

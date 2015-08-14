@@ -26,6 +26,7 @@ import android.os.Bundle;
 
 import com.openatlas.android.lifecycle.BaseActivity;
 import com.openatlas.boot.Globals;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.launcher.R;
 
 
@@ -39,7 +40,7 @@ public class Welcome extends BaseActivity {
         } catch (Throwable e) {
            e.printStackTrace();
         }
-        SharedPreferences sharedPreferences = Globals.getApplication().getSharedPreferences("atlas_configs", 0);
+        SharedPreferences sharedPreferences = Globals.getApplication().getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE, 0);
         if (packageInfo == null || !"dexopt".equals(sharedPreferences.getString(packageInfo.versionName, ""))) {
             return false;
         }

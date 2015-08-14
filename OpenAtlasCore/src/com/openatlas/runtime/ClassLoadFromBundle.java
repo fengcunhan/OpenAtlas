@@ -29,7 +29,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.openatlas.boot.PlatformConfigure;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.bundleInfo.BundleInfoList;
 import com.openatlas.framework.Atlas;
 import com.openatlas.framework.AtlasConfig;

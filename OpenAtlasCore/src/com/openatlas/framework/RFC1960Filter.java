@@ -692,7 +692,6 @@ final class RFC1960Filter implements Filter {
          * @param map
          *            the attributes.
          * @return true if the filter matches, false otherwise.
-         * @see org.osgi.framework.Filter#matchCase(Dictionary)
          * @category Filter
          */
         public boolean matchCase(final Dictionary<String, ?> map) {

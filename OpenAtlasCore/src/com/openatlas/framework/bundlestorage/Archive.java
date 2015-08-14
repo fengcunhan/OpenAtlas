@@ -40,6 +40,7 @@ public interface Archive {
 
     BundleArchiveRevision getCurrentRevision();
 
+    @Deprecated
     Manifest getManifest() throws IOException;
 
     List<URL> getResources(String location) throws IOException;

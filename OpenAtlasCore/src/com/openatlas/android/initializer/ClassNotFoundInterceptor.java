@@ -24,7 +24,7 @@ package com.openatlas.android.initializer;
 import android.content.Intent;
 
 import com.openatlas.boot.Globals;
-import com.openatlas.boot.PlatformConfigure;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.bundleInfo.BundleInfoList;
 import com.openatlas.bundleInfo.BundleListing.Component;
 import com.openatlas.runtime.ClassNotFoundInterceptorCallback;

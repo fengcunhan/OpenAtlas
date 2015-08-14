@@ -24,7 +24,6 @@ package com.openatlas.runtime;
 import android.content.res.AssetManager;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -38,9 +37,6 @@ import java.util.Set;
 
 
 public class PackageLite {
-    private static final String XMLDISABLECOMPONENT_SSO_ALIPAY_AUTHENTICATION_SERVICE = "blue.stack.openAtlas.android.sso.internal.AlipayAuthenticationService";
-    private static final String XMLDISABLECOMPONENT_SSO_AUTHENTICATION_SERVICE = "blue.stack.openAtlas.android.sso.internal.AuthenticationService";
-
     public String applicationClassName;
     public int applicationDescription;
     public int applicationIcon;
@@ -340,12 +336,7 @@ public class PackageLite {
                     mComponentName = pkgName.concat(mComponentName);
                 }
                 packageLite.components.add(mComponentName);
-                if (isDisable
-                        && !(TextUtils
-                        .equals(mComponentName,
-                                XMLDISABLECOMPONENT_SSO_ALIPAY_AUTHENTICATION_SERVICE) && TextUtils
-                        .equals(mComponentName,
-                                XMLDISABLECOMPONENT_SSO_AUTHENTICATION_SERVICE))) {
+                if (isDisable ){
                     packageLite.disableComponents.add(mComponentName);
                 }
 

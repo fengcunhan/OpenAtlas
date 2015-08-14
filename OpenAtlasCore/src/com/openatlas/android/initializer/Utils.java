@@ -35,7 +35,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.util.Log;
 
-import com.openatlas.boot.PlatformConfigure;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.framework.AtlasConfig;
 
 import java.io.File;
@@ -85,9 +85,9 @@ public class Utils {
     public static void saveAtlasInfoBySharedPreferences(Application application) {
         Map<String, String> concurrentHashMap = new ConcurrentHashMap<String, String>();
         concurrentHashMap.put(getPackageInfo(application).versionName, "dexopt");
-        SharedPreferences sharedPreferences = application.getSharedPreferences("atlas_configs", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = application.getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE ,Context.MODE_PRIVATE);
         if (sharedPreferences == null) {
-            sharedPreferences = application.getSharedPreferences("atlas_configs", Context.MODE_PRIVATE);
+            sharedPreferences = application.getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE, Context.MODE_PRIVATE);
         }
         Editor edit = sharedPreferences.edit();
         for (String key : concurrentHashMap.keySet()) {
@@ -99,7 +99,7 @@ public class Utils {
     /****更新版本信息***/
     public static void UpdatePackageVersion(Application application) {
         PackageInfo packageInfo = getPackageInfo(application);
-        Editor edit = application.getSharedPreferences("atlas_configs", 0).edit();
+        Editor edit = application.getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE, Context.MODE_PRIVATE).edit();
         edit.putInt("last_version_code", packageInfo.versionCode);
         edit.putString("last_version_name", packageInfo.versionName);
         edit.putString(packageInfo.versionName, "dexopt");
@@ -130,9 +130,9 @@ public class Utils {
         if (listFiles == null || listFiles.length <= 0) {
             return false;
         }
-        for (File file2 : listFiles) {
-            if (file2.getName().indexOf(keyword) >= 0) {
-                Log.d("Util", "the file search success " + file2.getName() + " keyword is " + keyword);
+        for (File file : listFiles) {
+            if (file.getName().indexOf(keyword) >= 0) {
+                Log.d("Util", "the file search success " + file.getName() + " keyword is " + keyword);
                 return true;
             }
         }

@@ -126,11 +126,11 @@ public class Coordinator {
 
     @TargetApi(11)
     public static void postTask(TaggedRunnable taggedRunnable) {
-        PostTask aVar = new PostTask(taggedRunnable);
+        PostTask postTask = new PostTask(taggedRunnable);
         if (VERSION.SDK_INT < 11) {
-            aVar.execute();
+            postTask.execute();
         } else {
-            aVar.executeOnExecutor(mExecutor);
+            postTask.executeOnExecutor(mExecutor);
         }
     }
 

@@ -21,7 +21,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
 package com.openatlas.launcher;
 
 import com.openatlas.android.lifecycle.AtlasApp;
-import com.openatlas.boot.PlatformConfigure;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.framework.AtlasConfig;
 
 public class BootApp extends AtlasApp {
