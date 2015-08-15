@@ -37,6 +37,8 @@ import android.widget.Toast;
 
 import com.openatlas.framework.Atlas;
 import com.openatlas.framework.AtlasConfig;
+import com.openatlas.log.Logger;
+import com.openatlas.log.LoggerFactory;
 import com.openatlas.runtime.RuntimeVariables;
 
 import org.osgi.framework.Bundle;
@@ -53,7 +55,7 @@ import java.util.zip.ZipFile;
 public class BundlesInstaller {
     private static boolean autoStart;
     private static BundlesInstaller mBundlesInstaller;
-
+    Logger logger= LoggerFactory.getInstance("BundlesInstaller");
     private Application mApplication;
 
     private boolean isinitialized;
@@ -87,7 +89,7 @@ public class BundlesInstaller {
 
     public synchronized void process(boolean installAuto, boolean updatePackageVersion) {
         if (!this.isinitialized) {
-            Log.e("BundlesInstaller", "Bundle Installer not initialized yet, process abort!");
+            logger.error("Bundle Installer not initialized yet, process abort!");
         } else if (!this.isInstalled || updatePackageVersion) {
             ZipFile zipFile = null;
             try {
@@ -119,33 +121,25 @@ public class BundlesInstaller {
                 if (!updatePackageVersion) {
                     Utils.UpdatePackageVersion(this.mApplication);
                 }
-                if (zipFile != null) {
-                    try {
-                        zipFile.close();
-                    } catch (IOException e2) {
-                        e2.printStackTrace();
-                    }
-                }
-            } catch (IOException e5) {
-                //isInstalled = e5;
-
-                Log.e("BundlesInstaller", "IOException while processLibsBundles >>>", e5);
-
+            } catch (IOException e) {
+                logger.error("IOException while processLibsBundles >>>", e);
                 if (updatePackageVersion) {
                     this.isInstalled = true;
                 }
-            } catch (Throwable th2) {
-                th2.printStackTrace();
+            } catch (Throwable e) {
+                e.printStackTrace();
 
+
+
+            }finally {
                 if (zipFile != null) {
                     try {
                         zipFile.close();
-                    } catch (IOException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
+                    } catch (IOException e) {
+
+                        e.printStackTrace();
                     }
                 }
-
             }
             if (updatePackageVersion) {
                 this.isInstalled = true;
@@ -175,17 +169,17 @@ public class BundlesInstaller {
     }
 
     public void processAutoStartBundles(ZipFile zipFile, List<String> list, Application application) {
-        for (String a : list) {
-            installBundle(zipFile, a, application);
+        for (String bundle : list) {
+            installBundle(zipFile, bundle, application);
         }
         if (autoStart) {
-            for (String bundle : AtlasConfig.AUTO) {
-                Bundle bundle2 = Atlas.getInstance().getBundle(bundle);
-                if (bundle2 != null) {
+            for (String bundleName : AtlasConfig.AUTO) {
+                Bundle bundle = Atlas.getInstance().getBundle(bundleName);
+                if (bundle != null) {
                     try {
-                        bundle2.start();
+                        bundle.start();
                     } catch (Throwable e) {
-                        Log.e("BundlesInstaller", "Could not auto start bundle: " + bundle2.getLocation(), e);
+                        Log.e("BundlesInstaller", "Could not auto start bundle: " + bundle.getLocation(), e);
                     }
                 }
             }
@@ -201,8 +195,8 @@ public class BundlesInstaller {
                 bundleList.remove(replace2);
             }
         }
-        for (String a : bundleList) {
-            installBundle(zipFile, a, application);
+        for (String bundleName : bundleList) {
+            installBundle(zipFile, bundleName, application);
         }
         if (autoStart) {
             String[] strArr = AtlasConfig.DELAY;
@@ -235,7 +229,7 @@ public class BundlesInstaller {
 
     private boolean installBundle(ZipFile zipFile, String packageName, Application application) {
         System.out.println("processLibsBundle entryName " + packageName);
-        //this.a.a(str);
+
         String fileNameFromEntryName = Utils.getFileNameFromEntryName(packageName);
         String packageNameFromEntryName = Utils.getPackageNameFromEntryName(packageName);
         if (packageNameFromEntryName == null || packageNameFromEntryName.length() <= 0) {

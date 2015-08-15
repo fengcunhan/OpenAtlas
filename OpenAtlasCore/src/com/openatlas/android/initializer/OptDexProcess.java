@@ -38,7 +38,7 @@ import com.openatlas.framework.BundleImpl;
 import com.openatlas.framework.bundlestorage.BundleArchiveRevision.DexLoadException;
 
 import org.osgi.framework.Bundle;
-
+/***DexOpt Wrapper Class**/
 public class OptDexProcess {
     private static OptDexProcess mOptDexProcess;
     private Application mApplication;
@@ -62,19 +62,20 @@ public class OptDexProcess {
         return mOptDexProcess;
     }
 
-    /*** 初始化OptDexProcess ***/
+    /*** init OptDexProcess ***/
     void init(Application application) {
         this.mApplication = application;
         this.isInitialized = true;
     }
 
     /**
-     * 处理Bundles
+     * run dexopt for all bundles
+     *
      *
      * @param optAuto
-     *            是否只处理安装方式为AUTO的Bundle
+     *            only process  ATUTO_START bundle
      * @param notifyResult
-     *            通知UI安装结果
+     *            notify UI
      * ******/
     public synchronized void processPackages(boolean optAuto, boolean notifyResult) {
         if (!this.isInitialized) {
@@ -106,14 +107,14 @@ public class OptDexProcess {
         }
     }
 
-    /** 通知UI安装完成 **/
+    /** notify UI  install finish **/
     private void finishInstalled() {
         Utils.saveAtlasInfoBySharedPreferences(this.mApplication);
         System.setProperty("BUNDLES_INSTALLED", "true");
         this.mApplication.sendBroadcast(new Intent(PlatformConfigure.ACTION_BROADCAST_BUNDLES_INSTALLED));
     }
 
-    /**** 对已安装并且安装方式为STORE的Bundle进行dexopt操作 ****/
+    /**** run dexopt for STORE  Bundles   ****/
     private void optStoreDex() {
         for (Bundle bundle : Atlas.getInstance().getBundles()) {
             if (!(bundle == null || contains(AtlasConfig.STORE, bundle.getLocation()))) {
@@ -129,7 +130,7 @@ public class OptDexProcess {
         }
     }
 
-    /**** 对全部安装方式为Store的Bundle进行dexopt操作 ***/
+    /**** run dexopt for all STORE Bundle   ***/
     private void optStoreDex2() {
         for (String bundle : AtlasConfig.STORE) {
             Bundle bundle2 = Atlas.getInstance().getBundle(bundle);
@@ -146,7 +147,7 @@ public class OptDexProcess {
         }
     }
 
-    /** 对随宿主启动的插件进行dexopt操作 ****/
+    /** run dexopt for AUTO-START  Bundles ****/
     private void optAUTODex() {
         for (String bundleName : AtlasConfig.AUTO) {
             Bundle bundle = Atlas.getInstance().getBundle(bundleName);
