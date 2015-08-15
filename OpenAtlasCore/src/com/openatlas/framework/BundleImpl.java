@@ -285,9 +285,9 @@ public final class BundleImpl implements Bundle {
 
                 Framework.clearBundleTrace(this);
                 this.state = BundleEvent.STOPPED;
-                String str = "Error starting bundle " + toString();
+                String msg = "Error starting bundle " + toString();
 
-                BundleException bundleException = new BundleException(str, th);
+                BundleException bundleException = new BundleException(msg, th);
             }
         }
     }
@@ -405,35 +405,34 @@ public final class BundleImpl implements Bundle {
             throw new IllegalStateException(
                     "Cannot refresh uninstalled bundle " + toString());
         }
-        Object obj;
+       boolean isResolved=false;
         if (this.state == BundleEvent.RESOLVED) {
             stopBundle();
-            obj = 1;
-        } else {
-            obj = null;
+            isResolved=true;
         }
         try {
             this.archive = new BundleArchive(this.location, this.bundleDir);
             BundleClassLoader bundleClassLoader = new BundleClassLoader(this);
-            String[] strArr = this.classloader.exports;
-            if (strArr.length > 0) {
+            String[] exports = this.classloader.exports;
+            if (exports.length > 0) {
                 int i = 0;
-                Object obj2 = null;
-                while (i < strArr.length) {
-                    Object obj3;
+                boolean resetoriginalExporter=false;
+                while (i < exports.length) {
+
                     Package packageR = Framework.exportedPackages
-                            .get(new Package(strArr[i], null, false));
+                            .get(new Package(exports[i], null, false));
                     if (packageR.importingBundles == null
                             || packageR.classloader != this.classloader) {
-                        obj3 = obj2;
+
                     } else {
                         packageR.removalPending = true;
-                        obj3 = 1;
+
+                        resetoriginalExporter=true;
                     }
                     i++;
-                    obj2 = obj3;
+
                 }
-                if (obj2 != null) {
+                if (resetoriginalExporter) {
                     if (this.classloader.originalExporter != null) {
                         bundleClassLoader.originalExporter = this.classloader.originalExporter;
                     } else {
@@ -449,14 +448,13 @@ public final class BundleImpl implements Bundle {
                 this.state = BundleEvent.STARTED;
             }
             Framework.notifyBundleListeners(BundleEvent.UPDATED, this);
-            if (obj != null) {
+            if (isResolved) {
                 startBundle();
             }
         } catch (BundleException e) {
             throw e;
-        } catch (Throwable e2) {
-            throw new BundleException("Could not refresh bundle " + toString(),
-                    e2);
+        } catch (Throwable e) {
+            throw new BundleException("Could not refresh bundle " + toString(), e);
         }
     }
 

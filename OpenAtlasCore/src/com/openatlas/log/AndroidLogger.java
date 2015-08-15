@@ -35,28 +35,28 @@ public class AndroidLogger implements Logger {
     }
 
     @Override
-    public void verbose(String str) {
-        Log.v(category, str);
+    public void verbose(String message) {
+        Log.v(category, message);
     }
 
     @Override
-    public void debug(String str) {
-        Log.d(category, str);
+    public void debug(String message) {
+        Log.d(category, message);
     }
 
     @Override
-    public void info(String str) {
-        Log.i(category, str);
+    public void info(String message) {
+        Log.i(category, message);
     }
 
     @Override
-    public void warn(String str) {
-        Log.w(category, str);
+    public void warn(String message) {
+        Log.w(category, message);
     }
 
     @Override
-    public void warn(String str, Throwable th) {
-        Log.w(str, th);
+    public void warn(String message, Throwable th) {
+        Log.w(message, th);
     }
 
     @Override
@@ -65,13 +65,13 @@ public class AndroidLogger implements Logger {
     }
 
     @Override
-    public void error(String str) {
-        Log.e(this.category, str);
+    public void error(String message) {
+        Log.e(this.category, message);
     }
 
     @Override
-    public void error(String str, Throwable th) {
-        Log.e(this.category, str, th);
+    public void error(String message, Throwable th) {
+        Log.e(this.category, message, th);
     }
 
     @Override
@@ -80,13 +80,13 @@ public class AndroidLogger implements Logger {
     }
 
     @Override
-    public void fatal(String str) {
-        error(str);
+    public void fatal(String message) {
+        error(message);
     }
 
     @Override
-    public void fatal(String str, Throwable th) {
-        error(str, th);
+    public void fatal(String message, Throwable th) {
+        error(message, th);
     }
 
     @Override

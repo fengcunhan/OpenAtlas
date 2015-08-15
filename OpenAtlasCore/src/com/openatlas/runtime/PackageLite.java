@@ -57,7 +57,6 @@ public class PackageLite {
 
     public static PackageLite parse(File file) {
 
-
         XmlResourceParser openXmlResourceParser = null;
         try {
             AssetManager assetManager = AssetManager.class
@@ -84,32 +83,18 @@ public class PackageLite {
                 } catch (Exception e) {
                     e.printStackTrace();
 
-                    try {
 
-                        if (openXmlResourceParser != null) {
-                            openXmlResourceParser.close();
-                        }
-                        return null;
-                    } catch (Throwable th) {
-
-                        if (openXmlResourceParser != null) {
-                            openXmlResourceParser.close();
-                        }
-                        throw th;
-                    }
                 }
             }
             return null;
         } catch (Exception e) {
 
-            openXmlResourceParser = null;
+        } finally {
 
-            return null;
-        } catch (Throwable eThrowable) {
+                if (openXmlResourceParser != null) {
+                    openXmlResourceParser.close();
+                }
 
-            if (openXmlResourceParser != null) {
-                openXmlResourceParser.close();
-            }
 
         }
         return null;
@@ -262,16 +247,16 @@ public class PackageLite {
         if (bundle == null) {
             bundle = new Bundle();
         }
-        String str = null;
-        String str2 = null;
+        String value = null;
+        String name = null;
         int i2 = 0;
         while (i < attributeSet.getAttributeCount()) {
             String attributeName = attributeSet.getAttributeName(i);
             if (attributeName.equals("name")) {
-                str2 = attributeSet.getAttributeValue(i);
+                name = attributeSet.getAttributeValue(i);
                 i2++;
             } else if (attributeName.equals("value")) {
-                str = attributeSet.getAttributeValue(i);
+                value = attributeSet.getAttributeValue(i);
                 i2++;
             }
             if (i2 >= 2) {
@@ -279,8 +264,8 @@ public class PackageLite {
             }
             i++;
         }
-        if (!(str2 == null || str == null)) {
-            bundle.putString(str2, str);
+        if (!(name == null || value == null)) {
+            bundle.putString(name, value);
         }
         return bundle;
     }

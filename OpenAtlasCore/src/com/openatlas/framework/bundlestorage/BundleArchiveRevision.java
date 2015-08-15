@@ -27,7 +27,6 @@ import android.text.TextUtils;
 
 import com.openatlas.bundleInfo.BundleInfoList;
 import com.openatlas.dexopt.InitExecutor;
-import com.openatlas.framework.AtlasConfig;
 import com.openatlas.framework.Framework;
 import com.openatlas.hack.OpenAtlasHacks;
 import com.openatlas.log.Logger;
@@ -347,20 +346,20 @@ public class BundleArchiveRevision {
         }
     }
 
-    public void installSoLib(File file) {
+    public void installSoLib(File archiveFile) {
         try {
-            ZipFile zipFile = new ZipFile(file);
+            ZipFile zipFile = new ZipFile(archiveFile);
             Enumeration entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry zipEntry = (ZipEntry) entries.nextElement();
                 String name = zipEntry.getName();
-                String str = AtlasConfig.PRELOAD_DIR;
+                String abi ="armeabi";;
                 if (Build.CPU_ABI.contains("x86")) {
-                    str = "x86";
+                    abi = "x86";
                 }
                 if (name.indexOf(String.format("%s%s", new Object[]{"lib/",
-                        str})) != -1) {
-                    str = String
+                        abi})) != -1) {
+                    abi = String
                             .format("%s%s%s%s%s",
                                     this.revisionDir,
                                     File.separator,
@@ -370,18 +369,18 @@ public class BundleArchiveRevision {
                                             name.lastIndexOf(File.separator) + 1,
                                             name.length()));
                     if (zipEntry.isDirectory()) {
-                        File file2 = new File(str);
-                        if (!file2.exists()) {
-                            file2.mkdirs();
+                        File abiFolder = new File(abi);
+                        if (!abiFolder.exists()) {
+                            abiFolder.mkdirs();
                         }
                     } else {
-                        File file3 = new File(str.substring(0,
-                                str.lastIndexOf("/")));
-                        if (!file3.exists()) {
-                            file3.mkdirs();
+                        File abiFolder = new File(abi.substring(0,
+                                abi.lastIndexOf("/")));
+                        if (!abiFolder.exists()) {
+                            abiFolder.mkdirs();
                         }
                         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(
-                                new FileOutputStream(str));
+                                new FileOutputStream(abi));
                         BufferedInputStream bufferedInputStream = new BufferedInputStream(
                                 zipFile.getInputStream(zipEntry));
                         byte[] bArr = new byte[4096];
@@ -399,14 +398,14 @@ public class BundleArchiveRevision {
         }
     }
 
-    public InputStream openAssetInputStream(String str) throws IOException {
+    public InputStream openAssetInputStream(String fileName) throws IOException {
         try {
             AssetManager assetManager = AssetManager.class
                     .newInstance();
             if (((Integer) OpenAtlasHacks.AssetManager_addAssetPath.invoke(
                     assetManager, this.bundleFile.getAbsolutePath()))
                     .intValue() != 0) {
-                return assetManager.open(str);
+                return assetManager.open(fileName);
             }
         } catch (Throwable e) {
             log.error("Exception while openNonAssetInputStream >>>", e);
@@ -479,7 +478,7 @@ public class BundleArchiveRevision {
      return manifest;
     }
 
-    Class<?> findClass(String str, ClassLoader classLoader)
+    Class<?> findClass(String name, ClassLoader classLoader)
             throws ClassNotFoundException {
         try {
             if (OpenAtlasHacks.LexFile == null
@@ -490,7 +489,7 @@ public class BundleArchiveRevision {
                 if (this.dexFile == null) {
                     loadDex(new File(this.revisionDir, BUNDLE_ODEX_FILE));
                 }
-                Class<?> loadClass = this.dexFile.loadClass(str, classLoader);
+                Class<?> loadClass = this.dexFile.loadClass(name, classLoader);
                 this.isDexFileUsed = true;
                 return loadClass;
             }
@@ -503,30 +502,30 @@ public class BundleArchiveRevision {
                         file.getAbsolutePath(), classLoader);
             }
             return (Class) OpenAtlasHacks.DexClassLoader_findClass.invoke(
-                    this.dexClassLoader, str);
+                    this.dexClassLoader, name);
         } catch (IllegalArgumentException e) {
             return null;
-        } catch (InvocationTargetException e2) {
+        } catch (InvocationTargetException e) {
             return null;
-        } catch (Throwable e3) {
-            if (!(e3 instanceof ClassNotFoundException)) {
-                if (e3 instanceof DexLoadException) {
-                    throw ((DexLoadException) e3);
+        } catch (Throwable e) {
+            if (!(e instanceof ClassNotFoundException)) {
+                if (e instanceof DexLoadException) {
+                    throw ((DexLoadException) e);
                 }
                 log.error("Exception while find class in archive revision: "
-                        + this.bundleFile.getAbsolutePath(), e3);
+                        + this.bundleFile.getAbsolutePath(), e);
             }
             return null;
         }
     }
 
-    List<URL> getResources(String str) throws IOException {
+    List<URL> getResources(String name) throws IOException {
         List<URL> arrayList = new ArrayList();
         ensureZipFile();
-        if (!(this.zipFile == null || this.zipFile.getEntry(str) == null)) {
+        if (!(this.zipFile == null || this.zipFile.getEntry(name) == null)) {
             try {
                 arrayList.add(new URL("jar:" + this.bundleFile.toURL() + "!/"
-                        + str));
+                        + name));
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }

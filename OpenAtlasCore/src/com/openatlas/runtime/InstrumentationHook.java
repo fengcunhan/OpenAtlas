@@ -98,7 +98,6 @@ public class InstrumentationHook extends Instrumentation {
             if (mExecStartActivity == null) {
                 throw new NullPointerException("could not hook Instrumentation!");
             }
-
             try {
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
                     return (ActivityResult) mExecStartActivity.invoke(mBase, this.who, this.contextThread, this.token,
@@ -113,15 +112,7 @@ public class InstrumentationHook extends Instrumentation {
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             }
-
             return null;
-            // return InstrumentationInvoke.execStartActivity(mBase, this.who,
-            // this.contextThread, this.token, this.target,
-            // this.intent, this.requestCode);
-            // return
-            // InstrumentationHook.this.mBase.execStartActivity(this.who,
-            // this.contextThread, this.token, this.target,
-            // this.intent, this.requestCode);
         }
     }
 
@@ -158,15 +149,7 @@ public class InstrumentationHook extends Instrumentation {
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             }
-
             return null;
-            // return InstrumentationInvoke.execStartActivity(mBase, this.who,
-            // this.contextThread, this.token, this.target,
-            // this.intent, this.requestCode, this.options);
-            // return
-            // InstrumentationHook.this.mBase.execStartActivity(this.who,
-            // this.contextThread, this.token, this.target,
-            // this.intent, this.requestCode, this.options);
         }
     }
 
@@ -202,18 +185,6 @@ public class InstrumentationHook extends Instrumentation {
             }
 
             return null;
-            // return InstrumentationInvoke.execStartActivity(mBase, this.who,
-            // this.contextThread, this.token, this.target,
-            // this.intent, this.requestCode);
-            // return
-            // InstrumentationHook.this.mBase.execStartActivity(this.who,
-            // this.contextThread, this.token, this.target,
-            // this.intent, this.requestCode, this.options);
-
-            // return
-            // InstrumentationHook.this.mBase.execStartActivity(this.who,
-            // this.contextThread, this.token, this.target,
-            // this.intent, this.requestCode);
         }
     }
 
@@ -253,13 +224,6 @@ public class InstrumentationHook extends Instrumentation {
             }
 
             return null;
-            // return InstrumentationInvoke.execStartActivity(mBase, this.who,
-            // this.contextThread, this.token, this.target,
-            // this.intent, this.requestCode, this.options);
-            // return
-            // InstrumentationHook.this.mBase.execStartActivity(this.who,
-            // this.contextThread, this.token, this.target,
-            // this.intent, this.requestCode, this.options);
         }
     }
 
@@ -302,16 +266,16 @@ public class InstrumentationHook extends Instrumentation {
 
     private void HandleResourceNotFound(Activity activity, Bundle bundle, Exception exception) {
         if (OpenAtlasHacks.ContextThemeWrapper_mResources != null) {
-            String str;
+            String detailMessage;
             try {
                 List<?> assetPathFromResources = getAssetPathFromResources(OpenAtlasHacks.ContextThemeWrapper_mResources
                         .get(activity));
-                str = "(1)Paths in ContextThemeWrapper_mResources:" + assetPathFromResources + " paths in runtime:"
+                detailMessage = "(1)Paths in ContextThemeWrapper_mResources:" + assetPathFromResources + " paths in runtime:"
                         + DelegateResources.getAssetHistoryPaths();
             } catch (Exception e) {
-                str = "(2)paths in runtime:" + DelegateResources.getAssetHistoryPaths() + " getAssetPath fail: " + e;
+                detailMessage = "(2)paths in runtime:" + DelegateResources.getAssetHistoryPaths() + " getAssetPath fail: " + e;
             }
-            throw new RuntimeException(str, exception);
+            throw new RuntimeException(detailMessage, exception);
         }
         throw new RuntimeException("(3)ContextThemeWrapper_mResources is null paths in runtime:"
                 + DelegateResources.getAssetHistoryPaths(), exception);

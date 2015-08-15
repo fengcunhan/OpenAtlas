@@ -62,11 +62,10 @@ public class AndroidHack {
                 this.handler.handleMessage(message);
                 AndroidHack.ensureLoadedApk();
             } catch (Throwable th) {
-                Throwable th2 = th;
                 th.printStackTrace();
                 RuntimeException runtimeException;
-                if ((th2 instanceof ClassNotFoundException)
-                        || th2.toString().contains("ClassNotFoundException")) {
+                if ((th instanceof ClassNotFoundException)
+                        || th.toString().contains("ClassNotFoundException")) {
                     if (message.what != 113) {
                         Object loadedApk = AndroidHack.getLoadedApk(
                                 RuntimeVariables.androidApplication,
@@ -81,20 +80,20 @@ public class AndroidHack {
                                     .get(loadedApk);
                             if (classLoader instanceof DelegateClassLoader) {
                                 runtimeException = new RuntimeException(
-                                        "From Atlas:classNotFound ---", th2);
+                                        "From Atlas:classNotFound ---", th);
                             } else {
                                 RuntimeException runtimeException2 = new RuntimeException(
                                         "wrong classloader in loadedapk---"
                                                 + classLoader.getClass()
-                                                .getName(), th2);
+                                                .getName(), th);
                             }
                         }
                     }
-                } else if ((th2 instanceof ClassCastException)
-                        || th2.toString().contains("ClassCastException")) {
+                } else if ((th instanceof ClassCastException)
+                        || th.toString().contains("ClassCastException")) {
                     Process.killProcess(Process.myPid());
                 } else {
-                    runtimeException = new RuntimeException(th2);
+                    runtimeException = new RuntimeException(th);
                 }
             }
             return true;
@@ -109,8 +108,7 @@ public class AndroidHack {
         public void run() {
             try {
                 AndroidHack._sActivityThread = OpenAtlasHacks.ActivityThread_currentActivityThread
-                        .invoke(OpenAtlasHacks.ActivityThread.getmClass()
-                        );
+                        .invoke(OpenAtlasHacks.ActivityThread.getmClass());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -319,7 +317,7 @@ public class AndroidHack {
     }
 
     public static void injectContextHook(ContextWrapper contextWrapper,
-                                         ContextWrapper contextWrapper2) {
-        OpenAtlasHacks.ContextWrapper_mBase.set(contextWrapper, contextWrapper2);
+                                         ContextWrapper contextWrapperValue) {
+        OpenAtlasHacks.ContextWrapper_mBase.set(contextWrapper, contextWrapperValue);
     }
 }

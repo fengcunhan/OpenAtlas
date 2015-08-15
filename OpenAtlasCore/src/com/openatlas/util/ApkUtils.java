@@ -67,12 +67,12 @@ public class ApkUtils {
         }
     }
 
-    public static final PackageInfo parsePackageInfo(Context context, String str) {
+    public static final PackageInfo parsePackageInfo(Context context, String path) {
         if (!assertAtlasHacks()) {
             return null;
         }
         try {
-            PackageLite parse = PackageLite.parse(new File(str));
+            PackageLite parse = PackageLite.parse(new File(path));
             PackageInfo packageInfo = new PackageInfo();
             packageInfo.packageName = parse.packageName;
             packageInfo.versionCode = parse.versionCode;

@@ -53,11 +53,11 @@ public class Reflect {
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return null;
-        } catch (IllegalAccessException e2) {
-            e2.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
             return null;
-        } catch (InvocationTargetException e3) {
-            e3.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -70,14 +70,14 @@ public class Reflect {
         } catch (SecurityException e) {
             e.printStackTrace();
             return null;
-        } catch (NoSuchFieldException e2) {
-            e2.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
             return null;
-        } catch (IllegalArgumentException e3) {
-            e3.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             return null;
-        } catch (IllegalAccessException e4) {
-            e4.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -89,11 +89,11 @@ public class Reflect {
         } catch (SecurityException e) {
             e.printStackTrace();
             return null;
-        } catch (IllegalArgumentException e2) {
-            e2.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             return null;
-        } catch (IllegalAccessException e3) {
-            e3.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -133,9 +133,9 @@ public class Reflect {
     }
 
 
-    public static Field getField(Class<?> cls, String fieldName) {
+    public static Field getField(Class<?> clazz, String fieldName) {
         try {
-            Field field = cls.getDeclaredField(fieldName);
+            Field field = clazz.getDeclaredField(fieldName);
             field.setAccessible(true);
             return field;
         } catch (NoSuchFieldException e) {

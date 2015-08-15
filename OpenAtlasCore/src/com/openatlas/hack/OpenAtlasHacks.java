@@ -74,10 +74,12 @@ public class OpenAtlasHacks extends HackDeclaration implements
     public static ArrayList<HackedMethod> GeneratePackageInfoList;
     public static ArrayList<HackedMethod> GetPackageInfoList;
     public static HackedClass<Object> IPackageManager;
+    //define support ali YunOS  start
     public static HackedClass<Object> LexFile;
     public static HackedMethod LexFile_close;
     public static HackedMethod LexFile_loadClass;
     public static HackedMethod LexFile_loadLex;
+    //define support ali YunOS end
     public static HackedClass<Object> LoadedApk;
     public static HackedField<Object, String> LoadedApk_mAppDir;
     public static HackedField<Object, Application> LoadedApk_mApplication;
@@ -229,8 +231,7 @@ public class OpenAtlasHacks extends HackDeclaration implements
     }
 
     @Override
-    public boolean onAssertionFailure(
-            HackAssertionException hackAssertionException) {
+    public boolean onAssertionFailure(HackAssertionException hackAssertionException) {
         if (!sIsIgnoreFailure) {
             if (this.mExceptionArray == null) {
                 this.mExceptionArray = new AssertionArrayException(

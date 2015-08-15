@@ -43,7 +43,7 @@ public interface Archive {
     @Deprecated
     Manifest getManifest() throws IOException;
 
-    List<URL> getResources(String location) throws IOException;
+    List<URL> getResources(String name) throws IOException;
 
     boolean isDexOpted();
 

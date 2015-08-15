@@ -72,11 +72,11 @@ public class Interception {
     }
 
     public static Object proxy(Object obj,
-                               InterceptionHandler interceptionHandler, Class<?>... clsArr)
+                               InterceptionHandler invocationHandler, Class<?>... interfaces)
             throws IllegalArgumentException {
-        interceptionHandler.setDelegatee(obj);
+        invocationHandler.setDelegatee(obj);
         return Proxy.newProxyInstance(Interception.class.getClassLoader(),
-                clsArr, interceptionHandler);
+                interfaces, invocationHandler);
     }
 
     private Interception() {

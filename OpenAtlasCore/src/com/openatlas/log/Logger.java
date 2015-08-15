@@ -22,19 +22,19 @@
 package com.openatlas.log;
 
 public interface Logger {
-    void debug(String str);
+    void debug(String message);
 
-    void error(String str);
+    void error(String message);
 
-    void error(String str, Throwable th);
+    void error(String message, Throwable th);
 
     void error(StringBuffer stringBuffer, Throwable th);
 
-    void fatal(String str);
+    void fatal(String message);
 
-    void fatal(String str, Throwable th);
+    void fatal(String message, Throwable th);
 
-    void info(String str);
+    void info(String message);
 
     boolean isDebugEnabled();
 
@@ -48,11 +48,11 @@ public interface Logger {
 
     boolean isWarnEnabled();
 
-    void verbose(String str);
+    void verbose(String message);
 
-    void warn(String str);
+    void warn(String message);
 
-    void warn(String str, Throwable th);
+    void warn(String message, Throwable th);
 
     void warn(StringBuffer stringBuffer, Throwable th);
 }

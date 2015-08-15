@@ -816,36 +816,35 @@ public final class Framework {
             }
         }
         properties.put(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, System.getProperty("java.specification.name") + "/" + System.getProperty("java.specification.version"));
-        Properties properties2 = properties;
-        String str = Constants.FRAMEWORK_OS_NAME;
-        Object property2 = System.getProperty("os.name");
-        if (property2 == null) {
-            property2 = "undefined";
+        String key = Constants.FRAMEWORK_OS_NAME;
+         property = System.getProperty("os.name");
+        if (property == null) {
+            property = "undefined";
         }
-        properties2.put(str, property2);
-        properties2 = properties;
-        str = Constants.FRAMEWORK_OS_VERSION;
-        property2 = System.getProperty("os.version");
-        if (property2 == null) {
-            property2 = "undefined";
+        properties.put(key, property);
+
+        key = Constants.FRAMEWORK_OS_VERSION;
+        property = System.getProperty("os.version");
+        if (property == null) {
+            property = "undefined";
         }
-        properties2.put(str, property2);
-        properties2 = properties;
-        str = Constants.FRAMEWORK_PROCESSOR;
-        property2 = System.getProperty("os.arch");
-        if (property2 == null) {
-            property2 = "undefined";
+        properties.put(key, property);
+
+        key = Constants.FRAMEWORK_PROCESSOR;
+        property = System.getProperty("os.arch");
+        if (property == null) {
+            property = "undefined";
         }
-        properties2.put(str, property2);
+        properties.put(key, property);
         properties.put(Constants.FRAMEWORK_VERSION, FRAMEWORK_VERSION);
-        properties.put(Constants.FRAMEWORK_VENDOR, "Atlas");
-        property2 = Locale.getDefault().getLanguage();
-        properties2 = properties;
-        str = Constants.FRAMEWORK_LANGUAGE;
-        if (property2 == null) {
-            property2 = "en";
+        properties.put(Constants.FRAMEWORK_VENDOR, "OpenAtlas");
+        property = Locale.getDefault().getLanguage();
+
+        key = Constants.FRAMEWORK_LANGUAGE;
+        if (property == null) {
+            property = "en";
         }
-        properties2.put(str, property2);
+        properties.put(key,property);
 
 
     }
@@ -884,11 +883,11 @@ public final class Framework {
         return properties == null ? defaultValue : (String) properties.get(key);
     }
 
-    protected static void warning(String str) throws RuntimeException {
+    protected static void warning(String message) throws RuntimeException {
         if (getProperty(PlatformConfigure.OPENATLAS_STRICT_STARTUP, false)) {
-            throw new RuntimeException(str);
+            throw new RuntimeException(message);
         }
-        System.err.println("WARNING: " + str);
+        System.err.println("WARNING: " + message);
     }
 
     private static void storeProfile() {

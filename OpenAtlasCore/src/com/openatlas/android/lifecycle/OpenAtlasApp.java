@@ -38,7 +38,7 @@ import android.os.Process;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.openatlas.android.compat.AtlasCompat;
+import com.openatlas.android.compat.OpenAtlasCompat;
 import com.openatlas.android.initializer.BundleParser;
 import com.openatlas.android.initializer.OpenAtlasInitializer;
 import com.openatlas.boot.Globals;
@@ -53,7 +53,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 /****OpenAtlas 框架App的基类，用户的application需要集成此类****/
-public class AtlasApp extends AtlasCompat {
+public class OpenAtlasApp extends OpenAtlasCompat {
     private static final Handler mAppHandler;
     private final AtomicInteger mCreationCount;
     private final List<CrossActivityLifecycleCallback> mCrossActivityLifecycleCallbacks;
@@ -74,14 +74,14 @@ public class AtlasApp extends AtlasCompat {
     }
 
     class CallbackRunable implements Runnable {
-        final AtlasApp mApplication;
+        final OpenAtlasApp mApplication;
         private CrossActivityLifecycleCallback mCrossActivityLifecycleCallback;
         private String name;
 
-        public CallbackRunable(AtlasApp panguApplication, CrossActivityLifecycleCallback crossActivityLifecycleCallback, String str) {
-            this.mApplication = panguApplication;
+        public CallbackRunable(OpenAtlasApp openAtlasApp, CrossActivityLifecycleCallback crossActivityLifecycleCallback, String name) {
+            this.mApplication = openAtlasApp;
             this.mCrossActivityLifecycleCallback = crossActivityLifecycleCallback;
-            this.name = str;
+            this.name = name;
         }
 
         @Override
@@ -102,9 +102,9 @@ public class AtlasApp extends AtlasCompat {
     }
 
     class ActivityLifecycleCallbacksCompatImpl implements ActivityLifecycleCallbacksCompat {
-        final AtlasApp mApplication;
+        final OpenAtlasApp mApplication;
 
-        ActivityLifecycleCallbacksCompatImpl(AtlasApp panguApplication) {
+        ActivityLifecycleCallbacksCompatImpl(OpenAtlasApp panguApplication) {
             this.mApplication = panguApplication;
         }
 
@@ -158,7 +158,7 @@ public class AtlasApp extends AtlasCompat {
         }
     }
 
-    public AtlasApp() {
+    public OpenAtlasApp() {
         this.mCrossActivityLifecycleCallbacks = new CopyOnWriteArrayList<CrossActivityLifecycleCallback>();
         this.mCreationCount = new AtomicInteger();
         this.mStartCount = new AtomicInteger();
@@ -250,20 +250,20 @@ public class AtlasApp extends AtlasCompat {
     }
 
     @Override
-    public SQLiteDatabase openOrCreateDatabase(String str, int i, CursorFactory cursorFactory) {
+    public SQLiteDatabase openOrCreateDatabase(String name, int mode, CursorFactory cursorFactory) {
         String processName = OpenAtlasUtils.getProcessNameByPID(Process.myPid());
         if (!TextUtils.isEmpty(processName)) {
             Log.i("SQLiteDatabase", processName);
             if (!processName.equals(getPackageName())) {
                 String[] split = processName.split(":");
                 if (split != null && split.length > 1) {
-                    processName = split[1] + "_" + str;
+                    processName = split[1] + "_" + name;
                     Log.i("SQLiteDatabase", "openOrCreateDatabase:" + processName);
-                    return hookDatabase(processName, i, cursorFactory);
+                    return hookDatabase(processName, mode, cursorFactory);
                 }
             }
         }
-        return hookDatabase(str, i, cursorFactory);
+        return hookDatabase(name, mode, cursorFactory);
     }
 
     public SQLiteDatabase hookDatabase(String name, int mode, CursorFactory cursorFactory) {
