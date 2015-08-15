@@ -62,7 +62,7 @@ public class Utils {
         return entryName.substring(entryName.indexOf(local) + local.length(), entryName.indexOf(".so")).replace("_", ".");
     }
 
-    /**get bundle name from so file br> such as libcom_myapp_app1.so,you will get com.myapp.app1******/
+    /**get bundle name from so file <br> such as libcom_myapp_app1.so,you will get com.myapp.app1******/
     public static String getPackageNameFromSoName(String soName) {
         return soName.substring(soName.indexOf("lib") + "lib".length(), soName.indexOf(".so")).replace("_", ".");
     }
