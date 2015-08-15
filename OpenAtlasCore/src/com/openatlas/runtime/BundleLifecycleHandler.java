@@ -39,7 +39,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.ServicePermission;
 import org.osgi.framework.SynchronousBundleListener;
-
+/***This is OpenAtlas framework  lifecycle  handle,mange  bundle  lifecycles**/
 public class BundleLifecycleHandler implements SynchronousBundleListener {
     static final Logger log;
 

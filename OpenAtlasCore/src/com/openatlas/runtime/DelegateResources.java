@@ -52,8 +52,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-
+/***
+ * DelegateResources is Resources implementation,used to process bundle resources
+ ***/
 public class DelegateResources extends Resources {
+    /**
+     * WebViewGoogleAssetPath used on Android 5.0+
+     **/
     private static final String WebViewGoogleAssetPath = "/system/app/WebViewGoogle/WebViewGoogle.apk";
     private static Set<String> assetPathsHistory;
     private static Object lock;
@@ -219,7 +224,7 @@ public class DelegateResources extends Resources {
         return stringBuffer.toString();
     }
 
-    /**重新生成Asset列表**/
+    /**generate new asset list**/
 
     private static Set<String> generateNewAssetPaths(Application application, String newPath) {
 

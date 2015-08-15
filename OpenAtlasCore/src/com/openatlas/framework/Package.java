@@ -26,7 +26,7 @@ import org.osgi.service.packageadmin.ExportedPackage;
 
 import java.util.List;
 import java.util.StringTokenizer;
-
+/**OSGI ExportedPackage  implementation**/
 final class Package implements ExportedPackage {
     final BundleClassLoader classloader;
     List<Bundle> importingBundles;

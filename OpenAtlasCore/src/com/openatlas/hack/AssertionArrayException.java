@@ -28,12 +28,15 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+* custom exception class used for  code hack exception
+* ***/
 public class AssertionArrayException extends Exception {
     private static final long serialVersionUID = 1;
     private List<HackAssertionException> mAssertionErr;
 
-    public AssertionArrayException(String str) {
-        super(str);
+    public AssertionArrayException(String message) {
+        super(message);
         this.mAssertionErr = new ArrayList<HackAssertionException>();
     }
 

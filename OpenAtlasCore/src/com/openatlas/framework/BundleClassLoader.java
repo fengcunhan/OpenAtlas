@@ -52,6 +52,9 @@ import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+/***
+ * bundle class loader ,load class from bundle
+ **/
 public final class BundleClassLoader extends ClassLoader {
     private static final List<URL> EMPTY_LIST;
     static final HashSet<String> FRAMEWORK_PACKAGES;

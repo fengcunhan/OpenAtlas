@@ -63,7 +63,8 @@ import org.osgi.framework.BundleException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-
+/**Hack Instrumentation,replace Instrumentation with InstrumentationHook
+ * ****/
 public class InstrumentationHook extends Instrumentation {
     static final Logger log;
     private Context context;

@@ -42,6 +42,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+/****
+ * Hack Android ActivityThread
+ ***/
 public class AndroidHack {
     private static Object _mLoadedApk;
     private static Object _sActivityThread;
@@ -140,6 +143,9 @@ public class AndroidHack {
         return _sActivityThread;
     }
 
+    /**
+     * we  nedd hook H(handler),hanlde message
+     ***/
     public static Handler hackH() throws Exception {
         Object activityThread = getActivityThread();
         if (activityThread == null) {
@@ -230,8 +236,12 @@ public class AndroidHack {
             throw new RuntimeException(e);
         }
     }
-
-    public static void injectClassLoader(String str, ClassLoader classLoader)
+/**
+ * inject  system  classloader,we need handle  load class from  bundle
+ * @param packageName  package name
+ * @param classLoader    delegate  classloader
+ * ***/
+    public static void injectClassLoader(String packageName, ClassLoader classLoader)
             throws Exception {
         Object activityThread = getActivityThread();
         if (activityThread == null) {
@@ -239,7 +249,7 @@ public class AndroidHack {
                     "Failed to get ActivityThread.sCurrentActivityThread");
         }
         Object loadedApk = getLoadedApk(RuntimeVariables.androidApplication,
-                activityThread, str);
+                activityThread, packageName);
         if (loadedApk == null) {
             loadedApk = createNewLoadedApk(RuntimeVariables.androidApplication,
                     activityThread);
@@ -250,7 +260,7 @@ public class AndroidHack {
         OpenAtlasHacks.LoadedApk_mClassLoader.set(loadedApk, classLoader);
     }
 
-    public static void injectApplication(String str, Application application)
+    public static void injectApplication(String packageName, Application application)
             throws Exception {
         Object activityThread = getActivityThread();
         if (activityThread == null) {
@@ -267,6 +277,12 @@ public class AndroidHack {
                 application);
     }
 
+    /***
+     * hack Resource  use delegate resource,process  resource in bundle
+     *
+     * @param application host application object
+     * @param resources   delegate resource
+     *****/
     public static void injectResources(Application application,
                                        Resources resources) throws Exception {
         Object activityThread = getActivityThread();
@@ -295,6 +311,9 @@ public class AndroidHack {
         OpenAtlasHacks.ContextImpl_mTheme.set(application.getBaseContext(), null);
     }
 
+    /***
+     * get Instrumentation,should be  hacked Instrumentation
+     */
     public static Instrumentation getInstrumentation() throws Exception {
         Object activityThread = getActivityThread();
         if (activityThread != null) {
@@ -305,6 +324,11 @@ public class AndroidHack {
                 "Failed to get ActivityThread.sCurrentActivityThread");
     }
 
+    /***
+     * hack Instrumentation,we replace Instrumentation used HackInstrumentation<br>
+     * such start activity in Instrumentation ,before this ,we need verify  target class is loaded or
+     * load  target class,and so on
+     **/
     public static void injectInstrumentationHook(Instrumentation instrumentation)
             throws Exception {
         Object activityThread = getActivityThread();
@@ -316,6 +340,7 @@ public class AndroidHack {
                 instrumentation);
     }
 
+    @SuppressWarnings("unused")
     public static void injectContextHook(ContextWrapper contextWrapper,
                                          ContextWrapper contextWrapperValue) {
         OpenAtlasHacks.ContextWrapper_mBase.set(contextWrapper, contextWrapperValue);

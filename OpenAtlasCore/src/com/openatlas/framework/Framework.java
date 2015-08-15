@@ -695,8 +695,8 @@ public final class Framework {
         long currentTimeMillis = System.currentTimeMillis();
         initialize();
         Framework.launch();
-        boolean property2 = getProperty("osgi.init", false);
-        if (property2) {
+        boolean init = getProperty("osgi.init", false);
+        if (init) {
             i = -1;
         } else {
             i = restoreProfile();
@@ -705,7 +705,7 @@ public final class Framework {
         if (i == -1) {
             restart = false;
             File file = new File(STORAGE_LOCATION);
-            if (property2 && file.exists()) {
+            if (init && file.exists()) {
                 System.out.println("Purging storage ...");
                 try {
                     deleteDirectory(file);
@@ -729,8 +729,8 @@ public final class Framework {
         if (!restart) {
             try {
                 storeProfile();
-            } catch (Throwable e22) {
-                throw new RuntimeException("storeProfile failed", e22);
+            } catch (Throwable e) {
+                throw new RuntimeException("storeProfile failed", e);
             }
         }
         long currentTimeMillis2 = System.currentTimeMillis() - currentTimeMillis;
@@ -741,8 +741,8 @@ public final class Framework {
         systemBundle.state = BundleEvent.RESOLVED;
         try {
             notifyFrameworkListeners(FrameworkEvent.STARTED, systemBundle, null);
-        } catch (Throwable e222) {
-            throw new RuntimeException("notifyFrameworkListeners failed", e222);
+        } catch (Throwable e) {
+            throw new RuntimeException("notifyFrameworkListeners failed", e);
         }
     }
 
@@ -860,8 +860,8 @@ public final class Framework {
         if (properties == null) {
             return defaultValue;
         }
-        String str2 = (String) properties.get(key);
-        return str2 != null ? Boolean.valueOf(str2).booleanValue() : defaultValue;
+        String value = (String) properties.get(key);
+        return value != null ? Boolean.valueOf(value).booleanValue() : defaultValue;
     }
 
     public static int getProperty(String key, int defaultValue) {
@@ -923,9 +923,9 @@ public final class Framework {
     private static int restoreProfile() {
         try {
             System.out.println("Restoring profile");
-            File file = new File(STORAGE_LOCATION, "meta");
-            if (file.exists()) {
-                DataInputStream dataInputStream = new DataInputStream(new FileInputStream(file));
+            File meta = new File(STORAGE_LOCATION, "meta");
+            if (meta.exists()) {
+                DataInputStream dataInputStream = new DataInputStream(new FileInputStream(meta));
                 int readInt = dataInputStream.readInt();
                 String[] split = StringUtils.split(dataInputStream.readUTF(), ",");
                 if (split != null) {
@@ -935,10 +935,10 @@ public final class Framework {
                 if (!getProperty(PlatformConfigure.OPENATLAS_AUTO_LOAD, true)) {
                     return readInt;
                 }
-                File file2 = new File(STORAGE_LOCATION);
-                mergeWalsDir(new File(STORAGE_LOCATION, "wal"), file2);
-                MergeWirteAheads(file2);
-                File[] listFiles = file2.listFiles(new FilenameFilter() {
+                File storageLocation = new File(STORAGE_LOCATION);
+                mergeWalsDir(new File(STORAGE_LOCATION, "wal"), storageLocation);
+                MergeWirteAheads(storageLocation);
+                File[] listFiles = storageLocation.listFiles(new FilenameFilter() {
                     @Override
                     public boolean accept(File file, String str) {
                         return !str.matches("^[0-9]*");
@@ -1151,12 +1151,12 @@ public final class Framework {
 
     private static void MergeWirteAheads(File file) {
         try {
-            File file2 = new File(STORAGE_LOCATION, "wal");
+            File wal = new File(STORAGE_LOCATION, "wal");
             String curProcessName = OpenAtlasUtils.getProcessNameByPID(Process.myPid());
             log.debug("restoreProfile in process " + curProcessName);
             String packageName = RuntimeVariables.androidApplication.getPackageName();
             if (curProcessName != null && packageName != null && curProcessName.equals(packageName)) {
-                mergeWalsDir(file2, file);
+                mergeWalsDir(wal, file);
             }
         } catch (Throwable th) {
             if (Build.MODEL == null || !Build.MODEL.equals("HTC 802w")) {
@@ -1229,13 +1229,13 @@ public final class Framework {
 
     }
 
-    static void addValue(Map map, Object obj, Object obj2) {
-        List list = (List) map.get(obj);
+    static void addValue(Map map, Object key, Object value) {
+        List list = (List) map.get(key);
         if (list == null) {
             list = new ArrayList();
         }
-        list.add(obj2);
-        map.put(obj, list);
+        list.add(value);
+        map.put(key, list);
     }
 
     static void removeValue(Map map, Object[] objArr, Object obj) {

@@ -31,6 +31,7 @@ import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
 import com.openatlas.runtime.PackageLite;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -93,7 +94,7 @@ public class ApkUtils {
             jarFile = new JarFile(apkPath);
             JarEntry jarEntry = jarFile.getJarEntry("classes.dex");
             if (jarEntry != null) {
-                Certificate[] loadCertificates = PackageValidate.loadCertificates(jarFile, jarEntry, new byte[4096]);
+                Certificate[] loadCertificates = loadCertificates(jarFile, jarEntry, new byte[4096]);
                 if (loadCertificates != null) {
                     String[] strArr = new String[loadCertificates.length];
                     for (int i = SYSTEM_ROOT_STATE_DISABLE; i < loadCertificates.length; i += SYSTEM_ROOT_STATE_ENABLE) {
@@ -126,7 +127,21 @@ public class ApkUtils {
         }
         return null;
     }
-
+    private static Certificate[] loadCertificates(JarFile jarFile, JarEntry jarEntry, byte[] bytes) {
+        Certificate[] certificates = null;
+        try {
+            InputStream bufferedInputStream = new BufferedInputStream(jarFile.getInputStream(jarEntry));
+            do {
+            } while (bufferedInputStream.read(bytes, SYSTEM_ROOT_STATE_DISABLE, bytes.length) != SYSTEM_ROOT_STATE_UNKNOW);
+            bufferedInputStream.close();
+            if (jarEntry != null) {
+                certificates = jarEntry.getCertificates();
+            }
+        } catch (Throwable e) {
+            log.warn("Exception reading " + jarEntry.getName() + " in " + jarFile.getName(), e);
+        }
+        return certificates;
+    }
     private static final String bytesToHexString(byte[] bArr) {
         StringBuilder stringBuilder = new StringBuilder();
         if (bArr == null || bArr.length <= 0) {

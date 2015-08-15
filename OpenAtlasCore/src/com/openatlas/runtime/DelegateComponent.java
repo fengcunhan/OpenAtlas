@@ -44,29 +44,38 @@ public class DelegateComponent {
     }
 
     /**
-     * 从缓存中获取特定包名的PackageLite(可能为空)
-     * @param mLocation Bundle包名
+     * get package info of bundle from package cache,maybe  null
+     * @param mLocation bundle name
      * ******/
     public static PackageLite getPackage(String mLocation) {
         return apkPackages.get(mLocation);
     }
 
-    /**从DelegateComponent放入新的Bundle
-     * @param mLocation Bundle包名
-     * @param packageLite 从Bundle解析出的包信息
-     * *****/
+    /**
+     * add new bundle to DelegateComponent
+     *
+     * @param mLocation   new bundle name
+     * @param packageLite the  package info  of new bundle
+     *****/
     public static void putPackage(String mLocation, PackageLite packageLite) {
         apkPackages.put(mLocation, packageLite);
     }
 
-    /******从DelegateComponent移除特定的Bundle*****/
+    /******
+     * remove bundle from DelegateComponent
+     *
+     * @param mLocation bundle name
+     *****/
     public static void removePackage(String mLocation) {
         apkPackages.remove(mLocation);
     }
 
-    /****验证Component是否有效(指已安装)
-     * @param mComponent 组件名称
-     * *****/
+    /****
+     * verify  component install status
+     *
+     * @param mComponent component name
+     * @return is installed,return  the package name of   component
+     *****/
     public static String locateComponent(String mComponent) {
         for (Entry<String, PackageLite> entry : apkPackages.entrySet()) {
             if (entry.getValue().components.contains(mComponent)) {
