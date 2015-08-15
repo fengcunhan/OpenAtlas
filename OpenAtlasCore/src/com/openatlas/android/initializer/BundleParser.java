@@ -39,6 +39,7 @@ import java.util.ArrayList;
 
 
 /**
+ * BundleParser  parser  bundle  list info from json
  * @author BunnyBlue
  *
  */

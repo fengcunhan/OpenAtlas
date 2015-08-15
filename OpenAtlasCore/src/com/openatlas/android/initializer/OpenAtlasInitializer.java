@@ -29,7 +29,6 @@ package com.openatlas.android.initializer;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
@@ -42,14 +41,13 @@ import android.util.Log;
 import com.openatlas.android.task.Coordinator;
 import com.openatlas.android.task.Coordinator.TaggedRunnable;
 import com.openatlas.boot.Globals;
-import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.bundleInfo.BundleInfoList;
 import com.openatlas.bundleInfo.BundleInfoList.BundleInfo;
 import com.openatlas.bundleInfo.BundleListing;
 import com.openatlas.framework.Atlas;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.util.ApkUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -69,7 +67,7 @@ public class OpenAtlasInitializer {
         time = 0;
     }
 
-    public OpenAtlasInitializer(Application application, String packageName, Context context) {
+    public OpenAtlasInitializer(Application application, String packageName) {
 
         this.init = true;
         this.mApp = application;
@@ -88,6 +86,9 @@ public class OpenAtlasInitializer {
         }
     }
 
+    /**
+     * init ,you should  call  this on  Application,hack  class  method and  field
+     **/
     public void init() {
         time = System.currentTimeMillis();
         try {
@@ -99,11 +100,14 @@ public class OpenAtlasInitializer {
         }
     }
 
+    /***
+     * start update  OpenAtlas ,you should call in Application.onCreate()
+     **/
     public void startUp() {
         this.init = isMatchVersion();
         if (this.init) {
             killMe();
-            ensureBaselineInfo();
+
         }
         Properties properties = new Properties();
         properties.put(PlatformConfigure.BOOT_ACTIVITY, PlatformConfigure.BOOT_ACTIVITY);
@@ -111,12 +115,7 @@ public class OpenAtlasInitializer {
         properties.put(PlatformConfigure.ATLAS_APP_DIRECTORY, this.mApp.getFilesDir().getParent());
 
         try {
-//            Field declaredField = Globals.class.getDeclaredField("sApplication");
-//            declaredField.setAccessible(true);
-//            declaredField.set(null, this.mApp);
-//            declaredField = Globals.class.getDeclaredField("sClassLoader");
-//            declaredField.setAccessible(true);
-//            declaredField.set(null, Atlas.getInstance().getDelegateClassLoader());
+
               Globals.init(this.mApp, Atlas.getInstance().getDelegateClassLoader());
             if (this.mApp.getPackageName().equals(this.pkgName)) {
                 if (verifyRuntime() || !ApkUtils.isRootSystem()) {
@@ -149,12 +148,7 @@ public class OpenAtlasInitializer {
         }
     }
 
-    private void ensureBaselineInfo() {
-        File file = new File(this.mApp.getFilesDir() + File.separator + "bundleBaseline" + File.separator + "baselineInfo");
-        if (file.exists()) {
-            file.delete();
-        }
-    }
+
 
     private void killMe() {
         if (!this.mApp.getPackageName().equals(this.pkgName)) {

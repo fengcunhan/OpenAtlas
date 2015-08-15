@@ -21,6 +21,7 @@
  *
  * @author BunnyBlue
  * @author BunnyBlue
+ * @author BunnyBlue
  */
 /**
  * @author BunnyBlue
@@ -35,36 +36,38 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.util.Log;
 
-import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.framework.AtlasConfig;
+import com.openatlas.framework.PlatformConfigure;
 
 import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
+/**
+ * Utils used for  initializer
+ **/
 public class Utils {
 
-    /****从压缩包证获取Bundle的文件名称***/
+    /**get file name from entryName***/
     public static String getFileNameFromEntryName(String entryName) {
         String local = "lib/" + AtlasConfig.PRELOAD_DIR + "/";
         return entryName.substring(entryName.indexOf(local) + local.length());
     }
 
-    /***从压缩包中获取插件的报名
-     * @param entryName Bundle在压缩包中的路径
+    /***get bundle name from archive file(hose app apk)
+     * @param entryName   bundle entryName in archive file
      * ****/
     public static String getPackageNameFromEntryName(String entryName) {
         String local = "lib/" + AtlasConfig.PRELOAD_DIR + "/lib";
         return entryName.substring(entryName.indexOf(local) + local.length(), entryName.indexOf(".so")).replace("_", ".");
     }
 
-    /******从动态库中解析Bundle名称<br> 例如libcom_myapp_app1.so******/
+    /**get bundle name from so file <br> such as libcom_myapp_app1.so,you will get com.myapp.app1******/
     public static String getPackageNameFromSoName(String soName) {
         return soName.substring(soName.indexOf("lib") + "lib".length(), soName.indexOf(".so")).replace("_", ".");
     }
 
-    /****获取文件名称，不含拓展名***/
+    /****get file name ,exclude  extension***/
     public static String getBaseFileName(String fileName) {
         int lastIndexOf = fileName.lastIndexOf(".");
         if (lastIndexOf > 0) {
@@ -82,10 +85,13 @@ public class Utils {
         }
     }
 
+    /**
+     * save OpenAtlas runtime info to sharedPreference
+     **/
     public static void saveAtlasInfoBySharedPreferences(Application application) {
         Map<String, String> concurrentHashMap = new ConcurrentHashMap<String, String>();
         concurrentHashMap.put(getPackageInfo(application).versionName, "dexopt");
-        SharedPreferences sharedPreferences = application.getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE ,Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = application.getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE, Context.MODE_PRIVATE);
         if (sharedPreferences == null) {
             sharedPreferences = application.getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE, Context.MODE_PRIVATE);
         }
@@ -96,7 +102,7 @@ public class Utils {
         edit.commit();
     }
 
-    /****更新版本信息***/
+    /****update version info***/
     public static void UpdatePackageVersion(Application application) {
         PackageInfo packageInfo = getPackageInfo(application);
         Editor edit = application.getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE, Context.MODE_PRIVATE).edit();
@@ -106,27 +112,27 @@ public class Utils {
         edit.commit();
     }
 
-    /*****通知UI安装插件完成*****/
+    /***nofity UI bundle installed***/
     public static void notifyBundleInstalled(Application application) {
         System.setProperty("BUNDLES_INSTALLED", "true");
         application.sendBroadcast(new Intent(PlatformConfigure.ACTION_BROADCAST_BUNDLES_INSTALLED));
     }
 
-    /*****从指定目录查找文件
-     * @param direcotyPath 文件夹路径
-     * @param keyword 要查找的文件名
+    /*****find  file from specific directory
+     * @param directoryPath directory
+     * @param keyword keyword of file
      * *******/
-    public static boolean searchFile(String direcotyPath, String keyword) {
-        if (direcotyPath == null || keyword == null) {
+    public static boolean searchFile(String directoryPath, String keyword) {
+        if (directoryPath == null || keyword == null) {
             Log.e("Utils", "error in search File, direcoty or keyword is null");
             return false;
         }
-        File direcotyFile = new File(direcotyPath);
+        File direcotyFile = new File(directoryPath);
         if (direcotyFile == null || !direcotyFile.exists()) {
-            Log.e("Utils", "error in search File, can not open directory " + direcotyPath);
+            Log.e("Utils", "error in search File, can not open directory " + directoryPath);
             return false;
         }
-        File[] listFiles = new File(direcotyPath).listFiles();
+        File[] listFiles = new File(directoryPath).listFiles();
         if (listFiles == null || listFiles.length <= 0) {
             return false;
         }
@@ -136,7 +142,7 @@ public class Utils {
                 return true;
             }
         }
-        Log.e("Util", "the file search failed directory is " + direcotyPath + " keyword is " + keyword);
+        Log.e("Util", "the file search failed directory is " + directoryPath + " keyword is " + keyword);
         return false;
     }
 }

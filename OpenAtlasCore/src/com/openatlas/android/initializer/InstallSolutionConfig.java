@@ -27,14 +27,14 @@
  */
 package com.openatlas.android.initializer;
 
-/***插件安装配置文件<br>
- * plugin install rule config
+/***Bundle  install policy config,defult config,you needn't chage<br>
  * ****/
 public class InstallSolutionConfig {
-    /*****default config  ,only install auto start plugin<br>缺省配置，只安装随机启动的apk，其余的用到的事后加载******/
+    /*** not install ,until you  used  ******/
     public static final boolean install_when_findclass = true;
+
     public static boolean install_when_oncreate = true;
-    public static final boolean install_when_onreceive = false;
+    /*** auto install  all bundle ******/
     public static final boolean install_when_oncreate_auto = false;
 
 }

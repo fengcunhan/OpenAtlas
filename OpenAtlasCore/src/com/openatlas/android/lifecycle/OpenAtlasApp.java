@@ -52,7 +52,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-/****OpenAtlas 框架App的基类，用户的application需要集成此类****/
+/****OpenAtlasApplication, you can  extend  this class direct****/
 public class OpenAtlasApp extends OpenAtlasCompat {
     private static final Handler mAppHandler;
     private final AtomicInteger mCreationCount;
@@ -214,9 +214,8 @@ public class OpenAtlasApp extends OpenAtlasCompat {
                 break;
             }
         }
-        this.mAtlasInitializer = new OpenAtlasInitializer(this, getPackageName(), getApplicationContext());
-        // this.mAtlasInitializer.injectApplication();
-        // initCrashHandlerAndSafeMode(this.mBaseContext);
+        this.mAtlasInitializer = new OpenAtlasInitializer(this, getPackageName());
+        //this.mAtlasInitializer.injectApplication();
         this.mAtlasInitializer.init();
     }
 
