@@ -110,7 +110,6 @@ public class ClassLoadFromBundle {
 
     static Class<?> loadFromInstalledBundles(String componet) throws ClassNotFoundException {
         BundleImpl bundleImpl;
-        int i = 0;
         Class<?> cls = null;
         List<Bundle> bundles = Framework.getBundles();
         if (!(bundles == null || bundles.isEmpty())) {
@@ -135,37 +134,34 @@ public class ClassLoadFromBundle {
                     }
                     StringBuilder append = new StringBuilder().append("Can't find class ").append(componet)
                             .append(" in BundleClassLoader: ").append(bundleImpl.getLocation()).append(" [");
-                    if (bundles != null) {
-                        i = bundles.size();
-                    }
-                    throw new ClassNotFoundException(append.append(i).append("]")
+                    throw new ClassNotFoundException(append.append( bundles.size()).append("]")
                             .append(classLoader == null ? "classloader is null" : "classloader not null")
                             .append(" packageversion ").append(getPackageVersion()).toString());
                 }
             }
         }
         if (!(bundles == null || bundles.isEmpty())) {
-            Class<?> cls2 = null;
-            for (Bundle bundle2 : Framework.getBundles()) {
-                bundleImpl = (BundleImpl) bundle2;
+
+            for (Bundle bundle : Framework.getBundles()) {
+                bundleImpl = (BundleImpl) bundle;
                 if (bundleImpl.getArchive().isDexOpted()) {
-                    Class<?> loadClass = null;
-                    ClassLoader classLoader2 = bundleImpl.getClassLoader();
-                    if (classLoader2 != null) {
+
+                    ClassLoader classLoader = bundleImpl.getClassLoader();
+                    if (classLoader != null) {
                         try {
-                            loadClass = classLoader2.loadClass(componet);
-                            if (loadClass != null) {
-                                return loadClass;
+                            cls = classLoader.loadClass(componet);
+                            if (cls != null) {
+                                return cls;
                             }
-                        } catch (ClassNotFoundException e2) {
+                        } catch (ClassNotFoundException e) {
                         }
                     } else {
-                        loadClass = cls2;
+
                     }
-                    cls2 = loadClass;
+
                 }
             }
-            cls = cls2;
+
         }
         return cls;
     }

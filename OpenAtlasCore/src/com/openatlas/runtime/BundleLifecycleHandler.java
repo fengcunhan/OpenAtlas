@@ -29,6 +29,7 @@ import android.os.Looper;
 
 import com.openatlas.framework.BundleImpl;
 import com.openatlas.framework.Framework;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.hack.OpenAtlasHacks;
 import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
@@ -47,8 +48,8 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
         }
 
         @Override
-        protected Void doInBackground(Bundle... bundleArr) {
-            BundleLifecycleHandler.this.started(bundleArr[0]);
+        protected Void doInBackground(Bundle... bundles) {
+            BundleLifecycleHandler.this.started(bundles[0]);
             return null;
         }
     }
@@ -72,7 +73,6 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
                     if (Looper.myLooper() == null) {
                         Looper.prepare();
                     }
-                    Thread.dumpStack();
                     started(bundleEvent.getBundle());
                 } else if (Framework.isFrameworkStartupShutdown()) {
                     BundleStartTask bundleStartTask = new BundleStartTask();
@@ -116,15 +116,11 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
                             + bundleImpl.getLocation(), e);
         }
         if (DelegateComponent.getPackage(bundle.getLocation()) == null) {
-            PackageLite parse = PackageLite.parse(bundleImpl.getArchive()
-                    .getArchiveFile());
-            log.info("Bundle installation info " + bundle.getLocation() + ":"
-                    + parse.components);
+            PackageLite parse = PackageLite.parse(bundleImpl.getArchive().getArchiveFile());
+            log.info("Bundle installation info " + bundle.getLocation() + ":" + parse.components);
             DelegateComponent.putPackage(bundle.getLocation(), parse);
         }
-        log.info("loaded() spend "
-                + (System.currentTimeMillis() - currentTimeMillis)
-                + " milliseconds");
+        log.info("loaded() spend " + (System.currentTimeMillis() - currentTimeMillis) + " milliseconds");
     }
 
     private void installed(Bundle bundle) {
@@ -140,41 +136,43 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
     private void started(Bundle bundle) {
         BundleImpl bundleImpl = (BundleImpl) bundle;
         long currentTimeMillis = System.currentTimeMillis();
-        String mBundleApplicationNames = bundleImpl.getHeaders().get("Bundle-Application");
-        if (StringUtils.isNotEmpty(mBundleApplicationNames)) {
-            String[] strArr;
-            String[] split = StringUtils.split(mBundleApplicationNames, ",");
-            if (split == null || split.length == 0) {
-                strArr = new String[]{mBundleApplicationNames};
-            } else {
-                strArr = split;
-            }
-            if (strArr != null) {
-                for (String str2 : strArr) {
-                    String trim = StringUtils.trim(str2);
-                    if (StringUtils.isNotEmpty(trim)) {
-
-                        try {
-                            int i;
-                            for (Application newApplication2 : DelegateComponent.apkApplications.values()) {
-                                if (newApplication2.getClass().getName().equals(trim)) {
-                                    i = 1;
-                                    break;
+        if (PlatformConfigure.CODE_ENABLE_COMPILE) {//no used OSGI.MF any more,disable compile this code
+            String mBundleApplicationNames = bundleImpl.getHeaders().get("Bundle-Application");
+            if (StringUtils.isNotEmpty(mBundleApplicationNames)) {
+                String[] bundleApplications;
+                String[] split = StringUtils.split(mBundleApplicationNames, ",");
+                if (split == null || split.length == 0) {
+                    bundleApplications = new String[]{mBundleApplicationNames};
+                } else {
+                    bundleApplications = split;
+                }
+                if (bundleApplications != null) {
+                    for (String bundleApplication : bundleApplications) {
+                        String trim = StringUtils.trim(bundleApplication);
+                        if (StringUtils.isNotEmpty(trim)) {
+                            try {
+                                boolean needInit = true;
+                                for (Application initedApplication : DelegateComponent.apkApplications.values()) {
+                                    if (initedApplication.getClass().getName().equals(trim)) {
+                                        needInit = false;
+                                        break;
+                                    }
                                 }
+                                if (needInit) {
+                                    Application newApplication = newApplication(trim, bundleImpl.getClassLoader());
+                                    newApplication.onCreate();
+                                    DelegateComponent.apkApplications.put("system:" + trim, newApplication);
+                                }
+                            } catch (Throwable th) {
+                                log.error("Error to start application", th);
                             }
-                            i = 0;
-                            if (i == 0) {
-                                Application newApplication2 = newApplication(trim, bundleImpl.getClassLoader());
-                                newApplication2.onCreate();
-                                DelegateComponent.apkApplications.put("system:" + trim, newApplication2);
-                            }
-                        } catch (Throwable th) {
-                            log.error("Error to start application", th);
                         }
                     }
                 }
+                return;
             }
-        } else {
+        }
+        {
             PackageLite packageLite = DelegateComponent.getPackage(bundleImpl.getLocation());
             if (packageLite != null) {
                 String applicationClassName = packageLite.applicationClassName;
@@ -201,8 +199,7 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
     }
 
     private void stopped(Bundle bundle) {
-        Application application = DelegateComponent.apkApplications
-                .get(bundle.getLocation());
+        Application application = DelegateComponent.apkApplications.get(bundle.getLocation());
         if (application != null) {
             application.onTerminate();
             DelegateComponent.apkApplications.remove(bundle.getLocation());

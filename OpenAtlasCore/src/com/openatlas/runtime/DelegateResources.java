@@ -250,29 +250,29 @@ public class DelegateResources extends Resources {
     }
 
     @Override
-    public int getIdentifier(String str, String str2, String str3) {
-        int identifier = super.getIdentifier(str, str2, str3);
+    public int getIdentifier(String name, String defType, String defPackage) {
+        int identifier = super.getIdentifier(name, defType, defPackage);
         if (identifier != 0) {
             return identifier;
         }
         if (VERSION.SDK_INT <= 19) {
             return 0;
         }
-        if (str2 == null && str3 == null) {
-            String substring = str.substring(str.indexOf("/") + 1);
-            str2 = str.substring(str.indexOf(":") + 1, str.indexOf("/"));
-            str = substring;
+        if (defType == null && defPackage == null) {
+            String substring = name.substring(name.indexOf("/") + 1);
+            defType = name.substring(name.indexOf(":") + 1, name.indexOf("/"));
+            name = substring;
         }
-        if (TextUtils.isEmpty(str) || TextUtils.isEmpty(str2)) {
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(defType)) {
             return 0;
         }
         List<?> bundles = Framework.getBundles();
         if (!(bundles == null || bundles.isEmpty())) {
             for (Bundle bundle : Framework.getBundles()) {
                 String location = bundle.getLocation();
-                String str4 = location + ":" + str;
-                if (!this.resIdentifierMap.isEmpty() && this.resIdentifierMap.containsKey(str4)) {
-                    int intValue = this.resIdentifierMap.get(str4).intValue();
+                String nameWithPkg = location + ":" + name;
+                if (!this.resIdentifierMap.isEmpty() && this.resIdentifierMap.containsKey(nameWithPkg)) {
+                    int intValue = this.resIdentifierMap.get(nameWithPkg).intValue();
                     if (intValue != 0) {
                         return intValue;
                     }
@@ -284,10 +284,10 @@ public class DelegateResources extends Resources {
                         try {
                             StringBuilder stringBuilder = new StringBuilder(location);
                             stringBuilder.append(".R$");
-                            stringBuilder.append(str2);
-                            identifier = getFieldValueOfR(classLoader.loadClass(stringBuilder.toString()), str);
+                            stringBuilder.append(defType);
+                            identifier = getFieldValueOfR(classLoader.loadClass(stringBuilder.toString()), name);
                             if (identifier != 0) {
-                                this.resIdentifierMap.put(str4, Integer.valueOf(identifier));
+                                this.resIdentifierMap.put(nameWithPkg, Integer.valueOf(identifier));
                                 return identifier;
                             }
                         } catch (ClassNotFoundException e) {
@@ -301,18 +301,19 @@ public class DelegateResources extends Resources {
         return 0;
     }
 
+    @SuppressWarnings("ResourceType")
     @Override
-    public String getString(int i) throws NotFoundException {
-        if (VERSION.SDK_INT < 21 || (i != 0x2040002 && i != 0x40002 && i != 0x3040002)) {
-            return super.getString(i);
+    public String getString(int id) throws NotFoundException {
+        if (VERSION.SDK_INT < 21 || (id != 0x2040002 && id != 0x40002 && id != 0x3040002)) {
+            return super.getString(id);
         }
         return "Web View";
     }
 
-    private static int getFieldValueOfR(Class<?> cls, String str) {
+    private static int getFieldValueOfR(Class<?> cls, String name) {
         if (cls != null) {
             try {
-                Field declaredField = cls.getDeclaredField(str);
+                Field declaredField = cls.getDeclaredField(name);
                 if (declaredField != null) {
                     if (!declaredField.isAccessible()) {
                         declaredField.setAccessible(true);
@@ -320,8 +321,8 @@ public class DelegateResources extends Resources {
                     return ((Integer) declaredField.get(null)).intValue();
                 }
             } catch (NoSuchFieldException e) {
-            } catch (IllegalAccessException e2) {
-            } catch (IllegalArgumentException e3) {
+            } catch (IllegalAccessException e) {
+            } catch (IllegalArgumentException e) {
             }
         }
         return 0;
