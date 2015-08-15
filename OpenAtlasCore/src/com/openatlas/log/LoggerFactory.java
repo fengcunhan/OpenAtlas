@@ -28,18 +28,18 @@ public class LoggerFactory {
         logLevel = 1;
     }
 
-    public static Logger getInstance(String str) {
-        return getInstance(str, null);
+    public static Logger getInstance(String tag) {
+        return getInstance(tag, null);
     }
 
     public static Logger getInstance(Class<?> cls) {
         return getInstance(null, cls);
     }
 
-    private static Logger getInstance(String str, Class<?> cls) {
+    private static Logger getInstance(String tag, Class<?> cls) {
         if (cls != null) {
             return new AndroidLogger(cls);
         }
-        return new AndroidLogger(str);
+        return new AndroidLogger(tag);
     }
 }

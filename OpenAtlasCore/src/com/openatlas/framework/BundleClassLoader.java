@@ -156,7 +156,7 @@ public final class BundleClassLoader extends ClassLoader {
         } else {
             mainAttributes = new Attributes();
         }
-        checkEE(readProperty(mainAttributes,
+        checkExecutionEnviroment(readProperty(mainAttributes,
                         Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT),
                 splitString(System.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT)));
         this.exports = readProperty(mainAttributes, Constants.EXPORT_PACKAGE);
@@ -173,60 +173,57 @@ public final class BundleClassLoader extends ClassLoader {
         }
         this.bundle.headers = hashtable;
     }
-
-    private void checkEE(String[] strArr, String[] strArr2)
+    private void checkExecutionEnviroment(String[] requireEnv, String[] execEnv)
             throws BundleException {
-        if (strArr.length != 0) {
-            Set hashSet = new HashSet(Arrays.asList(strArr2));
+        if (requireEnv.length != 0) {
+            Set hashSet = new HashSet(Arrays.asList(execEnv));
             int i = 0;
-            while (i < strArr.length) {
-                if (!hashSet.contains(strArr[i])) {
+            while (i < requireEnv.length) {
+                if (!hashSet.contains(requireEnv[i])) {
                     i++;
                 } else {
                     return;
                 }
             }
-            throw new BundleException("Platform does not provide EEs " + Arrays.asList(strArr));
+            throw new BundleException("Platform does not provide EEs " + Arrays.asList(requireEnv));
         }
     }
 
     boolean resolveBundle(boolean resolve, HashSet<BundleClassLoader> hashSet) throws BundleException {
-        int i;
+
         if (Framework.DEBUG_CLASSLOADING && log.isInfoEnabled()) {
             log.info("BundleClassLoader: Resolving " + this.bundle + (resolve ? " (critical)" : " (not critical)"));
         }
-        HashSet hashSet2;
+        HashSet hashSetExports=null;
         if (this.exports.length > 0) {
-            HashSet hashSet3 = new HashSet(this.exports.length);
+             hashSetExports = new HashSet(this.exports.length);
             for (String parsePackageString : this.exports) {
-                hashSet3.add(Package.parsePackageString(parsePackageString)[0]);
+                hashSetExports.add(Package.parsePackageString(parsePackageString)[0]);
             }
-            hashSet2 = hashSet3;
-        } else {
-            hashSet2 = null;
+
         }
         if (this.imports.length > 0) {
             if (this.importDelegations == null) {
                 this.importDelegations = new HashMap(this.imports.length);
             }
-            for (int i2 = 0; i2 < this.imports.length; i2++) {
-                String obj = Package.parsePackageString(this.imports[i2])[0];
+            for (int i = 0; i < this.imports.length; i++) {
+                String obj = Package.parsePackageString(this.imports[i])[0];
                 if (!FRAMEWORK_PACKAGES.contains(obj)
                         && this.importDelegations.get(obj) == null
-                        && (hashSet2 == null || !hashSet2.contains(obj))) {
+                        && (hashSetExports == null || !hashSetExports.contains(obj))) {
                     BundleClassLoader bundleClassLoader = Framework.getImport(
-                            this.bundle, this.imports[i2], resolve, hashSet);
+                            this.bundle, this.imports[i], resolve, hashSet);
                     if (bundleClassLoader != null) {
                         if (bundleClassLoader != this) {
                             this.importDelegations.put(obj, bundleClassLoader);
                         }
                     } else if (resolve) {
                         throw new BundleException("Unsatisfied import "
-                                + this.imports[i2] + " for bundle "
+                                + this.imports[i] + " for bundle "
                                 + this.bundle.toString(),
                                 new ClassNotFoundException(
                                         "Unsatisfied import "
-                                                + this.imports[i2]));
+                                                + this.imports[i]));
                     } else {
                         if (this.exports.length > 0) {
                             Framework.export(this, this.exports, false);
@@ -236,7 +233,7 @@ public final class BundleClassLoader extends ClassLoader {
                             return false;
                         }
                         log.info("BundleClassLoader: Missing import "
-                                + this.imports[i2]
+                                + this.imports[i]
                                 + ". Resolving attempt terminated unsuccessfully.");
                         return false;
                     }
@@ -247,15 +244,15 @@ public final class BundleClassLoader extends ClassLoader {
             if (this.importDelegations == null) {
                 this.importDelegations = new HashMap(this.imports.length);
             }
-            for (i = 0; i < this.exports.length; i++) {
-                BundleClassLoader bundleClassLoader2 = Framework.getImport(
+            for (int i = 0; i < this.exports.length; i++) {
+                BundleClassLoader bundleClassLoader = Framework.getImport(
                         this.bundle,
                         Package.parsePackageString(this.exports[i])[0], false,
                         null);
-                if (!(bundleClassLoader2 == null || bundleClassLoader2 == this)) {
+                if (!(bundleClassLoader == null || bundleClassLoader == this)) {
                     this.importDelegations.put(
                             Package.parsePackageString(this.exports[i])[0],
-                            bundleClassLoader2);
+                            bundleClassLoader);
                 }
             }
         }
@@ -265,11 +262,11 @@ public final class BundleClassLoader extends ClassLoader {
         return true;
     }
 
-    void cleanup(boolean z) {
+    void cleanup(boolean staleExportedPackage) {
         ArrayList arrayList = new ArrayList();
-        for (String str : this.exports) {
+        for (String export : this.exports) {
             Package packageR = Framework.exportedPackages
-                    .get(new Package(str, null, false));
+                    .get(new Package(export, null, false));
             if (packageR != null) {
                 if (packageR.importingBundles == null) {
                     Framework.exportedPackages.remove(packageR);
@@ -281,7 +278,7 @@ public final class BundleClassLoader extends ClassLoader {
             }
         }
         if (this.bundle != null) {
-            if (z) {
+            if (staleExportedPackage) {
                 this.bundle.staleExportedPackages = (Package[]) arrayList
                         .toArray(new Package[arrayList.size()]);
             } else {
@@ -289,17 +286,17 @@ public final class BundleClassLoader extends ClassLoader {
             }
         }
         if (this.importDelegations != null) {
-            String[] strArr = this.importDelegations.keySet()
+            String[] delegations = this.importDelegations.keySet()
                     .toArray(new String[this.importDelegations.size()]);
-            for (String str2 : strArr) {
-                Package packageR2 = Framework.exportedPackages
-                        .get(new Package(str2, null, false));
-                if (!(packageR2 == null || packageR2.importingBundles == null)) {
-                    packageR2.importingBundles.remove(this.bundle);
-                    if (packageR2.importingBundles.isEmpty()) {
-                        packageR2.importingBundles = null;
-                        if (packageR2.removalPending) {
-                            Framework.exportedPackages.remove(packageR2);
+            for (String mImportDelegation : delegations) {
+                Package exportPackage = Framework.exportedPackages
+                        .get(new Package(mImportDelegation, null, false));
+                if (!(exportPackage == null || exportPackage.importingBundles == null)) {
+                    exportPackage.importingBundles.remove(this.bundle);
+                    if (exportPackage.importingBundles.isEmpty()) {
+                        exportPackage.importingBundles = null;
+                        if (exportPackage.removalPending) {
+                            Framework.exportedPackages.remove(exportPackage);
                         }
                     }
                 }
@@ -308,7 +305,7 @@ public final class BundleClassLoader extends ClassLoader {
         this.importDelegations = null;
         // this.activator = null;
         this.originalExporter = null;
-        if (z) {
+        if (staleExportedPackage) {
             if (arrayList.size() == 0) {
                 this.bundle = null;
             }
@@ -404,8 +401,8 @@ public final class BundleClassLoader extends ClassLoader {
     }
 
     @Override
-    protected URL findResource(String str) {
-        String stripTrailing = stripTrailing(str);
+    protected URL findResource(String name) {
+        String stripTrailing = stripTrailing(name);
         List findOwnResources = findOwnResources(stripTrailing, false);
         if (findOwnResources.size() > 0) {
             return (URL) findOwnResources.get(0);
@@ -416,34 +413,34 @@ public final class BundleClassLoader extends ClassLoader {
     }
 
     @Override
-    protected Enumeration<URL> findResources(String str) {
-        String stripTrailing = stripTrailing(str);
+    protected Enumeration<URL> findResources(String name) {
+        String stripTrailing = stripTrailing(name);
         Collection findOwnResources = findOwnResources(stripTrailing, true);
         findOwnResources.addAll(findImportedResources(stripTrailing, true));
         return Collections.enumeration(findOwnResources);
     }
 
-    private List<URL> findOwnResources(String str, boolean z) {
+    private List<URL> findOwnResources(String name, boolean z) {
         try {
-            return this.archive.getResources(str);
+            return this.archive.getResources(name);
         } catch (IOException e) {
             e.printStackTrace();
             return EMPTY_LIST;
         }
     }
 
-    private List<URL> findImportedResources(String str, boolean z) {
+    private List<URL> findImportedResources(String name, boolean z) {
         if (this.bundle.state == BundleEvent.STARTED || this.importDelegations == null) {
             return EMPTY_LIST;
         }
         BundleClassLoader bundleClassLoader = this.importDelegations
-                .get(packageOf(pseudoClassname(str)));
+                .get(packageOf(pseudoClassname(name)));
         if (bundleClassLoader == null) {
             return EMPTY_LIST;
         }
         return bundleClassLoader.originalExporter == null ? bundleClassLoader
-                .findOwnResources(str, z) : bundleClassLoader.originalExporter
-                .findOwnResources(str, z);
+                .findOwnResources(name, z) : bundleClassLoader.originalExporter
+                .findOwnResources(name, z);
     }
 
     @Override
@@ -484,14 +481,14 @@ public final class BundleClassLoader extends ClassLoader {
         return new String[0];
     }
 
-    private static String[] splitString(String str) {
+    private static String[] splitString(String string) {
         int i = 0;
-        if (str == null) {
+        if (string == null) {
             return new String[0];
         }
-        StringTokenizer stringTokenizer = new StringTokenizer(str, ",");
+        StringTokenizer stringTokenizer = new StringTokenizer(string, ",");
         if (stringTokenizer.countTokens() == 0) {
-            return new String[]{str};
+            return new String[]{string};
         }
         String[] strArr = new String[stringTokenizer.countTokens()];
         while (i < strArr.length) {
@@ -501,18 +498,18 @@ public final class BundleClassLoader extends ClassLoader {
         return strArr;
     }
 
-    private static String stripTrailing(String str) {
-        return (str.startsWith("/") || str.startsWith("\\")) ? str.substring(1)
-                : str;
+    private static String stripTrailing(String name) {
+        return (name.startsWith("/") || name.startsWith("\\")) ? name.substring(1)
+                : name;
     }
 
-    private static String packageOf(String str) {
-        int lastIndexOf = str.lastIndexOf(46);
-        return lastIndexOf > -1 ? str.substring(0, lastIndexOf) : "";
+    private static String packageOf(String name) {
+        int lastIndexOf = name.lastIndexOf(46);
+        return lastIndexOf > -1 ? name.substring(0, lastIndexOf) : "";
     }
 
-    private static String pseudoClassname(String str) {
-        return stripTrailing(str).replace('.', '-').replace('/', '.')
+    private static String pseudoClassname(String name) {
+        return stripTrailing(name).replace('.', '-').replace('/', '.')
                 .replace('\\', '.');
     }
 }

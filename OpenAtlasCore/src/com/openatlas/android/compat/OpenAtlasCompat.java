@@ -29,7 +29,7 @@ import android.os.Bundle;
 
 import java.util.ArrayList;
 
-public class AtlasCompat extends Application {
+public class OpenAtlasCompat extends Application {
     private final ArrayList<ActivityLifecycleCallbacksCompat> mActivityLifecycleCallbacks;
 
     public interface ActivityLifecycleCallbacksCompat {
@@ -78,7 +78,7 @@ public class AtlasCompat extends Application {
         }
     }
 
-    public AtlasCompat() {
+    public OpenAtlasCompat() {
         this.mActivityLifecycleCallbacks = new ArrayList<ActivityLifecycleCallbacksCompat>();
     }
 

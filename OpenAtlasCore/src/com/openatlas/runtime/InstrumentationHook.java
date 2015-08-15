@@ -266,16 +266,16 @@ public class InstrumentationHook extends Instrumentation {
 
     private void HandleResourceNotFound(Activity activity, Bundle bundle, Exception exception) {
         if (OpenAtlasHacks.ContextThemeWrapper_mResources != null) {
-            String str;
+            String detailMessage;
             try {
                 List<?> assetPathFromResources = getAssetPathFromResources(OpenAtlasHacks.ContextThemeWrapper_mResources
                         .get(activity));
-                str = "(1)Paths in ContextThemeWrapper_mResources:" + assetPathFromResources + " paths in runtime:"
+                detailMessage = "(1)Paths in ContextThemeWrapper_mResources:" + assetPathFromResources + " paths in runtime:"
                         + DelegateResources.getAssetHistoryPaths();
             } catch (Exception e) {
-                str = "(2)paths in runtime:" + DelegateResources.getAssetHistoryPaths() + " getAssetPath fail: " + e;
+                detailMessage = "(2)paths in runtime:" + DelegateResources.getAssetHistoryPaths() + " getAssetPath fail: " + e;
             }
-            throw new RuntimeException(str, exception);
+            throw new RuntimeException(detailMessage, exception);
         }
         throw new RuntimeException("(3)ContextThemeWrapper_mResources is null paths in runtime:"
                 + DelegateResources.getAssetHistoryPaths(), exception);

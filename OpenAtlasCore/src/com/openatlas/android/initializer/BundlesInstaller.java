@@ -97,7 +97,7 @@ public class BundlesInstaller {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(RuntimeVariables.androidApplication, "Ops 可用空间不足！", 1).show();
+                            Toast.makeText(RuntimeVariables.androidApplication, "Ops 可用空间不足！", Toast.LENGTH_SHORT).show();
 
 
                         }
@@ -105,10 +105,10 @@ public class BundlesInstaller {
                 }
                 if (installAuto) {
                     List<String> arrayList = new ArrayList<String>();
-                    for (String str : bundleList) {
+                    for (String mBundle : bundleList) {
                         for (String replace : AtlasConfig.AUTO) {
-                            if (str.contains(replace.replace(".", "_"))) {
-                                arrayList.add(str);
+                            if (mBundle.contains(replace.replace(".", "_"))) {
+                                arrayList.add(mBundle);
                             }
                         }
                     }

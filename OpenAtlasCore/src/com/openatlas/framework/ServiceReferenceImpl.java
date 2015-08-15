@@ -71,30 +71,30 @@ final class ServiceReferenceImpl implements ServiceReference {
                     ServiceReferenceImpl.this.properties.size());
             Enumeration keys = ServiceReferenceImpl.this.properties.keys();
             while (keys.hasMoreElements()) {
-                String str = (String) keys.nextElement();
-                String toLowerCase = str.toLowerCase(Locale.US);
+                String serviceKey = (String) keys.nextElement();
+                String toLowerCase = serviceKey.toLowerCase(Locale.US);
                 if (hashMap.containsKey(toLowerCase)) {
                     throw new IllegalArgumentException(
                             "Properties contain the same key in different case variants");
                 }
-                hashMap.put(toLowerCase, str);
+                hashMap.put(toLowerCase, serviceKey);
             }
             keys = dictionary.keys();
             while (keys.hasMoreElements()) {
-                String str = (String) keys.nextElement();
-                Object obj = dictionary.get(str);
-                String toLowerCase2 = str.toLowerCase(Locale.US);
-                if (!ServiceReferenceImpl.forbidden.contains(toLowerCase2)) {
-                    Object obj2 = hashMap.get(toLowerCase2);
-                    if (obj2 != null) {
-                        if (obj2.equals(str)) {
-                            ServiceReferenceImpl.this.properties.remove(obj2);
+                String serviceKey = (String) keys.nextElement();
+                Object service = dictionary.get(serviceKey);
+                String serviceKeyLowerCase = serviceKey.toLowerCase(Locale.US);
+                if (!ServiceReferenceImpl.forbidden.contains(serviceKeyLowerCase)) {
+                    Object key = hashMap.get(serviceKeyLowerCase);
+                    if (key != null) {
+                        if (key.equals(serviceKey)) {
+                            ServiceReferenceImpl.this.properties.remove(key);
                         } else {
                             throw new IllegalArgumentException(
                                     "Properties already exists in Component different case variant");
                         }
                     }
-                    ServiceReferenceImpl.this.properties.put(str, obj);
+                    ServiceReferenceImpl.this.properties.put(serviceKey, service);
                 }
             }
             Framework.notifyServiceListeners(BundleEvent.STARTED, ServiceReferenceImpl.this);
@@ -135,8 +135,8 @@ final class ServiceReferenceImpl implements ServiceReference {
         if (properties != null) {
             Enumeration<String> keys = properties.keys();
             while (keys.hasMoreElements()) {
-                String str = keys.nextElement();
-                this.properties.put(str, properties.get(str));
+                String key = keys.nextElement();
+                this.properties.put(key, properties.get(key));
             }
         }
         this.properties.put(Constants.OBJECTCLASS, clazzes);
@@ -226,16 +226,16 @@ final class ServiceReferenceImpl implements ServiceReference {
 
     @Override
     public Bundle[] getUsingBundles() {
-        Bundle[] bundleArr;
+        Bundle[] usingBundles;
         synchronized (this.useCounters) {
             if (this.useCounters.isEmpty()) {
-                bundleArr = null;
+                usingBundles = null;
             } else {
-                bundleArr = this.useCounters.keySet().toArray(
+                usingBundles = this.useCounters.keySet().toArray(
                         new Bundle[this.useCounters.size()]);
             }
         }
-        return bundleArr;
+        return usingBundles;
     }
 
     Object getService(Bundle bundle) {

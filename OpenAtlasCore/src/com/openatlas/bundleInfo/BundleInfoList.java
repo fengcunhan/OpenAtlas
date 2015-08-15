@@ -177,11 +177,11 @@ public class BundleInfoList {//TODO 与BundleListing合并
             for (int index = 0; index < this.mBundleInfoList.size(); ++index) {
                 BundleInfo bundleInfo = this.mBundleInfoList.get(index);
                 Log.i(TAG, "BundleName: " + bundleInfo.bundleName);
-                for (String str : bundleInfo.Components) {
-                    Log.i(TAG, "****components: " + str);
+                for (String name : bundleInfo.Components) {
+                    Log.i(TAG, "****components: " + name);
                 }
-                for (String str2 : bundleInfo.DependentBundles) {
-                    Log.i(TAG, "****dependancy: " + str2);
+                for (String name : bundleInfo.DependentBundles) {
+                    Log.i(TAG, "****dependancy: " + name);
                 }
             }
         }

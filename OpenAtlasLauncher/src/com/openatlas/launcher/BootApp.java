@@ -20,11 +20,11 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
  * **/
 package com.openatlas.launcher;
 
-import com.openatlas.android.lifecycle.AtlasApp;
+import com.openatlas.android.lifecycle.OpenAtlasApp;
 import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.framework.AtlasConfig;
 
-public class BootApp extends AtlasApp {
+public class BootApp extends OpenAtlasApp {
 	static{
 		AtlasConfig.DELAY = new String[]{"com.openatlas.qrcode"};
 		AtlasConfig.AUTO = new String[]{"com.openatlas.homelauncher","com.openatlas.qrcode","com.openatlas.android.game2","com.openatlas.universalimageloader.sample"};
@@ -35,115 +35,17 @@ public class BootApp extends AtlasApp {
 
 	static final String TAG = "TestApp";
 
-//	private String processName;
-//
-//
-//	private Context mBaseContext;
-//	AtlasInitializer mAtlasInitializer;
-//	//public static BootApp instaceApp;
-//    private PackageManager mPackageManager;
-//  //  private InvocationHandlerImpl mPackageManagerProxyhandler;
-//    private PackageInfo mPackageInfo;
-//@Override
-//	protected void attachBaseContext(Context context) {
-//		super.attachBaseContext(context);
-//		this.mBaseContext = context;
-//		try {
-//			Field declaredField = Globals.class
-//					.getDeclaredField("sInstalledVersionName");
-//			declaredField.setAccessible(true);
-//			declaredField.set(null, this.mBaseContext.getPackageManager()
-//					.getPackageInfo(context.getPackageName(), 0).versionName);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		int myPid = Process.myPid();
-//		for (RunningAppProcessInfo runningAppProcessInfo : ((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE))
-//				.getRunningAppProcesses()) {
-//			if (runningAppProcessInfo.pid == myPid) {
-//				this.processName = runningAppProcessInfo.processName;
-//				break;
-//			}
-//		}
-//		this.mAtlasInitializer = new AtlasInitializer(this,getPackageName(), getApplicationContext());
-//		// this.mAtlasInitializer.injectApplication();
-//		// initCrashHandlerAndSafeMode(this.mBaseContext);
-//		this.mAtlasInitializer.init();
-//	
-//	}
 
 	@Override
 	public void onCreate() {
 
 		super.onCreate();
-		//instaceApp = this;
 	
 		PlatformConfigure.BundleNotFoundActivity=BundleNotFoundActivity.class;
 	}
 
 
 
-
-
- //   @Override
-//	public PackageManager getPackageManager() {
-//        if (this.mPackageManager != null) {
-//            return this.mPackageManager;
-//        }
-//        try {
-//            Class<?> clsIPackageManager = Class.forName("android.content.pm.IPackageManager");
-//            Class<?> clsActivityThread = Class.forName("android.app.ActivityThread");
-//            Method declaredMethod = clsActivityThread.getDeclaredMethod("getPackageManager", new Class[0]);
-//            declaredMethod.setAccessible(true);
-//            Object invoke = declaredMethod.invoke(clsActivityThread, new Object[0]);
-//            if (invoke != null) {
-//                if (this.mPackageManagerProxyhandler == null) {
-//                    this.mPackageManagerProxyhandler = new InvocationHandlerImpl(this, invoke);
-//                }
-//                invoke = Proxy.newProxyInstance(getClassLoader(), new Class[]{clsIPackageManager}, this.mPackageManagerProxyhandler);
-//                Constructor<?> declaredConstructor = Class.forName("android.app.ApplicationPackageManager").getDeclaredConstructor(new Class[]{Class.forName("android.app.ContextImpl"), clsIPackageManager});
-//                declaredConstructor.setAccessible(true);
-//                this.mPackageManager = (PackageManager) declaredConstructor.newInstance(new Object[]{this.mBaseContext, invoke});
-//                return this.mPackageManager;
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return super.getPackageManager();
-//    }
-
-
-//    public class InvocationHandlerImpl implements InvocationHandler {
-//        final  BootApp mApp;
-//        private Object obj;
-//
-//        public InvocationHandlerImpl(BootApp taobaoApplication, Object obj) {
-//            this.mApp = taobaoApplication;
-//            this.obj = obj;
-//        }
-//
-//        @Override
-//		public Object invoke(Object obj, Method method, Object[] objArr) throws Throwable {
-//            Object invoke = method.invoke(this.obj, objArr);
-//            if (!method.getName().equals("getPackageInfo") || objArr[0] == null || !objArr[0].equals(this.mApp.getPackageName())) {
-//                return invoke;
-//            }
-//            PackageInfo packageInfo = (PackageInfo) invoke;
-//            String str = packageInfo.versionName;
-//            if (packageInfo.versionCode > BaselineInfoProvider.getInstance().getMainVersionCode()) {
-//                this.mApp.mPackageInfo = packageInfo;
-//                return this.mApp.mPackageInfo;
-//            }
-//            BaselineInfoProvider.getInstance().getMainVersionName();
-//            str = BaselineInfoProvider.getInstance().getBaselineVersion();
-//            if (TextUtils.isEmpty(str)) {
-//                return this.mApp.mPackageInfo;
-//            }
-//            packageInfo.versionName = str;
-//            this.mApp.mPackageInfo = packageInfo;
-//            return this.mApp.mPackageInfo;
-//        }
-//    }
 
 
 }
