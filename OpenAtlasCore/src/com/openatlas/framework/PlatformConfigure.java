@@ -25,7 +25,7 @@ package com.openatlas.framework;
 
 
 /**
- * App  Platform configuration
+ * OpenAtlas  Platform Configuration
  * @author BunnyBlue
  *
  */

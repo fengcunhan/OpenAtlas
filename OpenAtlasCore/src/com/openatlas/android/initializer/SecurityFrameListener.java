@@ -43,7 +43,6 @@ import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.framework.Atlas;
 import com.openatlas.runtime.RuntimeVariables;
 import com.openatlas.util.ApkUtils;
-import com.openatlas.util.PackageValidate;
 import com.openatlas.util.StringUtils;
 
 import org.osgi.framework.Bundle;
@@ -91,9 +90,7 @@ public class SecurityFrameListener implements FrameworkListener {
             if (bundles != null) {
                 for (Bundle bundle : bundles) {
                     File bundleFile = Atlas.getInstance().getBundleFile(bundle.getLocation());
-                    if (!this.mSecurityFrameListener.validBundleCert(bundleFile.getAbsolutePath())) {
-                        return Boolean.valueOf(false);
-                    }
+
                     String[] apkPublicKey = ApkUtils.getApkPublicKey(bundleFile.getAbsolutePath());
                     if (StringUtils.contains(apkPublicKey, SecurityFrameListener.PUBLIC_KEY)) {
                         try {
@@ -116,7 +113,7 @@ public class SecurityFrameListener implements FrameworkListener {
 
         protected void postResult(Boolean bool) {
             if (bool != null && !bool.booleanValue()) {
-                Toast.makeText(RuntimeVariables.androidApplication, "Public Key error，PLZ update your  public key", 1).show();
+                Toast.makeText(RuntimeVariables.androidApplication, "Public Key error，PLZ update your  public key", Toast.LENGTH_SHORT).show();
                 this.mSecurityFrameListener.mHandler.sendEmptyMessageDelayed(0, 5000);
             }
         }
@@ -155,11 +152,5 @@ public class SecurityFrameListener implements FrameworkListener {
         edit.commit();
     }
 
-    /*****验证apk的签名是否有效****/
-    private boolean validBundleCert(String archiveSourcePath) {
-        PackageValidate packageValidate = new PackageValidate(archiveSourcePath);
-        return packageValidate.collectCertificates();
 
-        // return true;
-    }
 }

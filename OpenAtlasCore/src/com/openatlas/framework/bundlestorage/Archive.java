@@ -28,36 +28,111 @@ import java.net.URL;
 import java.util.List;
 import java.util.jar.Manifest;
 
+/***
+ * define  interface of Bundle,every bundle is a zip file ,also  we can think its  archive file
+ ***/
 public interface Archive {
+    /***
+     * close bundle file
+     **/
     void close();
 
+    /**
+     * Finds the class with the specified <a href="#name">binary name</a>.
+     * This method should be overridden by class loader implementations that
+     * follow the delegation model for loading classes, and will be invoked by
+     * the loadClass method after checking the
+     * parent class loader for the requested class.  The default implementation
+     * throws a <tt>ClassNotFoundException</tt>.
+     *
+     * @param clazz The <a href="#clazz">binary name</a> of the class
+     * @return The resulting <tt>Class</tt> object
+     * @throws ClassNotFoundException If the class could not be found
+     */
     Class<?> findClass(String clazz, ClassLoader classLoader)
             throws ClassNotFoundException;
 
+    /**
+     * Returns the absolute path name of a native library.  The VM invokes this
+     * method to locate the native libraries that belong to classes loaded with
+     * this class loader. If this method returns <tt>null</tt>, the VM
+     * searches the library along the path specified as the
+     * "<tt>java.library.path</tt>" property.
+     *
+     * @param name The library name
+     * @return The absolute path of the native library
+     */
     File findLibrary(String name);
 
+    /***
+     * get bundle file
+     ***/
     File getArchiveFile();
 
+    /***
+     * get runing bundle impl
+     **/
     BundleArchiveRevision getCurrentRevision();
 
+    /**
+     * @deprecated not used ,old  method used for OSGI.MF
+     **/
     @Deprecated
     Manifest getManifest() throws IOException;
 
+    /****
+     * get resource from bundle
+     *
+     * @param name resource name
+     **/
     List<URL> getResources(String name) throws IOException;
 
+    /***
+     * vaild  bundle execute dexopt or not
+     **/
     boolean isDexOpted();
 
+    /**
+     * install new bundle
+     *
+     * @param packageName bundle name
+     * @param bundleDir   bundle storge  folder
+     * @param bundleFile  bundle  archive file
+     * @throws IOException
+     ***/
     BundleArchiveRevision newRevision(String packageName, File bundleDir, File bundleFile)
             throws IOException;
 
+    /**
+     * install new bundle
+     *
+     * @param packageName       bundle name
+     * @param bundleDir         bundle storge  folder
+     * @param bundleInputStream bundle  archive  input  stream,if bundle  file  in  zip,not on local fs
+     * @throws IOException
+     ***/
     BundleArchiveRevision newRevision(String packageName, File bundleDir,
                                       InputStream bundleInputStream) throws IOException;
 
+    /**
+     * get asset inputstream from bundle
+     * @param assetName  asset name
+     ***/
     InputStream openAssetInputStream(String assetName) throws IOException;
 
-    InputStream openNonAssetInputStream(String assetName) throws IOException;
+    /**
+     * get non-asset inputstream from bundle
+     * @param name  resource name
+     ***/
+    InputStream openNonAssetInputStream(String name) throws IOException;
 
+    /***
+     * pre-process  dex file ,optdex or dex2oat
+     **/
     void optDexFile();
 
+    /***
+     * remove bundle cache
+     ***/
     void purge() throws Exception;
 }

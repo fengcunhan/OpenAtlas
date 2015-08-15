@@ -44,29 +44,64 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import dalvik.system.DexClassLoader;
-
+/****
+ * this class is OpenAtlas Core Inject Implementation,hook system implementation
+ * 1 hack Class(such  hack class ActivityThread)
+ * 2 hack method(such ActivityThread_currentActivityThread,mean currentActivityThread at class ActivityThread)
+ * 3 hack field(such ActivityThread_mAllApplications,field mAllApplications at class ActivityThread)
+ * *****/
 public class OpenAtlasHacks extends HackDeclaration implements
         AssertionFailureHandler {
+    /**
+     * This manages the execution of the main thread in an
+     * application process, scheduling and executing activities,
+     * broadcasts, and other operations on it as the activity
+     * manager requests.
+     */
     public static HackedClass<Object> ActivityThread;
+    /** Reference to singleton  ActivityThread*/
     public static HackedMethod ActivityThread_currentActivityThread;
     public static HackedField<Object, ArrayList<Application>> ActivityThread_mAllApplications;
     public static HackedField<Object, Application> ActivityThread_mInitialApplication;
     public static HackedField<Object, Instrumentation> ActivityThread_mInstrumentation;
     public static HackedField<Object, Map<String, Object>> ActivityThread_mPackages;
     public static HackedField<Object, Object> ActivityThread_sPackageManager;
+
     public static HackedClass<Application> Application;
     public static HackedMethod Application_attach;
     public static HackedClass<AssetManager> AssetManager;
+    /**
+     * Add an additional set of assets to the asset manager.This can be either a directory or ZIP file.
+     * Returns the cookie of the added asset, or 0 on failure.solve  resource  problem
+     **/
     public static HackedMethod AssetManager_addAssetPath;
     public static HackedClass<ClassLoader> ClassLoader;
+    /**
+     * Returns the absolute path of the native library with the specified name,
+     * or {@code null}. If this method returns {@code null} then the virtual
+     * machine searches the directories specified by the system property
+     */
     public static HackedMethod ClassLoader_findLibrary;
+    /**
+     * Common implementation of Context API, which provides the base
+     * context object for Activity and other application components.
+     */
     public static HackedClass<Object> ContextImpl;
     public static HackedField<Object, Resources> ContextImpl_mResources;
     public static HackedField<Object, Theme> ContextImpl_mTheme;
+    /**
+     * A ContextWrapper that allows you to modify the theme from what is in the
+     * wrapped context.
+     */
     public static HackedClass<ContextThemeWrapper> ContextThemeWrapper;
     public static HackedField<ContextThemeWrapper, Context> ContextThemeWrapper_mBase;
     public static HackedField<ContextThemeWrapper, Resources> ContextThemeWrapper_mResources;
     public static HackedField<ContextThemeWrapper, Theme> ContextThemeWrapper_mTheme;
+    /**
+     * Proxying implementation of Context that simply delegates all of its calls to
+     * another Context.  Can be subclassed to modify behavior without changing
+     * the original Context.
+     **/
     public static HackedClass<ContextWrapper> ContextWrapper;
     public static HackedField<ContextWrapper, Context> ContextWrapper_mBase;
     public static HackedClass<DexClassLoader> DexClassLoader;
@@ -74,12 +109,17 @@ public class OpenAtlasHacks extends HackDeclaration implements
     public static ArrayList<HackedMethod> GeneratePackageInfoList;
     public static ArrayList<HackedMethod> GetPackageInfoList;
     public static HackedClass<Object> IPackageManager;
-    //define support ali YunOS  start
+    /**
+     * LexFile is Ali YunOS exectue file format  like dex,run on lemur  vm
+     * */
     public static HackedClass<Object> LexFile;
     public static HackedMethod LexFile_close;
     public static HackedMethod LexFile_loadClass;
     public static HackedMethod LexFile_loadLex;
     //define support ali YunOS end
+    /**
+     * Local state maintained about a currently loaded .apk,used by ActivityThread
+     */
     public static HackedClass<Object> LoadedApk;
     public static HackedField<Object, String> LoadedApk_mAppDir;
     public static HackedField<Object, Application> LoadedApk_mApplication;
@@ -109,6 +149,9 @@ public class OpenAtlasHacks extends HackDeclaration implements
         GetPackageInfoList = new ArrayList<HackedMethod>();
     }
 
+    /**
+     * hack all defined class,method ,and field
+     ***/
     public static boolean defineAndVerify() throws AssertionArrayException {
         if (sIsReflectChecked) {
             return sIsReflectAvailable;
@@ -140,7 +183,10 @@ public class OpenAtlasHacks extends HackDeclaration implements
         return sIsIgnoreFailure;
     }
 
-    public static void allClasses() throws HackAssertionException {
+    /**
+     * hack all defined classes
+     ***/
+    private static void allClasses() throws HackAssertionException {
         if (VERSION.SDK_INT <= 8) {
             LoadedApk = Hack.into("android.app.ActivityThread$PackageInfo");
         } else {
@@ -162,7 +208,10 @@ public class OpenAtlasHacks extends HackDeclaration implements
         sIsIgnoreFailure = false;
     }
 
-    public static void allFields() throws HackAssertionException {
+    /***
+     * hack  all defied fields
+     **/
+    private static void allFields() throws HackAssertionException {
         ActivityThread_mInstrumentation = ActivityThread.field(
                 "mInstrumentation").ofType(Instrumentation.class);
         ActivityThread_mAllApplications = ActivityThread.field(
@@ -208,7 +257,10 @@ public class OpenAtlasHacks extends HackDeclaration implements
         Resources_mAssets = Resources.field("mAssets");
     }
 
-    public static void allMethods() throws HackAssertionException {
+    /***
+     * hack all defined methods
+     **/
+    private static void allMethods() throws HackAssertionException {
         ActivityThread_currentActivityThread = ActivityThread.method(
                 "currentActivityThread");
         AssetManager_addAssetPath = AssetManager.method("addAssetPath",
@@ -227,7 +279,7 @@ public class OpenAtlasHacks extends HackDeclaration implements
         }
     }
 
-    public static void allConstructors() throws HackAssertionException {
+    private static void allConstructors() throws HackAssertionException {
     }
 
     @Override

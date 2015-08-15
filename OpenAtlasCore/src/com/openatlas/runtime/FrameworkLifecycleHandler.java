@@ -50,11 +50,12 @@ public class FrameworkLifecycleHandler implements FrameworkListener {
             default:
         }
     }
-/**
- *<>starting</>
- *if exist  extra application ,we init their
- * application format "app1,app2" and so on
- * **/
+
+    /**
+     * <>starting</>
+     * if exist  extra application ,we init their
+     * application format "app1,app2" and so on
+     **/
     private void starting() {
         Bundle bundle;
         long currentTimeMillis = System.currentTimeMillis();
@@ -87,9 +88,10 @@ public class FrameworkLifecycleHandler implements FrameworkListener {
         }
         log.info("starting() spend " + (System.currentTimeMillis() - currentTimeMillis) + " milliseconds");
     }
-/***
- * when framework started ,inject  resource immediately
- * ***/
+
+    /***
+     * when framework started ,inject  resource immediately
+     ***/
     private void started() {
         long currentTimeMillis = System.currentTimeMillis();
         try {

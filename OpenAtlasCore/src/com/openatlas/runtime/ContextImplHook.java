@@ -40,6 +40,10 @@ import com.openatlas.util.StringUtils;
 
 import org.osgi.framework.BundleException;
 
+/***
+ * A ContextImplHook that allows you to modify the theme from what is in the
+ * wrapped context.
+ */
 public class ContextImplHook extends ContextWrapper {
     static final Logger log;
     private ClassLoader classLoader;
@@ -53,22 +57,24 @@ public class ContextImplHook extends ContextWrapper {
         this.classLoader = null;
         this.classLoader = classLoader;
     }
-
+    /** Return a Resources instance for your application's package. */
     @Override
     public Resources getResources() {
         return RuntimeVariables.delegateResources;
     }
-
+    /** Return an AssetManager instance for your application's package. */
     @Override
     public AssetManager getAssets() {
         return RuntimeVariables.delegateResources.getAssets();
     }
-
+    /** Return PackageManager instance to find global package information. */
     @Override
     public PackageManager getPackageManager() {
         return getApplicationContext().getPackageManager();
     }
-
+    /**
+     * Return a class loader you can use to retrieve classes in this package.
+     */
     @Override
     public ClassLoader getClassLoader() {
         if (this.classLoader != null) {
@@ -117,6 +123,15 @@ public class ContextImplHook extends ContextWrapper {
         }
     }
 
+    /**
+     * Connect to an application service, creating it if needed.  This defines
+     * a dependency between your application and the service.  The given
+     * <var>conn</var> will receive the service object when it is created and be
+     * told if it dies and restarts.  The service will be considered required
+     * by the system only for as long as the calling context exists.  For
+     * example, if this Context is an Activity that is stopped, the service will
+     * not be required to continue running until the Activity is resumed.
+     */
     @Override
     public boolean bindService(Intent service, ServiceConnection conn, int flags) {
         String packageName;

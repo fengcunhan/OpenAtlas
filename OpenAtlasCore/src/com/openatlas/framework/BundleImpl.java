@@ -49,7 +49,7 @@ import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
-
+/***OSGI Bundle implementation **/
 public final class BundleImpl implements Bundle {
     static final Logger log;
     Archive archive;
@@ -177,7 +177,9 @@ public final class BundleImpl implements Bundle {
     public Archive getArchive() {
         return this.archive;
     }
-
+/***
+ * @return  BundleClassLoader BundleClassLoader
+ * **/
     public ClassLoader getClassLoader() {
         return this.classloader;
     }

@@ -37,6 +37,9 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * ServiceReference  implementation
+ ***/
 final class ServiceReferenceImpl implements ServiceReference {
     private static final HashSet<String> forbidden;
     private static long nextServiceID;

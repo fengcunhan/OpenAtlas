@@ -72,16 +72,16 @@ public class Hack {
                 return this.mHackedMethodName;
             }
 
-            public void setHackedMethodName(String str) {
-                this.mHackedMethodName = str;
+            public void setHackedMethodName(String name) {
+                this.mHackedMethodName = name;
             }
 
             public String getHackedFieldName() {
                 return this.mHackedFieldName;
             }
 
-            public void setHackedFieldName(String str) {
-                this.mHackedFieldName = str;
+            public void setHackedFieldName(String name) {
+                this.mHackedFieldName = name;
             }
         }
     }

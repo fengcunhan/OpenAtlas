@@ -27,6 +27,10 @@ import org.osgi.framework.Bundle;
 
 import java.util.List;
 
+/***
+ * DelegateClassLoader is ClassLoader custom implementation,used for  bundle class load<br>
+ * override  findClass
+ ***/
 public class DelegateClassLoader extends ClassLoader {
     public DelegateClassLoader(ClassLoader classLoader) {
         super(classLoader);

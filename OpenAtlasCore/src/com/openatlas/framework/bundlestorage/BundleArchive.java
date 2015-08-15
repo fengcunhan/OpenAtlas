@@ -39,7 +39,11 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.jar.Manifest;
-
+/**
+ * This is Bundle Archive  implementation.<br>
+ * Archive  BundleArchive  BundleArchiveRevision() ,decorator mode,looks like Context
+ * ,ContextWrap and ContextImpl
+ * **/
 public class BundleArchive implements Archive {
 
     Logger log = LoggerFactory.getInstance("BundleArchive");

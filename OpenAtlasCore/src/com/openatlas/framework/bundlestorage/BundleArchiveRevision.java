@@ -57,7 +57,9 @@ import java.util.zip.ZipFile;
 
 import dalvik.system.DexClassLoader;
 import dalvik.system.DexFile;
-
+/***
+ * BundleArchiveRevision is Bundle Archive real implementation
+ * ***/
 public class BundleArchiveRevision {
     static final String BUNDLE_FILE_NAME = "bundle.zip";
     static final String BUNDLE_LEX_FILE = "bundle.lex";

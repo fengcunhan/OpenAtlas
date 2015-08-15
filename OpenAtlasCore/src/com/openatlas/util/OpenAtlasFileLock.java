@@ -1,16 +1,16 @@
 /**
  * OpenAtlasForAndroid Project
  * The MIT License (MIT) Copyright (OpenAtlasForAndroid) 2015 Bunny Blue,achellies
- * <p>
+ * <p/>
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software
  * without restriction, including without limitation the rights to use, copy, modify,
  * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to the following conditions:
- * <p>
+ * <p/>
  * The above copyright notice and this permission notice shall be included in all copies
  * or substantial portions of the Software.
- * <p>
+ * <p/>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
  * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
  * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
@@ -35,9 +35,12 @@ import java.nio.channels.FileLock;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
+/**
+ * OpenAtlasFileLock used for OpenAtlas internal
+ * @author BunnyBlue
+ * **/
 public class OpenAtlasFileLock {
-    static final Logger log = LoggerFactory.getInstance("AtlasFileLock");
+    static final Logger log = LoggerFactory.getInstance("OpenAtlasFileLock");
     private static String processName;
     private static OpenAtlasFileLock singleton;
     private Map<String, FileLockCount> mRefCountMap = new ConcurrentHashMap();
@@ -48,16 +51,15 @@ public class OpenAtlasFileLock {
         FileLock mFileLock;
         int mRefCount;
 
-        FileLockCount(FileLock fileLock, int i, RandomAccessFile randomAccessFile, FileChannel fileChannel) {
+        FileLockCount(FileLock fileLock, int mRefCount, RandomAccessFile fOs, FileChannel fChannel) {
             this.mFileLock = fileLock;
-            this.mRefCount = i;
-            this.fOs = randomAccessFile;
-            this.fChannel = fileChannel;
+            this.mRefCount = mRefCount;
+            this.fOs = fOs;
+            this.fChannel = fChannel;
         }
     }
 
     static {
-        int myPid = Process.myPid();
         if (RuntimeVariables.androidApplication.getApplicationContext() != null) {
             processName = OpenAtlasUtils.getProcessNameByPID(Process.myPid());
         }
@@ -81,9 +83,9 @@ public class OpenAtlasFileLock {
             fileLockCount.mRefCount = i + 1;
             valueOf = Integer.valueOf(i);
         } else {
-            Integer valueOf2 = Integer.valueOf(1);
-            this.mRefCountMap.put(filePath, new FileLockCount(fileLock, valueOf2.intValue(), randomAccessFile, fileChannel));
-            valueOf = valueOf2;
+            valueOf = Integer.valueOf(1);
+            this.mRefCountMap.put(filePath, new FileLockCount(fileLock, valueOf.intValue(), randomAccessFile, fileChannel));
+
         }
         return valueOf.intValue();
     }
@@ -103,44 +105,52 @@ public class OpenAtlasFileLock {
         return valueOf.intValue();
     }
 
-    public boolean LockExclusive(File file) {
+    /**
+     * lock odex
+     *
+     * @param bundleDexFile optimize dex file
+     **/
+    public boolean LockExclusive(File bundleDexFile) {
 
-        if (file == null) {
+        if (bundleDexFile == null) {
             return false;
         }
         try {
-            File file2 = new File(file.getParentFile().getAbsolutePath().concat("/lock"));
-            if (!file2.exists()) {
-                file2.createNewFile();
+            File lockFile = new File(bundleDexFile.getParentFile().getAbsolutePath().concat("/lock"));
+            if (!lockFile.exists()) {
+                lockFile.createNewFile();
             }
-            RandomAccessFile randomAccessFile = new RandomAccessFile(file2.getAbsolutePath(), "rw");
+            RandomAccessFile randomAccessFile = new RandomAccessFile(lockFile.getAbsolutePath(), "rw");
             FileChannel channel = randomAccessFile.getChannel();
             FileLock lock = channel.lock();
             if (!lock.isValid()) {
                 return false;
             }
-            RefCntInc(file2.getAbsolutePath(), lock, randomAccessFile, channel);
+            RefCntInc(lockFile.getAbsolutePath(), lock, randomAccessFile, channel);
             return true;
         } catch (Exception e) {
-            log.error(processName + " FileLock " + file.getParentFile().getAbsolutePath().concat("/lock") + " Lock FAIL! " + e.getMessage());
+            log.error(processName + " FileLock " + bundleDexFile.getParentFile().getAbsolutePath().concat("/lock") + " Lock FAIL! " + e.getMessage());
             return false;
         }
     }
 
-    public void unLock(File file) {
+    /**
+     * unlock odex file
+     **/
+    public void unLock(File bundleDexFile) {
 
-        File file2 = new File(file.getParentFile().getAbsolutePath().concat("/lock"));
-        if (!file2.exists()) {
+        File lockFile = new File(bundleDexFile.getParentFile().getAbsolutePath().concat("/lock"));
+        if (!lockFile.exists()) {
             return;
         }
-        if (file2 == null || this.mRefCountMap.containsKey(file2.getAbsolutePath())) {
-            FileLockCount fileLockCount = this.mRefCountMap.get(file2.getAbsolutePath());
+        if (lockFile == null || this.mRefCountMap.containsKey(lockFile.getAbsolutePath())) {
+            FileLockCount fileLockCount = this.mRefCountMap.get(lockFile.getAbsolutePath());
             if (fileLockCount != null) {
                 FileLock fileLock = fileLockCount.mFileLock;
                 RandomAccessFile randomAccessFile = fileLockCount.fOs;
                 FileChannel fileChannel = fileLockCount.fChannel;
                 try {
-                    if (RefCntDec(file2.getAbsolutePath()) <= 0) {
+                    if (RefCntDec(lockFile.getAbsolutePath()) <= 0) {
                         if (fileLock != null && fileLock.isValid()) {
                             fileLock.release();
                         }
@@ -152,7 +162,7 @@ public class OpenAtlasFileLock {
                         }
                     }
                 } catch (IOException e) {
-                    log.error(processName + " FileLock " + file.getParentFile().getAbsolutePath().concat("/lock") + " unlock FAIL! " + e.getMessage());
+                    log.error(processName + " FileLock " + bundleDexFile.getParentFile().getAbsolutePath().concat("/lock") + " unlock FAIL! " + e.getMessage());
                 }
             }
         }
