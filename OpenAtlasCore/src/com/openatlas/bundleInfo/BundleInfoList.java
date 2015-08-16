@@ -46,6 +46,10 @@ public class BundleInfoList {//TODO 与BundleListing合并
         public String bundleName;
         /******Bundle中是否包含动态库******/
         public boolean hasSO;
+        public long size;
+        public String version;
+
+        public String md5;
     }
 
     private BundleInfoList() {

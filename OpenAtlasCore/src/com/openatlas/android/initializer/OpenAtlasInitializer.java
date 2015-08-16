@@ -41,15 +41,10 @@ import android.util.Log;
 import com.openatlas.android.task.Coordinator;
 import com.openatlas.android.task.Coordinator.TaggedRunnable;
 import com.openatlas.boot.Globals;
-import com.openatlas.bundleInfo.BundleInfoList;
-import com.openatlas.bundleInfo.BundleInfoList.BundleInfo;
-import com.openatlas.bundleInfo.BundleListing;
 import com.openatlas.framework.Atlas;
 import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.util.ApkUtils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 public class OpenAtlasInitializer {
@@ -161,7 +156,7 @@ public class OpenAtlasInitializer {
             if (!Utils.searchFile(this.mApp.getFilesDir().getParentFile() + "/lib", "libcom_")) {
                 InstallSolutionConfig.install_when_oncreate = true;
             }
-            if (InstallSolutionConfig.install_when_findclass && !initBundle()) {
+            if (InstallSolutionConfig.install_when_findclass ) {
                 InstallSolutionConfig.install_when_oncreate = true;
                 this.tryInstall = true;
             }
@@ -215,46 +210,9 @@ public class OpenAtlasInitializer {
     }
 
 
-    private boolean initBundle() {
-        ArrayList<BundleInfo> e = genBundleListInfo();
-        if (e == null) {
-            return false;
-        }
-        BundleInfoList.getInstance().init(e);
-        return true;
-    }
 
-    private ArrayList<BundleInfo> genBundleListInfo() {
-        BundleListing bundleListing = BundleListing.getInstance();//=BundleListing.instance().getBundleListing();
-        if (bundleListing == null || bundleListing.getBundles() == null) {
-            return null;
-        }
-        ArrayList<BundleInfo> arrayList = new ArrayList<BundleInfo>();
-        for (BundleListing.Component component : bundleListing.getBundles()) {
-            if (component != null) {
-                BundleInfo bundleInfo = new BundleInfo();
-                List<String> componmentList = new ArrayList<String>();
-                if (component.getActivities() != null) {
-                    componmentList.addAll(component.getActivities());
-                }
-                if (component.getServices() != null) {
-                    componmentList.addAll(component.getServices());
-                }
-                if (component.getReceivers() != null) {
-                    componmentList.addAll(component.getReceivers());
-                }
-                if (component.getContentProviders() != null) {
-                    componmentList.addAll(component.getContentProviders());
-                }
-                bundleInfo.hasSO = component.isHasSO();
-                bundleInfo.bundleName = component.getPkgName();
-                bundleInfo.Components = componmentList;
-                bundleInfo.DependentBundles = component.getDependency();
-                arrayList.add(bundleInfo);
-            }
-        }
-        return arrayList;
-    }
+
+
 
     @SuppressLint({"DefaultLocale"})
     private boolean verifyRuntime() {
