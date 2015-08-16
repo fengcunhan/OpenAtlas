@@ -38,6 +38,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -228,6 +229,9 @@ public class ApkUtils {
 
     /**
      *Valid plugin  md5
+     * @param path   bundle archvie path
+     * @param md5Sum   target  file md5
+     * @return  if md5 matched,return true
      * ***/
     public static boolean validFileMD5(String path, String md5Sum) {
 
@@ -242,14 +246,8 @@ public class ApkUtils {
             FileChannel ch = in.getChannel();
             MappedByteBuffer byteBuffer = ch.map(FileChannel.MapMode.READ_ONLY, 0, mFile.length());
             messageDigest.update(byteBuffer);
-            byte[] bytes = messageDigest.digest();
-            final String HEX = "0123456789abcdef";
-            StringBuilder sb = new StringBuilder(bytes.length * 2);
-            for (byte b : bytes) {
-                sb.append(HEX.charAt((b >> 4) & 0x0f));
-                sb.append(HEX.charAt(b & 0x0f));
-            }
-            return md5Sum.equals(sb.toString());
+            String digest = String.format("%032x", new BigInteger(1, messageDigest.digest()));
+            return md5Sum.equals(digest.toString());
         } catch (NoSuchAlgorithmException e) {
 
             e.printStackTrace();

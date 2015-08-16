@@ -690,7 +690,7 @@ public final class Framework {
         frameworkStartupShutdown = true;
         System.out.println("---------------------------------------------------------");
         System.out.println("  OpenAtlas OSGi 1.0.0  Pre-Release on " + Build.MODEL + "/" + Build.CPU_ABI + "/"
-                + VERSION.RELEASE + " starting ...");
+                + VERSION.RELEASE +" SDK version "+Build.VERSION.SDK_INT+ " starting ...");
         System.out.println("---------------------------------------------------------");
         long currentTimeMillis = System.currentTimeMillis();
         initialize();

@@ -29,12 +29,12 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.bundleInfo.BundleInfoList;
 import com.openatlas.framework.Atlas;
 import com.openatlas.framework.AtlasConfig;
 import com.openatlas.framework.BundleImpl;
 import com.openatlas.framework.Framework;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
 import com.openatlas.log.OpenAtlasMonitor;
@@ -88,14 +88,14 @@ public class ClassLoadFromBundle {
         synchronized (ClassLoadFromBundle.class) {
             if (sInternalBundles == null || sInternalBundles.size() == 0) {
                 String str = "lib/" + AtlasConfig.PRELOAD_DIR + "/libcom_";
-                String str2 = ".so";
+
                 List<String> arrayList = new ArrayList<String>();
                 try {
                     sZipFile = new ZipFile(RuntimeVariables.androidApplication.getApplicationInfo().sourceDir);
                     Enumeration<?> entries = sZipFile.entries();
                     while (entries.hasMoreElements()) {
                         String name = ((ZipEntry) entries.nextElement()).getName();
-                        if (name.startsWith(str) && name.endsWith(str2)) {
+                        if (name.startsWith(str) && name.endsWith(".so")) {
                             arrayList.add(getPackageNameFromEntryName(name));
                         }
                     }
@@ -166,6 +166,10 @@ public class ClassLoadFromBundle {
         return cls;
     }
 
+    /****
+     * check bundle  install and dependency
+     * if not install ,check  bundle file exits  on local  file system, if not install from host app
+     *****/
     public static void checkInstallBundleAndDependency(String location) {
         List<String> dependencyForBundle = BundleInfoList.getInstance().getDependencyForBundle(location);
         if (dependencyForBundle != null && dependencyForBundle.size() > 0) {
@@ -189,7 +193,7 @@ public class ClassLoadFromBundle {
                     log.error("failed to install bundle " + location, e);
                     OpenAtlasMonitor.getInstance().trace(Integer.valueOf(-1), location, "",
                             "failed to install bundle ", e);
-                    throw new RuntimeException("atlas-2.3.47failed to install bundle " + location, e);
+                    throw new RuntimeException("OpenAtlas failed to install bundle " + location, e);
                 }
             } else if (sInternalBundles == null || !sInternalBundles.contains(location)) {
                 log.error(" can not find the library " + concat + " for bundle" + location);
@@ -201,6 +205,9 @@ public class ClassLoadFromBundle {
         }
     }
 
+    /***
+     * Install bundle  from host app
+     **/
     private static void installFromApkZip(String location, String fileName) {
 
         try {

@@ -24,9 +24,8 @@ package com.openatlas.android.initializer;
 import android.content.Intent;
 
 import com.openatlas.boot.Globals;
-import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.bundleInfo.BundleInfoList;
-import com.openatlas.bundleInfo.BundleListing.Component;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.runtime.ClassNotFoundInterceptorCallback;
 
 import java.util.ArrayList;
@@ -94,10 +93,10 @@ public class ClassNotFoundInterceptor implements ClassNotFoundInterceptorCallbac
     class BootRunnable implements Runnable {
         final Intent mIntent;
         final String mActivityName;
-        final Component mComponent;
+        final BundleInfoList.BundleInfo mComponent;
         final ClassNotFoundInterceptor mClassNotFoundInterceptor;
 
-        BootRunnable(ClassNotFoundInterceptor mClassNotFoundInterceptor, Intent mIntent, String mActivityName, Component mComponent) {
+        BootRunnable(ClassNotFoundInterceptor mClassNotFoundInterceptor, Intent mIntent, String mActivityName, BundleInfoList.BundleInfo mComponent) {
             this.mClassNotFoundInterceptor = mClassNotFoundInterceptor;
             this.mIntent = mIntent;
             this.mActivityName = mActivityName;
@@ -111,7 +110,7 @@ public class ClassNotFoundInterceptor implements ClassNotFoundInterceptorCallbac
                 intent.putExtras(this.mIntent.getExtras());
             }
             intent.putExtra(KEY_ACTIVITY, this.mActivityName);
-            intent.putExtra(KEY_BUNDLE_PKG, this.mComponent.getPkgName());
+            intent.putExtra(KEY_BUNDLE_PKG, this.mComponent.bundleName);
             intent.setData(this.mIntent.getData());
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 

@@ -250,7 +250,9 @@ public class InstrumentationHook extends Instrumentation {
                 mExecStartActivity = mInstrumentationInvoke.method("execStartActivity", Context.class,
                         IBinder.class, IBinder.class, Activity.class, Intent.class, int.class);
             }
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1||Build.VERSION.SDK_INT<Build.VERSION_CODES.LOLLIPOP) {
+            if (Build.VERSION.SDK_INT>Build.VERSION_CODES.LOLLIPOP){
+                log.debug("current  sdk  > LOLLIPOP,skip hack");
+            }else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
                 mExecStartActivityFragment = mInstrumentationInvoke.method("execStartActivity", Context.class,
                         IBinder.class, IBinder.class, Fragment.class, Intent.class, int.class, Bundle.class);
             } else {
