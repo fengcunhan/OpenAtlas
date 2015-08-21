@@ -28,6 +28,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
@@ -42,6 +44,7 @@ import com.openatlas.android.compat.OpenAtlasCompat;
 import com.openatlas.android.initializer.BundleParser;
 import com.openatlas.android.initializer.OpenAtlasInitializer;
 import com.openatlas.boot.Globals;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.runtime.ContextImplHook;
 import com.openatlas.util.OpenAtlasUtils;
 
@@ -50,6 +53,10 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+
+//import com.openatlas.android.initializer.OpenAtlasInitializer;
+
+//import com.openatlas.android.initializer.OpenAtlasInitializer;
 
 
 /****OpenAtlasApplication, you can  extend  this class direct****/
@@ -214,11 +221,23 @@ public class OpenAtlasApp extends OpenAtlasCompat {
                 break;
             }
         }
-        this.mAtlasInitializer = new OpenAtlasInitializer(this, getPackageName());
+        this.mAtlasInitializer = new OpenAtlasInitializer(this, getPackageName(),isUpdate());
         //this.mAtlasInitializer.injectApplication();
         this.mAtlasInitializer.init();
     }
-
+    private boolean isUpdate() {
+        try {
+            PackageInfo packageInfo = this.getPackageManager().getPackageInfo(this.getPackageName(), 0);
+            SharedPreferences sharedPreferences =getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE, 0);
+            int last_version_code = sharedPreferences.getInt("last_version_code", 0);
+            CharSequence last_version_name = sharedPreferences.getString("last_version_name", "");
+//return true;
+         return packageInfo.versionCode > last_version_code || ((packageInfo.versionCode == last_version_code && !TextUtils.equals(Globals.getInstalledVersionName(), last_version_name)) );
+        } catch (Throwable e) {
+            Log.e("OpenAtlasInitializer", "Error to get PackageInfo >>>", e);
+            throw new RuntimeException(e);
+        }
+    }
     @Override
     public void onCreate() {
         super.onCreate();

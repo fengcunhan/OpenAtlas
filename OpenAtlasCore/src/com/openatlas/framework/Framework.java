@@ -582,7 +582,6 @@ public final class Framework {
         }
     }
 
-    //TODO // FIXME: 7/18/15
     static BundleImpl installNewBundle(String location, File apkFile) throws BundleException {
         BundleImpl bundleImpl;
         File mBundleArchiveFile = null;
