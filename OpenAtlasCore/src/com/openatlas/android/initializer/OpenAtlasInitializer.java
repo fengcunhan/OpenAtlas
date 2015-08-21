@@ -32,6 +32,7 @@ import android.util.Log;
 import com.openatlas.android.task.Coordinator;
 import com.openatlas.android.task.Coordinator.TaggedRunnable;
 import com.openatlas.boot.Globals;
+import com.openatlas.bundleInfo.BundleInfoList;
 import com.openatlas.framework.Atlas;
 import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.log.Logger;
@@ -104,7 +105,7 @@ public class OpenAtlasInitializer {
             }
             log.debug("OpenAtlas framework prepare starting in process " + this.mPackageName + " " + (System.currentTimeMillis() - initStartTime) + " ms");
             Atlas.getInstance().setClassNotFoundInterceptorCallback(new ClassNotFoundInterceptor());
-            if (InstallSolutionConfig.install_when_findclass ) {
+            if (InstallSolutionConfig.install_when_findclass && BundleInfoList.getInstance().getBundles()==null) {
             	InstallSolutionConfig.install_when_oncreate = true;
                 this.tryInstall = true;
             }
