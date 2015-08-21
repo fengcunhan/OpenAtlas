@@ -138,8 +138,8 @@ public class OpenAtlasInitializer {
                     Coordinator.postTask(new  TaggedRunnable("AtlasStartup") {
 						@Override
 						public void run() {
-							mBundlesInstaller.process(true, false);
-							mOptDexProcess.processPackages(true, false);
+							mBundlesInstaller.process(false, false);
+							mOptDexProcess.processPackages(false, false);
 							
 						}
 					});
@@ -155,8 +155,8 @@ public class OpenAtlasInitializer {
                     Coordinator.postTask(new TaggedRunnable("AtlasStartup") {
 						@Override
 						public void run() {
-							mBundlesInstaller.process(true, false);
-							mOptDexProcess.processPackages(true, false);
+							mBundlesInstaller.process(false, false);
+							mOptDexProcess.processPackages(false, false);
 						}
 					});
                     return;
