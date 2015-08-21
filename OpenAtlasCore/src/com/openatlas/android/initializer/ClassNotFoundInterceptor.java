@@ -81,7 +81,7 @@ public class ClassNotFoundInterceptor implements ClassNotFoundInterceptorCallbac
 //                }
             }
 //            if (!TextUtils.isEmpty(dataString)) {
-//                Nav.from(Globals.getApplication()).withCategory(AwbDebug.BROWSER_ONLY_CATEGORY).withExtras(intent.getExtras()).toUri(intent.getData());
+//                Nav.from(Globals.getApplication()).withCategory(BundleDebug.BROWSER_ONLY_CATEGORY).withExtras(intent.getExtras()).toUri(intent.getData());
 //            }
         }
         return intent;
