@@ -141,6 +141,12 @@ public class BundleInfoList {//TODO 与BundleListing合并
         return null;
     }
 
+    public List<BundleInfo> getBundles() {
+        if (this.mBundleInfoList == null || this.mBundleInfoList.isEmpty()) {
+            return null;
+        }
+        return mBundleInfoList;
+    }
     /****获取插件列表名称 *
      * ******/
     @Deprecated
