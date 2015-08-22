@@ -226,18 +226,18 @@ public class ClassLoadFromBundle {
         }
     }
 
-    public static void checkInstallBundleIfNeed(String bundleName) {
-        synchronized (bundleName) {
+    public static void checkInstallBundleIfNeed(String componet) {
+        synchronized (componet) {
             if (sInternalBundles == null) {
                 resolveInternalBundles();
             }
-            String bundleForComponet = BundleInfoList.getInstance().getBundleNameForComponet(bundleName);
-            if (TextUtils.isEmpty(bundleForComponet)) {
-                Log.e(TAG, "Failed to find the bundle in BundleInfoList for component " + bundleForComponet);
-                insertToReasonList(bundleName, "not found in BundleInfoList!");
+            String location = BundleInfoList.getInstance().getBundleNameForComponet(componet);
+            if (TextUtils.isEmpty(location)) {
+                Log.e(TAG, "Failed to find the bundle in BundleInfoList for component " + componet);
+                insertToReasonList(componet, "not found in BundleInfoList!");
             }
-            if (sInternalBundles == null || sInternalBundles.contains(bundleForComponet)) {
-                checkInstallBundleAndDependency(bundleForComponet);
+            if (sInternalBundles == null || sInternalBundles.contains(location)) {
+                checkInstallBundleAndDependency(location);
                 return;
             }
         }
