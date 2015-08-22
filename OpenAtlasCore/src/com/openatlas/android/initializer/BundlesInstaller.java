@@ -178,7 +178,7 @@ public class BundlesInstaller {
 
 	private void installBundle(ZipFile zipFile, List<String> bundles, Application application) {
 		for (String location : AtlasConfig.DELAY) {
-			String mLocation = installBundle(bundles, location.replace(".", "_"));
+			String mLocation = contains(bundles, location.replace(".", "_"));
 			if (mLocation != null && mLocation.length() > 0) {
 				installBundle(zipFile, mLocation, application);
 				bundles.remove(mLocation);
@@ -203,7 +203,7 @@ public class BundlesInstaller {
 		}
 	}
 
-	private String installBundle(List<String> bundles, String location) {
+	private String contains(List<String> bundles, String location) {
 
 		if (bundles == null || location == null) {
 			return null;

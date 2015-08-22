@@ -174,7 +174,7 @@ public final class Framework {
             public void run() {
                 List bundles = Framework.getBundles();
                 SystemBundle.this.setLevel((Bundle[]) bundles.toArray(new Bundle[bundles.size()]), this.targetLevel, false);
-                Framework.notifyFrameworkListeners(8, Framework.systemBundle, null);
+                Framework.notifyFrameworkListeners(BundleEvent.UPDATED, Framework.systemBundle, null);
                 Framework.storeMetadata();
             }
         }
@@ -430,11 +430,11 @@ public final class Framework {
         }
 
         @Override
-        public void setInitialBundleStartLevel(int i) {
-            if (i <= 0) {
-                throw new IllegalArgumentException("Start level " + i + " is not Component valid level");
+        public void setInitialBundleStartLevel(int level) {
+            if (level <= 0) {
+                throw new IllegalArgumentException("Start level " + level + " is not Component valid level");
             }
-            Framework.initStartlevel = i;
+            Framework.initStartlevel = level;
         }
 
         @Override
@@ -446,50 +446,49 @@ public final class Framework {
         }
 
         @SuppressLint({"UseSparseArrays"})
-        private void setLevel(Bundle[] bundleArr, int i, boolean z) {
-            if (Framework.startlevel != i) {
-                int i2 = i > Framework.startlevel ? 1 : 0;
-                int i3 = i2 != 0 ? i - Framework.startlevel : Framework.startlevel - i;
+        private void setLevel(Bundle[] bundles, int startlevel, boolean z) {
+            if (Framework.startlevel != startlevel) {
+                int iStartlevelHigh = startlevel > Framework.startlevel ? 1 : 0;
+                int levelDiff = iStartlevelHigh != 0 ? startlevel - Framework.startlevel : Framework.startlevel - startlevel;
                 Map hashMap = new HashMap(0);
-                int i4 = 0;
-                while (i4 < bundleArr.length) {
-                    if (bundleArr[i4] != Framework.systemBundle && (z || ((BundleImpl) bundleArr[i4]).persistently)) {
-                        int i5;
-                        BundleImpl bundleImpl = (BundleImpl) bundleArr[i4];
-                        if (i2 != 0) {
-                            i5 = (bundleImpl.currentStartlevel - Framework.startlevel) - 1;
+                for (Bundle mBundle:bundles){
+                    if (mBundle != Framework.systemBundle && (z || ((BundleImpl)mBundle).persistently)) {
+                        int mLevelDiff;
+                        BundleImpl bundleImpl = (BundleImpl) mBundle;
+                        if (iStartlevelHigh != 0) {
+                            mLevelDiff = (bundleImpl.currentStartlevel - Framework.startlevel) - 1;
                         } else {
-                            i5 = Framework.startlevel - bundleImpl.currentStartlevel;
+                            mLevelDiff = Framework.startlevel - bundleImpl.currentStartlevel;
                         }
-                        if (i5 >= 0 && i5 < i3) {
-                            Framework.addValue(hashMap, Integer.valueOf(i5), bundleImpl);
+                        if (mLevelDiff >= 0 && mLevelDiff < levelDiff) {
+                            Framework.addValue(hashMap, Integer.valueOf(mLevelDiff), bundleImpl);
                         }
                     }
-                    i4++;
                 }
-                for (int i6 = 0; i6 < i3; i6++) {
-                    if (i2 != 0) {
+
+                for (int j = 0; j < levelDiff; j++) {
+                    if (iStartlevelHigh != 0) {
                         Framework.startlevel++;
                     } else {
                         Framework.startlevel--;
                     }
-                    List list = (List) hashMap.get(Integer.valueOf(i6));
+                    List list = (List) hashMap.get(Integer.valueOf(j));
                     if (list != null) {
                         BundleImpl[] bundleImplArr = (BundleImpl[]) list.toArray(new BundleImpl[list.size()]);
-                        for (i4 = 0; i4 < bundleImplArr.length; i4++) {
-                            if (i2 != 0) {
+                        for (int i = 0; i < bundleImplArr.length; i++) {
+                            if (iStartlevelHigh != 0) {
                                 try {
-                                    System.out.println("STARTING " + bundleImplArr[i4].location);
-                                    bundleImplArr[i4].startBundle();
+                                    System.out.println("STARTING " + bundleImplArr[i].location);
+                                    bundleImplArr[i].startBundle();
                                 } catch (Throwable e) {
                                     e.printStackTrace();
                                     e.printStackTrace();
-                                    Framework.notifyFrameworkListeners(2, Framework.systemBundle, e);
+                                    Framework.notifyFrameworkListeners(FrameworkEvent.ERROR, Framework.systemBundle, e);
                                 }
-                            } else if (bundleImplArr[i4].getState() != 1) {
-                                System.out.println("STOPPING " + bundleImplArr[i4].location);
+                            } else if (bundleImplArr[i].getState() != 1) {
+                                System.out.println("STOPPING " + bundleImplArr[i].location);
                                 try {
-                                    bundleImplArr[(bundleImplArr.length - i4) - 1].stopBundle();
+                                    bundleImplArr[(bundleImplArr.length - i) - 1].stopBundle();
                                 } catch (BundleException e) {
                                     // TODO Auto-generated catch block
                                     e.printStackTrace();
@@ -498,7 +497,7 @@ public final class Framework {
                         }
                     }
                 }
-                Framework.startlevel = i;
+                Framework.startlevel = startlevel;
             }
         }
 
@@ -684,8 +683,7 @@ public final class Framework {
     }
 
     private static void startup() throws BundleException {
-        int i;
-        int property;
+        int startlevel;
         frameworkStartupShutdown = true;
         System.out.println("---------------------------------------------------------");
         System.out.println("  OpenAtlas OSGi 1.0.0  Pre-Release on " + Build.MODEL + "/" + Build.CPU_ABI + "/"
@@ -696,12 +694,12 @@ public final class Framework {
         Framework.launch();
         boolean init = getProperty("osgi.init", false);
         if (init) {
-            i = -1;
+            startlevel = -1;
         } else {
-            i = restoreProfile();
+            startlevel = restoreProfile();
             restart = true;
         }
-        if (i == -1) {
+        if (startlevel == -1) {
             restart = false;
             File file = new File(STORAGE_LOCATION);
             if (init && file.exists()) {
@@ -716,14 +714,14 @@ public final class Framework {
                 file.mkdirs();
                 Integer.getInteger("osgi.maxLevel", Integer.valueOf(1)).intValue();
                 initStartlevel = getProperty("osgi.startlevel.bundle", 1);
-                property = getProperty("osgi.startlevel.framework", 1);
-            } catch (Throwable e2) {
-                throw new RuntimeException("mkdirs failed", e2);
+                startlevel = getProperty("osgi.startlevel.framework", 1);
+            } catch (Throwable e) {
+                throw new RuntimeException("mkdirs failed", e);
             }
         }
-        property = i;
-        notifyFrameworkListeners(0, systemBundle, null);
-        systemBundle.setLevel(getBundles().toArray(new Bundle[bundles.size()]), property, false);
+
+        notifyFrameworkListeners(FrameworkEvent.STARTING, systemBundle, null);
+        systemBundle.setLevel(getBundles().toArray(new Bundle[bundles.size()]), startlevel, false);
         frameworkStartupShutdown = false;
         if (!restart) {
             try {
@@ -767,7 +765,7 @@ public final class Framework {
 
     static void shutdown(boolean restart) {
         System.out.println("---------------------------------------------------------");
-        System.out.println("  Atlas OSGi shutting down ...");
+        System.out.println("  OpenAtlas OSGi shutting down ...");
         System.out.println("  Bye !");
         System.out.println("---------------------------------------------------------");
         systemBundle.state = BundleEvent.UNINSTALLED;
@@ -964,35 +962,35 @@ public final class Framework {
         }
     }
 
-    private static void mergeWalsDir(File file, File file2) {
+    private static void mergeWalsDir(File walFile, File storageLocation) {
         if (writeAheads != null && writeAheads.size() > 0) {
             for (int i = 0; i < writeAheads.size(); i++) {
                 if (writeAheads.get(i) != null) {
-                    File file3 = new File(file, writeAheads.get(i));
-                    if (file3 != null) {
+                    File mHeadDir = new File(walFile, writeAheads.get(i));
+                    if (mHeadDir != null) {
                         try {
-                            if (file3.exists()) {
-                                File[] listFiles = file3.listFiles();
-                                if (listFiles != null) {
-                                    for (File file4 : listFiles) {
-                                        if (file4.isDirectory()) {
-                                            File file5 = new File(file2, file4.getName());
-                                            if (file5.exists()) {
-                                                File[] listFiles2 = file4.listFiles(new FilenameFilter() {
+                            if (mHeadDir.exists()) {
+                                File[] mHeadFiles = mHeadDir.listFiles();
+                                if (mHeadFiles != null) {
+                                    for (File mHeadFile : mHeadFiles) {
+                                        if (mHeadFile.isDirectory()) {
+                                            File targetFile = new File(storageLocation, mHeadFile.getName());
+                                            if (targetFile.exists()) {
+                                                File[] reversionList = mHeadFile.listFiles(new FilenameFilter() {
                                                     @Override
                                                     public boolean accept(File file, String str) {
                                                         return str.startsWith(BundleArchive.REVISION_DIRECTORY);
                                                     }
                                                 });
-                                                if (listFiles2 != null) {
-                                                    for (File file6 : listFiles2) {
-                                                        if (new File(file6, "meta").exists()) {
-                                                            file6.renameTo(new File(file5, file6.getName()));
+                                                if (reversionList != null) {
+                                                    for (File mFile : reversionList) {
+                                                        if (new File(mFile, "meta").exists()) {
+                                                            mFile.renameTo(new File(targetFile, mFile.getName()));
                                                         }
                                                     }
                                                 }
                                             } else {
-                                                file4.renameTo(file5);
+                                                mHeadFile.renameTo(targetFile);
                                             }
                                         }
                                     }
@@ -1006,8 +1004,8 @@ public final class Framework {
                 }
             }
         }
-        if (file.exists()) {
-            file.delete();
+        if (walFile.exists()) {
+            walFile.delete();
         }
     }
 
@@ -1148,21 +1146,21 @@ public final class Framework {
         }
     }
 
-    private static void MergeWirteAheads(File file) {
+    private static void MergeWirteAheads(File storageLocation) {
         try {
             File wal = new File(STORAGE_LOCATION, "wal");
             String curProcessName = OpenAtlasUtils.getProcessNameByPID(Process.myPid());
             log.debug("restoreProfile in process " + curProcessName);
             String packageName = RuntimeVariables.androidApplication.getPackageName();
             if (curProcessName != null && packageName != null && curProcessName.equals(packageName)) {
-                mergeWalsDir(wal, file);
+                mergeWalsDir(wal, storageLocation);
             }
         } catch (Throwable th) {
             if (Build.MODEL == null || !Build.MODEL.equals("HTC 802w")) {
                 log.error(th.getMessage(), th.getCause());
                 return;
             }
-            RuntimeException runtimeException = new RuntimeException(th);
+           
         }
     }
 
