@@ -46,7 +46,6 @@ class BundleDebug {
         this.isDebugable = false;
         this.debugBundles = new ArrayList();
         this.debugFolder = Environment.getExternalStorageDirectory().getAbsolutePath() + "/bundle-debug";
-        this.isDebug = true;
     }
 
     public boolean isDebugable() {
