@@ -14,7 +14,10 @@ dependencies {
 android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_6
+    }
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'

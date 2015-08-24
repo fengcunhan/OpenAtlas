@@ -132,24 +132,22 @@ public class OpenAtlasInitializer {
             if (InstallSolutionConfig.install_when_oncreate) {
 
             }
-            AutoStartBundlesLaunch autoStartBundlesLaunch = new AutoStartBundlesLaunch();
             if (this.isUpdate || this.mDebug.isDebugable()) {
                 if (InstallSolutionConfig.install_when_oncreate) {
                     Coordinator.postTask(new  TaggedRunnable("AtlasStartup") {
 						@Override
 						public void run() {
-							mBundlesInstaller.process(false, false);
-							mOptDexProcess.processPackages(false, false);
+							mBundlesInstaller.process(true, false);
+							mOptDexProcess.processPackages(true, false);
 							
 						}
 					});
 
                     return;
                 }
+                Utils.notifyBundleInstalled(mApplication);
                 Utils.UpdatePackageVersion(this.mApplication);
                 Utils.saveAtlasInfoBySharedPreferences(this.mApplication);
-
-                autoStartBundlesLaunch.startAutoBundles();
             } else if (!this.isUpdate) {
                 if (this.tryInstall) {
                     Coordinator.postTask(new TaggedRunnable("AtlasStartup") {
@@ -160,8 +158,9 @@ public class OpenAtlasInitializer {
 						}
 					});
                     return;
+                }else{
+                     Utils.notifyBundleInstalled(mApplication);
                 }
-                autoStartBundlesLaunch.startAutoBundles();
             }
         }
     }
