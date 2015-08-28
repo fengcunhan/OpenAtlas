@@ -38,7 +38,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.jar.Manifest;
 /**
  * This is Bundle Archive  implementation.<br>
  * Archive  BundleArchive  BundleArchiveRevision() ,decorator mode,looks like Context
@@ -191,11 +190,6 @@ public class BundleArchive implements Archive {
     @Override
     public InputStream openNonAssetInputStream(String name) throws IOException {
         return this.currentRevision.openNonAssetInputStream(name);
-    }
-    @Deprecated
-    @Override
-    public Manifest getManifest() throws IOException {
-        return this.currentRevision.getManifest();
     }
 
     @Override

@@ -74,11 +74,7 @@ public interface Archive {
      **/
     BundleArchiveRevision getCurrentRevision();
 
-    /**
-     * @deprecated not used ,old  method used for OSGI.MF
-     **/
-    @Deprecated
-    Manifest getManifest() throws IOException;
+
 
     /****
      * get resource from bundle

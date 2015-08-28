@@ -195,7 +195,12 @@ public class ClassLoadFromBundle {
                             "failed to install bundle ", e);
                     throw new RuntimeException("OpenAtlas failed to install bundle " + location, e);
                 }
-            } else if (sInternalBundles == null || !sInternalBundles.contains(location)) {
+                return;
+            }
+            if (sInternalBundles==null){
+                resolveInternalBundles();
+            }
+            if (sInternalBundles == null || !sInternalBundles.contains(location)) {
                 log.error(" can not find the library " + concat + " for bundle" + location);
                 OpenAtlasMonitor.getInstance().trace(Integer.valueOf(-1), "" + location, "",
                         "can not find the library " + concat);
@@ -213,7 +218,7 @@ public class ClassLoadFromBundle {
         try {
             if (checkAvailableDisk()) {
                 Atlas.getInstance().installBundle(location,
-                        sZipFile.getInputStream(sZipFile.getEntry("lib/armeabi/" + fileName)));
+                        sZipFile.getInputStream(sZipFile.getEntry("lib/"+AtlasConfig.PRELOAD_DIR+"/" + fileName)));
             }
         } catch (Exception e) {
             log.debug("Failed to install bundle " + fileName + " from APK zipfile ");
@@ -221,18 +226,18 @@ public class ClassLoadFromBundle {
         }
     }
 
-    public static void checkInstallBundleIfNeed(String bundleName) {
-        synchronized (bundleName) {
+    public static void checkInstallBundleIfNeed(String componet) {
+        synchronized (componet) {
             if (sInternalBundles == null) {
                 resolveInternalBundles();
             }
-            String bundleForComponet = BundleInfoList.getInstance().getBundleNameForComponet(bundleName);
-            if (TextUtils.isEmpty(bundleForComponet)) {
-                Log.e(TAG, "Failed to find the bundle in BundleInfoList for component " + bundleForComponet);
-                insertToReasonList(bundleName, "not found in BundleInfoList!");
+            String location = BundleInfoList.getInstance().getBundleNameForComponet(componet);
+            if (TextUtils.isEmpty(location)) {
+                Log.e(TAG, "Failed to find the bundle in BundleInfoList for component " + componet);
+                insertToReasonList(componet, "not found in BundleInfoList!");
             }
-            if (sInternalBundles == null || sInternalBundles.contains(bundleForComponet)) {
-                checkInstallBundleAndDependency(bundleForComponet);
+            if (sInternalBundles == null || sInternalBundles.contains(location)) {
+                checkInstallBundleAndDependency(location);
                 return;
             }
         }

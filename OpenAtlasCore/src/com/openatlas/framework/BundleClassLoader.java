@@ -29,7 +29,6 @@ import com.openatlas.log.LoggerFactory;
 
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,13 +43,11 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
 /***
  * bundle class loader ,load class from bundle
@@ -138,44 +135,13 @@ public final class BundleClassLoader extends ClassLoader {
         if (this.archive == null) {
             throw new BundleException("Not Component valid bundle: " + bundleImpl.location);
         }
-        if (PlatformConfigure.CODE_ENABLE_COMPILE) {//disable compile code
-            try {
-                processManifest(this.archive.getManifest());
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new BundleException("Not Component valid bundle: " + bundleImpl.location);
-            }
-        }
     }
 
     public BundleImpl getBundle() {
         return this.bundle;
     }
-    @Deprecated
-    private void processManifest(Manifest manifest) throws BundleException {
-        Attributes mainAttributes;
-        if (manifest != null) {
-            mainAttributes = manifest.getMainAttributes();
-        } else {
-            mainAttributes = new Attributes();
-        }
-        checkExecutionEnviroment(readProperty(mainAttributes,
-                        Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT),
-                splitString(System.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT)));
-        this.exports = readProperty(mainAttributes, Constants.EXPORT_PACKAGE);
-        this.imports = readProperty(mainAttributes, Constants.IMPORT_PACKAGE);
-        this.dynamicImports = readProperty(mainAttributes, Constants.DYNAMICIMPORT_PACKAGE);
-        this.requires = readProperty(mainAttributes, Constants.REQUIRE_BUNDLE);
-        // this.activatorClassName = mainAttributes
-        // .getValue(Constants.BUNDLE_ACTIVATOR);
-        Hashtable<String, String> hashtable = new Hashtable<String, String>(mainAttributes.size());
-        Object[] toArray = mainAttributes.keySet().toArray(
-                new Object[mainAttributes.keySet().size()]);
-        for (int i = 0; i < toArray.length; i++) {
-            hashtable.put(toArray[i].toString(), mainAttributes.get(toArray[i]).toString());
-        }
-        this.bundle.headers = hashtable;
-    }
+
+
     private void checkExecutionEnviroment(String[] requireEnv, String[] execEnv)
             throws BundleException {
         if (requireEnv.length != 0) {

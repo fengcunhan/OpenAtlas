@@ -1,6 +1,6 @@
 /**
  * OpenAtlasForAndroid Project
- * The MIT License (MIT) Copyright (AwbDebug) 2015 Bunny Blue,achellies
+ * The MIT License (MIT) Copyright (BundleDebug) 2015 Bunny Blue,achellies
  * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to deal in the Software

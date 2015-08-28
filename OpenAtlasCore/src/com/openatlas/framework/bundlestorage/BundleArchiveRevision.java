@@ -42,7 +42,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -430,54 +429,6 @@ public class BundleArchiveRevision {
             log.error("Exception while openNonAssetInputStream >>>", e);
         }
         return null;
-    }
-   @Deprecated
-    public Manifest getManifest() throws IOException {//disable OSGI.MF
-        InputStream open = null;
-        if (this.manifest != null) {
-            return this.manifest;
-        }
-        try {
-            AssetManager assetManager = AssetManager.class
-                    .newInstance();
-            if (((Integer) OpenAtlasHacks.AssetManager_addAssetPath.invoke(
-                    assetManager, this.bundleFile.getAbsolutePath()))
-                    .intValue() != 0) {
-                try {
-                    open = assetManager.open("OSGI.MF");
-                } catch (FileNotFoundException e) {
-                    log.warn("Could not find OSGI.MF in "
-                            + this.bundleFile.getAbsolutePath());
-                    return null;
-                }
-                    if (open == null) {
-                        return manifest;
-                    }
-                    this.manifest = new Manifest(open);
-                    return manifest;
-
-            }
-
-
-        } catch (Exception e) {
-            log.error("Exception while parse OSGI.MF >>>", e);
-            return null;
-        } finally {
-            try {
-
-                if (open != null) {
-                    open.close();
-                    open=null;
-                }
-            } catch (Throwable throwable) {
-
-                if (open != null) {
-                    open.close();
-                }
-                // throw th;
-            }
-        }
-     return manifest;
     }
 
     Class<?> findClass(String name, ClassLoader classLoader)
