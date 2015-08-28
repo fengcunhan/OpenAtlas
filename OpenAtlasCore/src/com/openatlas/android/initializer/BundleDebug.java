@@ -26,7 +26,7 @@ package com.openatlas.android.initializer;
 import android.os.Environment;
 import android.util.Log;
 
-import com.openatlas.framework.Atlas;
+import com.openatlas.framework.OpenAtlas;
 import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
 
@@ -79,9 +79,9 @@ class BundleDebug {
             if (bundle.contains(Utils.getFileNameFromEntryName(location).substring(3))) {
                 File file = new File(bundle);
                 String replace = Utils.getBaseFileName(file.getName()).replace("_", ".");
-                if (Atlas.getInstance().getBundle(replace) == null) {
+                if (OpenAtlas.getInstance().getBundle(replace) == null) {
                     try {
-                        Atlas.getInstance().installBundle(replace, file);
+                        OpenAtlas.getInstance().installBundle(replace, file);
                     } catch (Throwable th) {
                         Log.e("BundleDebug", "Could not install external bundle.", th);
                     }

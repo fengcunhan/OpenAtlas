@@ -18,20 +18,20 @@ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TOR
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 @author BunnyBlue
  * **/
-package com.openatlas.launcher.welcome;
+package com.openatlas.launcher;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.os.Bundle;
 
-import com.openatlas.android.lifecycle.BaseActivity;
-import com.openatlas.boot.Globals;
-import com.openatlas.framework.PlatformConfigure;
-import com.openatlas.launcher.R;
+import com.openatlas.framework.OpenAtlasInternalConstant;
+
+import com.openatlas.launcher.welcome.WelcomeFragment;
+import com.openatlas.runtime.Globals;
 
 
-
-public class Welcome extends BaseActivity {
+public class LauncherActivity extends Activity {
 	WelcomeFragment mFragment;
     public static boolean isAtlasDexopted() {
         PackageInfo packageInfo = null;
@@ -40,7 +40,7 @@ public class Welcome extends BaseActivity {
         } catch (Throwable e) {
            e.printStackTrace();
         }
-        SharedPreferences sharedPreferences = Globals.getApplication().getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE, 0);
+        SharedPreferences sharedPreferences = Globals.getApplication().getSharedPreferences(OpenAtlasInternalConstant.OPENATLAS_CONFIGURE, 0);
         if (packageInfo == null || !"dexopt".equals(sharedPreferences.getString(packageInfo.versionName, ""))) {
             return false;
         }

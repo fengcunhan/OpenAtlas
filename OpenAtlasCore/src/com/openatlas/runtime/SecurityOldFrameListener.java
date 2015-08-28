@@ -29,8 +29,8 @@
 //import android.util.Log;
 //import android.widget.Toast;
 //
-//import com.openatlas.framework.PlatformConfigure;
-//import com.openatlas.framework.Atlas;
+//import com.openatlas.framework.OpenAtlasInternalConstant;
+//import com.openatlas.framework.OpenAtlas;
 //import com.openatlas.framework.Framework;
 //import com.openatlas.util.ApkUtils;
 //import com.openatlas.util.StringUtils;
@@ -50,7 +50,7 @@
 //
 //        private SecurityTask() {
 //            this.PUBLIC_KEY = Framework
-//                    .getProperty(PlatformConfigure.OPENATLAS_PUBLIC_KEY);
+//                    .getProperty(OpenAtlasInternalConstant.OPENATLAS_PUBLIC_KEY);
 //        }
 //
 //        @Override
@@ -62,11 +62,11 @@
 //                Thread.sleep(5000);
 //            } catch (InterruptedException e) {
 //            }
-//            List<Bundle> bundles = Atlas.getInstance().getBundles();
+//            List<Bundle> bundles = OpenAtlas.getInstance().getBundles();
 //            if (bundles != null) {
 //                for (Bundle bundle : bundles) {
 //                    if (StringUtils.contains(
-//                            ApkUtils.getApkPublicKey(Atlas.getInstance()
+//                            ApkUtils.getApkPublicKey(OpenAtlas.getInstance()
 //                                    .getBundleFile(bundle.getLocation())
 //                                    .getAbsolutePath()), this.PUBLIC_KEY)) {
 //                        try {

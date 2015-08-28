@@ -32,15 +32,13 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.openatlas.framework.Atlas;
+import com.openatlas.framework.OpenAtlas;
 import com.openatlas.runtime.RuntimeVariables;
 import com.openatlas.util.ApkUtils;
 import com.openatlas.util.StringUtils;
 
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
-import org.osgi.framework.FrameworkEvent;
-import org.osgi.framework.ServiceEvent;
 
 import java.io.File;
 
@@ -67,7 +65,7 @@ public class SecurityBundleListner implements BundleListener {
             if (message != null) {
                 String location = (String) message.obj;
                 if (!TextUtils.isEmpty(location) && !TextUtils.isEmpty(SecurityBundleListner.PUBLIC_KEY)) {
-                    File bundleFile = Atlas.getInstance().getBundleFile(location);
+                    File bundleFile = OpenAtlas.getInstance().getBundleFile(location);
                     if (bundleFile != null) {
                         if (!StringUtils.contains(ApkUtils.getApkPublicKey(bundleFile.getAbsolutePath()), SecurityBundleListner.PUBLIC_KEY)) {
                             Log.e("SecurityBundleListner", "Security check failed. " + location);
@@ -107,8 +105,8 @@ public class SecurityBundleListner implements BundleListener {
     public void bundleChanged(BundleEvent bundleEvent) {
 
         switch (bundleEvent.getType()) {
-            case ServiceEvent.REGISTERED :
-            case FrameworkEvent.STARTLEVEL_CHANGED :
+            case BundleEvent.INSTALLED:
+            case BundleEvent.UPDATED:
                 Message obtain = Message.obtain();
                 obtain.obj = bundleEvent.getBundle().getLocation();
                 this.mSecurityCheckHandler.sendMessage(obtain);

@@ -43,10 +43,7 @@ import java.util.Dictionary;
  * <p>
  * <p>
  * A <code>BundleContext</code> object will be created and provided to the
- * bundle associated with this context when it is started using the
- * {@link BundleActivator#start} method. The same <code>BundleContext</code>
- * object will be passed to the bundle associated with this context when it is
- * stopped using the {@link BundleActivator#stop} method. A
+ * bundle associated with this context
  * <code>BundleContext</code> object is generally for the private use of its
  * associated bundle and is not meant to be shared with other bundles in the
  * OSGi environment.

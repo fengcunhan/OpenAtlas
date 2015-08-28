@@ -179,7 +179,7 @@ public final class Framework {
             }
         }
 
-        // TODO this is Component old version impl
+
         class RefreshBundlesThread extends Thread {
             final Bundle[] bundleArray;
 
@@ -221,9 +221,9 @@ public final class Framework {
                         while (!arrayList.isEmpty()) {
                             bundleImpl = (BundleImpl) arrayList.remove(0);
                             if (!hashSet.contains(bundleImpl)) {
-                                ExportedPackage[] access$100 = SystemBundle.this.getExportedPackages(bundleImpl, true);
-                                if (access$100 != null) {
-                                    for (ExportedPackage exportedPackage : access$100) {
+                                ExportedPackage[] mExportedPkgs = SystemBundle.this.getExportedPackages(bundleImpl, true);
+                                if (mExportedPkgs != null) {
+                                    for (ExportedPackage exportedPackage : mExportedPkgs) {
                                         Package packageR = (Package) exportedPackage;
                                         if (packageR.importingBundles != null) {
                                             arrayList.addAll(Arrays.asList(packageR.importingBundles.toArray(new Bundle[packageR.importingBundles.size()])));
@@ -281,7 +281,7 @@ public final class Framework {
             this.props = new Hashtable<String, String>();
             this.props.put(Constants.BUNDLE_NAME, Constants.SYSTEM_BUNDLE_LOCATION);
             this.props.put(Constants.BUNDLE_VERSION, Framework.FRAMEWORK_VERSION);
-            this.props.put(Constants.BUNDLE_VENDOR, "Atlas");
+            this.props.put(Constants.BUNDLE_VENDOR, "OpenAtlas");
             ServiceReferenceImpl serviceReferenceImpl = new ServiceReferenceImpl(this, this, null, new String[]{StartLevel.class.getName(), PackageAdmin.class.getName()});
             Framework.addValue(Framework.classes_services, StartLevel.class.getName(), serviceReferenceImpl);
             Framework.addValue(Framework.classes_services, PackageAdmin.class.getName(), serviceReferenceImpl);
@@ -787,15 +787,15 @@ public final class Framework {
         if (filesDir == null || !filesDir.exists()) {
             filesDir = RuntimeVariables.androidApplication.getFilesDir();
         }
-        BASEDIR = properties.getProperty(PlatformConfigure.OPENATLAS_BASEDIR, filesDir.getAbsolutePath());
-        BUNDLE_LOCATION = properties.getProperty(PlatformConfigure.OPENATLAS_BUNDLE_LOCATION, "file:" + BASEDIR);
-        CLASSLOADER_BUFFER_SIZE = getProperty(PlatformConfigure.OPENATLAS_CLASSLOADER_BUFFER_SIZE, 1024 * 10);
-        LOG_LEVEL = getProperty(PlatformConfigure.OPENATLAS_LOG_LEVEL, 6);
-        DEBUG_BUNDLES = getProperty(PlatformConfigure.OPENATLAS_DEBUG_BUNDLES, false);
-        DEBUG_PACKAGES = getProperty(PlatformConfigure.OPENATLAS_DEBUG_PACKAGES, false);
-        DEBUG_SERVICES = getProperty(PlatformConfigure.OPENATLAS_DEBUG_SERVICES, false);
-        DEBUG_CLASSLOADING = getProperty(PlatformConfigure.OPENATLAS_DEBUG_CLASSLOADING, false);
-        if (getProperty(PlatformConfigure.OPENATLAS_DEBUG, false)) {
+        BASEDIR = properties.getProperty(OpenAtlasInternalConstant.OPENATLAS_BASEDIR, filesDir.getAbsolutePath());
+        BUNDLE_LOCATION = properties.getProperty(OpenAtlasInternalConstant.OPENATLAS_BUNDLE_LOCATION, "file:" + BASEDIR);
+        CLASSLOADER_BUFFER_SIZE = getProperty(OpenAtlasInternalConstant.OPENATLAS_CLASSLOADER_BUFFER_SIZE, 1024 * 10);
+        LOG_LEVEL = getProperty(OpenAtlasInternalConstant.OPENATLAS_LOG_LEVEL, 6);
+        DEBUG_BUNDLES = getProperty(OpenAtlasInternalConstant.OPENATLAS_DEBUG_BUNDLES, false);
+        DEBUG_PACKAGES = getProperty(OpenAtlasInternalConstant.OPENATLAS_DEBUG_PACKAGES, false);
+        DEBUG_SERVICES = getProperty(OpenAtlasInternalConstant.OPENATLAS_DEBUG_SERVICES, false);
+        DEBUG_CLASSLOADING = getProperty(OpenAtlasInternalConstant.OPENATLAS_DEBUG_CLASSLOADING, false);
+        if (getProperty(OpenAtlasInternalConstant.OPENATLAS_DEBUG, false)) {
             System.out.println("SETTING ALL DEBUG FLAGS");
             LOG_LEVEL = 3;
             DEBUG_BUNDLES = true;
@@ -803,7 +803,7 @@ public final class Framework {
             DEBUG_SERVICES = true;
             DEBUG_CLASSLOADING = true;
         }
-        STRICT_STARTUP = getProperty(PlatformConfigure.OPENATLAS_STRICT_STARTUP, false);
+        STRICT_STARTUP = getProperty(OpenAtlasInternalConstant.OPENATLAS_STRICT_STARTUP, false);
         String property = properties.getProperty("org.osgi.framework.system.packages");
         if (property != null) {
             StringTokenizer stringTokenizer = new StringTokenizer(property, ",");
@@ -847,7 +847,7 @@ public final class Framework {
     }
 
     private static void launch() {
-        STORAGE_LOCATION = properties.getProperty(PlatformConfigure.INSTALL_LOACTION, properties.getProperty("org.osgi.framework.dir", BASEDIR + File.separatorChar + "storage"))
+        STORAGE_LOCATION = properties.getProperty(OpenAtlasInternalConstant.INSTALL_LOACTION, properties.getProperty("org.osgi.framework.dir", BASEDIR + File.separatorChar + "storage"))
                 + File.separatorChar;
         systemBundle = new SystemBundle();
         systemBundle.state = BundleEvent.UPDATED;
@@ -881,7 +881,7 @@ public final class Framework {
     }
 
     protected static void warning(String message) throws RuntimeException {
-        if (getProperty(PlatformConfigure.OPENATLAS_STRICT_STARTUP, false)) {
+        if (getProperty(OpenAtlasInternalConstant.OPENATLAS_STRICT_STARTUP, false)) {
             throw new RuntimeException(message);
         }
         System.err.println("WARNING: " + message);
@@ -929,7 +929,7 @@ public final class Framework {
                     writeAheads.addAll(Arrays.asList(split));
                 }
                 dataInputStream.close();
-                if (!getProperty(PlatformConfigure.OPENATLAS_AUTO_LOAD, true)) {
+                if (!getProperty(OpenAtlasInternalConstant.OPENATLAS_AUTO_LOAD, true)) {
                     return readInt;
                 }
                 File storageLocation = new File(STORAGE_LOCATION);

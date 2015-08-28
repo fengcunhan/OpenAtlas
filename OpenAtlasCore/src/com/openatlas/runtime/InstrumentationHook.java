@@ -44,7 +44,7 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
-import com.openatlas.framework.PlatformConfigure;
+import com.openatlas.framework.OpenAtlasInternalConstant;
 import com.openatlas.bundleInfo.BundleInfoList;
 import com.openatlas.framework.BundleClassLoader;
 import com.openatlas.framework.BundleImpl;
@@ -428,10 +428,10 @@ public class InstrumentationHook extends Instrumentation {
             newActivity = this.mBase.newActivity(cl, className, intent);
         } catch (ClassNotFoundException e) {
             ClassNotFoundException classNotFoundException = e;
-            CharSequence property = Framework.getProperty(PlatformConfigure.BOOT_ACTIVITY,
-                    PlatformConfigure.BOOT_ACTIVITY_DEFAULT);
+            CharSequence property = Framework.getProperty(OpenAtlasInternalConstant.BOOT_ACTIVITY,
+                    OpenAtlasInternalConstant.BOOT_ACTIVITY_DEFAULT);
             if (TextUtils.isEmpty(property)) {
-                defaultBootActivityName = PlatformConfigure.BOOT_ACTIVITY_DEFAULT;
+                defaultBootActivityName = OpenAtlasInternalConstant.BOOT_ACTIVITY_DEFAULT;
             } else {
                 @SuppressWarnings("unused")
                 CharSequence charSequence = property;
@@ -494,9 +494,9 @@ public class InstrumentationHook extends Instrumentation {
                     log.error(e.getMessage() + " Caused by: ", e.getNestedException());
                 }
             }
-            String property = Framework.getProperty(PlatformConfigure.BOOT_ACTIVITY, PlatformConfigure.BOOT_ACTIVITY);
+            String property = Framework.getProperty(OpenAtlasInternalConstant.BOOT_ACTIVITY, OpenAtlasInternalConstant.BOOT_ACTIVITY);
             if (TextUtils.isEmpty(property)) {
-                property = PlatformConfigure.BOOT_ACTIVITY;
+                property = OpenAtlasInternalConstant.BOOT_ACTIVITY;
             }
             try {
                 ensureResourcesInjected(activity);

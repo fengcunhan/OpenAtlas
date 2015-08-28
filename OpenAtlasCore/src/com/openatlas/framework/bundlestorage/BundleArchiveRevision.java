@@ -126,8 +126,7 @@ public class BundleArchiveRevision {
 
     BundleArchiveRevision(String location, long revisionNum, File revisionDir, InputStream inputStream)
             throws IOException {
-        System.out.println("BundleArchiveRevision.BundleArchiveRevision()");
-        Object obj = 1;
+        boolean withNativeLib=false;
         this.revisionNum = revisionNum;
         this.revisionDir = revisionDir;
         if (!this.revisionDir.exists()) {
@@ -137,13 +136,9 @@ public class BundleArchiveRevision {
         this.bundleFile = new File(revisionDir, BUNDLE_FILE_NAME);
         ApkUtils.copyInputStreamToFile(inputStream, this.bundleFile);
         BundleInfoList instance = BundleInfoList.getInstance();
-        instance.print();
-
-
-        if (instance == null || !instance.getHasSO(location)) {
-            obj = null;
-        }
-        if (obj != null) {
+        instance.dumpBundleInfos();
+        withNativeLib=instance.getHasSO(location);
+        if (withNativeLib) {
             installSoLib(this.bundleFile);
         }
         updateMetadata();

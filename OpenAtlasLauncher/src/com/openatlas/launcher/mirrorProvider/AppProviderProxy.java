@@ -25,12 +25,10 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
-import com.openatlas.boot.ProviderProxy;
+import com.openatlas.android.compat.ProviderProxy;
 
 public class AppProviderProxy extends ProviderProxy {
-    /**
-	 * @param mTargetProvider
-	 */
+
 	public AppProviderProxy() {
 		super("com.openatlas.android.appcenter.AppProvider");
 		// TODO Auto-generated constructor stub

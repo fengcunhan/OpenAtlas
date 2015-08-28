@@ -27,7 +27,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 
 import com.openatlas.hack.AndroidHack;
-import com.openatlas.hack.AssertionArrayException;
 import com.openatlas.hack.OpenAtlasHacks;
 import com.openatlas.log.ILog;
 import com.openatlas.log.Logger;
@@ -54,24 +53,24 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
-public class Atlas {
-    protected static Atlas instance;
+public class OpenAtlas {
+    protected static OpenAtlas instance;
     static final Logger log;
     private BundleLifecycleHandler bundleLifecycleHandler;
     private FrameworkLifecycleHandler frameworkLifecycleHandler;
 
     static {
-        log = LoggerFactory.getInstance("Atlas");
+        log = LoggerFactory.getInstance("OpenAtlas");
     }
 
 
-    public static Atlas getInstance() {
+    public static OpenAtlas getInstance() {
         if (instance != null) {
             return instance;
         }
-        synchronized (Atlas.class) {
+        synchronized (OpenAtlas.class) {
             if (instance == null) {
-                instance = new Atlas();
+                instance = new OpenAtlas();
             }
 
         }
@@ -82,7 +81,7 @@ public class Atlas {
             throws Exception {
         String packageName = application.getPackageName();
         OpenAtlasHacks.defineAndVerify();
-        ClassLoader classLoader = Atlas.class.getClassLoader();
+        ClassLoader classLoader = OpenAtlas.class.getClassLoader();
         DelegateClassLoader delegateClassLoader = new DelegateClassLoader(classLoader);
         Framework.systemClassLoader = classLoader;
         RuntimeVariables.delegateClassLoader = delegateClassLoader;

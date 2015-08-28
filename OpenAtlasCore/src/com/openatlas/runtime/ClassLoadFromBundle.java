@@ -30,11 +30,11 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.openatlas.bundleInfo.BundleInfoList;
-import com.openatlas.framework.Atlas;
+import com.openatlas.framework.OpenAtlas;
 import com.openatlas.framework.AtlasConfig;
 import com.openatlas.framework.BundleImpl;
 import com.openatlas.framework.Framework;
-import com.openatlas.framework.PlatformConfigure;
+import com.openatlas.framework.OpenAtlasInternalConstant;
 import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
 import com.openatlas.log.OpenAtlasMonitor;
@@ -178,13 +178,13 @@ public class ClassLoadFromBundle {
 
             }
         }
-        if (Atlas.getInstance().getBundle(location) == null) {
+        if (OpenAtlas.getInstance().getBundle(location) == null) {
             String concat = "lib".concat(location.replace(".", "_")).concat(".so");
-            File file = new File(new File(Framework.getProperty(PlatformConfigure.ATLAS_APP_DIRECTORY), "lib"), concat);
+            File file = new File(new File(Framework.getProperty(OpenAtlasInternalConstant.ATLAS_APP_DIRECTORY), "lib"), concat);
             if (file.exists()) {
                 try {
                     if (checkAvailableDisk()) {
-                        Atlas.getInstance().installBundle(location, file);
+                        OpenAtlas.getInstance().installBundle(location, file);
                         return;
                     }
                     log.error("disk size not enough");
@@ -217,7 +217,7 @@ public class ClassLoadFromBundle {
 
         try {
             if (checkAvailableDisk()) {
-                Atlas.getInstance().installBundle(location,
+                OpenAtlas.getInstance().installBundle(location,
                         sZipFile.getInputStream(sZipFile.getEntry("lib/"+AtlasConfig.PRELOAD_DIR+"/" + fileName)));
             }
         } catch (Exception e) {

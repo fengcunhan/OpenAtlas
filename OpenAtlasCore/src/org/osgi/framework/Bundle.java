@@ -145,8 +145,7 @@ public interface Bundle {
      * <p>
      * <p>
      * A bundle is in the <code>STOPPING</code> state when its
-     * {@link #stop() stop} method is active. A bundle must be in this state
-     * when the bundle's {@link BundleActivator#stop} method is called. When the
+     * {@link #stop() stop} method is active.  When the
      * <code>BundleActivator.stop</code> method completes the bundle is
      * stopped and must move to the <code>RESOLVED</code> state.
      * <p>

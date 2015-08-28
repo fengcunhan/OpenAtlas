@@ -37,7 +37,7 @@ import android.content.pm.PackageInfo;
 import android.util.Log;
 
 import com.openatlas.framework.AtlasConfig;
-import com.openatlas.framework.PlatformConfigure;
+import com.openatlas.framework.OpenAtlasInternalConstant;
 
 import java.io.File;
 import java.util.Map;
@@ -91,9 +91,9 @@ public class Utils {
     public static void saveAtlasInfoBySharedPreferences(Application application) {
         Map<String, String> concurrentHashMap = new ConcurrentHashMap<String, String>();
         concurrentHashMap.put(getPackageInfo(application).versionName, "dexopt");
-        SharedPreferences sharedPreferences = application.getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = application.getSharedPreferences(OpenAtlasInternalConstant.OPENATLAS_CONFIGURE, Context.MODE_PRIVATE);
         if (sharedPreferences == null) {
-            sharedPreferences = application.getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE, Context.MODE_PRIVATE);
+            sharedPreferences = application.getSharedPreferences(OpenAtlasInternalConstant.OPENATLAS_CONFIGURE, Context.MODE_PRIVATE);
         }
         Editor edit = sharedPreferences.edit();
         for (String key : concurrentHashMap.keySet()) {
@@ -103,9 +103,9 @@ public class Utils {
     }
 
     /****update version info***/
-    public static void UpdatePackageVersion(Application application) {
+    public static void updatePackageVersion(Application application) {
         PackageInfo packageInfo = getPackageInfo(application);
-        Editor edit = application.getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE, Context.MODE_PRIVATE).edit();
+        Editor edit = application.getSharedPreferences(OpenAtlasInternalConstant.OPENATLAS_CONFIGURE, Context.MODE_PRIVATE).edit();
         edit.putInt("last_version_code", packageInfo.versionCode);
         edit.putString("last_version_name", packageInfo.versionName);
         edit.putString(packageInfo.versionName, "dexopt");
@@ -115,7 +115,7 @@ public class Utils {
     /***nofity UI bundle installed***/
     public static void notifyBundleInstalled(Application application) {
         System.setProperty("BUNDLES_INSTALLED", "true");
-        application.sendBroadcast(new Intent(PlatformConfigure.ACTION_BROADCAST_BUNDLES_INSTALLED));
+        application.sendBroadcast(new Intent(OpenAtlasInternalConstant.ACTION_BROADCAST_BUNDLES_INSTALLED));
     }
 
     /*****find  file from specific directory

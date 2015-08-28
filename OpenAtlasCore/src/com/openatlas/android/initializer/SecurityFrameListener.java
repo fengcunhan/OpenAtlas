@@ -39,8 +39,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.openatlas.framework.PlatformConfigure;
-import com.openatlas.framework.Atlas;
+import com.openatlas.framework.OpenAtlasInternalConstant;
+import com.openatlas.framework.OpenAtlas;
 import com.openatlas.runtime.RuntimeVariables;
 import com.openatlas.util.ApkUtils;
 import com.openatlas.util.StringUtils;
@@ -86,10 +86,10 @@ public class SecurityFrameListener implements FrameworkListener {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
             }
-            List<Bundle> bundles = Atlas.getInstance().getBundles();
+            List<Bundle> bundles = OpenAtlas.getInstance().getBundles();
             if (bundles != null) {
                 for (Bundle bundle : bundles) {
-                    File bundleFile = Atlas.getInstance().getBundleFile(bundle.getLocation());
+                    File bundleFile = OpenAtlas.getInstance().getBundleFile(bundle.getLocation());
 
                     String[] apkPublicKey = ApkUtils.getApkPublicKey(bundleFile.getAbsolutePath());
                     if (StringUtils.contains(apkPublicKey, SecurityFrameListener.PUBLIC_KEY)) {
@@ -147,7 +147,7 @@ public class SecurityFrameListener implements FrameworkListener {
 
     /*****程序公钥不匹配******/
     private void storeBadSIG(String errPublicKey) {
-        Editor edit = RuntimeVariables.androidApplication.getSharedPreferences(PlatformConfigure.OPENATLAS_CONFIGURE, Context.MODE_PRIVATE).edit();
+        Editor edit = RuntimeVariables.androidApplication.getSharedPreferences(OpenAtlasInternalConstant.OPENATLAS_CONFIGURE, Context.MODE_PRIVATE).edit();
         edit.putString("BadSignature", errPublicKey);
         edit.commit();
     }

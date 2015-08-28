@@ -116,7 +116,7 @@ public final class BundleClassLoader extends ClassLoader {
     static {
         log = LoggerFactory.getInstance("BundleClassLoader");
         FRAMEWORK_PACKAGES = new HashSet<String>();
-        FRAMEWORK_PACKAGES.add(PlatformConfigure.OPENATLAS_FRAMEWORK_PACKAGE);
+        FRAMEWORK_PACKAGES.add(OpenAtlasInternalConstant.OPENATLAS_FRAMEWORK_PACKAGE);
         FRAMEWORK_PACKAGES.add("org.osgi.framework");
         FRAMEWORK_PACKAGES.add("org.osgi.service.packageadmin");
         FRAMEWORK_PACKAGES.add("org.osgi.service.startlevel");

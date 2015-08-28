@@ -48,9 +48,10 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AnimationUtils;
 
 import com.eftimoff.androipathview.PathView;
-import com.openatlas.boot.Globals;
-import com.openatlas.framework.PlatformConfigure;
+import com.openatlas.framework.OpenAtlasInternalConstant;
+import com.openatlas.launcher.LauncherActivity;
 import com.openatlas.launcher.R;
+import com.openatlas.runtime.Globals;
 
 
 public class WelcomeFragment extends Fragment implements Callback {
@@ -142,7 +143,7 @@ public class WelcomeFragment extends Fragment implements Callback {
       init();
         return viewGroup2;
  //  this.mBmStart = a.getInstance().getBootBitmap();
-//        if ((!Welcome.isAtlasDexopted()) ) {
+//        if ((!LauncherActivity.isAtlasDexopted()) ) {
 //            ViewGroup viewGroup2 = (ViewGroup) layoutInflater.inflate(R.layout.welcome, viewGroup, false);
 //            LinearLayout linearLayout = (LinearLayout) viewGroup2.findViewById(R.id.ll_pathframe);
 //            this.pathViewArray = new PathView[linearLayout.getChildCount()];
@@ -161,7 +162,7 @@ public class WelcomeFragment extends Fragment implements Callback {
 //            }
 //            this.welcomSlogan = viewGroup2.findViewById(R.id.welcome_slogan);
 //            viewGroup2.findViewById(R.id.welcome_slogan).setVisibility(View.VISIBLE);
-//            if (Welcome.isAtlasDexopted()) {
+//            if (LauncherActivity.isAtlasDexopted()) {
 //                viewGroup2.findViewById(R.id.welcome_slogan).setVisibility(View.VISIBLE);
 ////                ((PathView) linearLayout.getChildAt(0)).setPercentage(1.0f);
 ////                ((PathView) linearLayout.getChildAt(1)).setPercentage(1.0f);
@@ -287,7 +288,7 @@ public class WelcomeFragment extends Fragment implements Callback {
     	
         if ("flase".equals(System.getProperty("BUNDLES_INSTALLED", "flase"))) {
             this.atlasBroadCast = new BundlesInstallBroadcastReceiver();
-            getActivity().registerReceiver(this.atlasBroadCast, new IntentFilter(PlatformConfigure.ACTION_BROADCAST_BUNDLES_INSTALLED));
+            getActivity().registerReceiver(this.atlasBroadCast, new IntentFilter(OpenAtlasInternalConstant.ACTION_BROADCAST_BUNDLES_INSTALLED));
             this.bundlestart = System.currentTimeMillis();
             this.mHandler.sendEmptyMessageDelayed(MSG_CONSUME_TIMEOUT, 4000);
         } else {
@@ -308,12 +309,12 @@ public class WelcomeFragment extends Fragment implements Callback {
     public void gotoMainActivity(boolean z) {
     	System.out.println("WelcomeFragment.gotoMainActivity()");
       //  boolean z2 = false;.//com.openatlas.homelauncher.MainActivity
-        if (getActivity()!=null&&Welcome.class==getActivity().getClass() ) {
+        if (getActivity()!=null&&LauncherActivity.class==getActivity().getClass() ) {
 
         	Intent mIntent=new Intent();
     		mIntent.setClassName(getActivity(), "com.openatlas.homelauncher.MainActivity");
     		startActivity(mIntent);
-            Welcome.doLaunchoverUT();
+            LauncherActivity.doLaunchoverUT();
             getActivity().finish();
         }else {
 			Log.e(getClass().getSimpleName()	, "getActivity() is null");
