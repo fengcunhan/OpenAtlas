@@ -44,11 +44,11 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
-import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.bundleInfo.BundleInfoList;
 import com.openatlas.framework.BundleClassLoader;
 import com.openatlas.framework.BundleImpl;
 import com.openatlas.framework.Framework;
+import com.openatlas.framework.PlatformConfigure;
 import com.openatlas.hack.Hack;
 import com.openatlas.hack.Hack.HackDeclaration.HackAssertionException;
 import com.openatlas.hack.Hack.HackedClass;
@@ -63,6 +63,7 @@ import org.osgi.framework.BundleException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+
 /**Hack Instrumentation,replace Instrumentation with InstrumentationHook
  * ****/
 public class InstrumentationHook extends Instrumentation {
@@ -252,6 +253,8 @@ public class InstrumentationHook extends Instrumentation {
             }
             if (Build.VERSION.SDK_INT>Build.VERSION_CODES.LOLLIPOP){
                 log.debug("current  sdk  > LOLLIPOP,skip hack");
+                mExecStartActivityFragment = mInstrumentationInvoke.method("execStartActivity", Context.class,
+                        IBinder.class, IBinder.class, Fragment.class, Intent.class, int.class, Bundle.class);
             }else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
                 mExecStartActivityFragment = mInstrumentationInvoke.method("execStartActivity", Context.class,
                         IBinder.class, IBinder.class, Fragment.class, Intent.class, int.class, Bundle.class);
@@ -316,6 +319,13 @@ public class InstrumentationHook extends Instrumentation {
         String packageName = null;
         String mComponentName = null;
         ActivityResult activityResult = null;
+
+        if(intent.hasExtra("realActivity")){
+            //install the bundle which has real Activity
+            String activityName=intent.getStringExtra("realActivity");
+            ClassLoadFromBundle.checkInstallBundleIfNeed(activityName);
+        }
+
         if (intent.getComponent() != null) {
             packageName = intent.getComponent().getPackageName();
             mComponentName = intent.getComponent().getClassName();
@@ -398,8 +408,19 @@ public class InstrumentationHook extends Instrumentation {
     public Activity newActivity(Class<?> clazz, Context context, IBinder token, Application application,
                                 Intent intent, ActivityInfo activityInfo, CharSequence title, Activity parent, String id,
                                 Object lastNonConfigurationInstance) throws InstantiationException, IllegalAccessException {
-        Activity newActivity = this.mBase.newActivity(clazz, context, token, application, intent, activityInfo,
-                title, parent, id, lastNonConfigurationInstance);
+        Activity newActivity=null;
+        if(intent.hasExtra("realActivity")){
+            String name=intent.getStringExtra("realActivity");
+            try{
+                newActivity=(Activity)RuntimeVariables.delegateClassLoader.loadClass(name).newInstance();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }else{
+            newActivity = this.mBase.newActivity(clazz, context, token, application, intent, activityInfo,
+                    title, parent, id, lastNonConfigurationInstance);
+        }
+
         if (RuntimeVariables.androidApplication.getPackageName().equals(activityInfo.packageName)
                 && OpenAtlasHacks.ContextThemeWrapper_mResources != null) {
             OpenAtlasHacks.ContextThemeWrapper_mResources.set(newActivity, RuntimeVariables.delegateResources);
@@ -422,10 +443,19 @@ public class InstrumentationHook extends Instrumentation {
     @Override
     public Activity newActivity(ClassLoader cl, String className, Intent intent) throws InstantiationException,
             IllegalAccessException, ClassNotFoundException {
-        Activity newActivity;
+        Activity newActivity=null;
         String defaultBootActivityName = null;
         try {
-            newActivity = this.mBase.newActivity(cl, className, intent);
+            if(intent.hasExtra("realActivity")){
+                String name=intent.getStringExtra("realActivity");
+                try{
+                    newActivity= (Activity)cl.loadClass(name).newInstance();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }else{
+                newActivity = this.mBase.newActivity(cl, className, intent);
+            }
         } catch (ClassNotFoundException e) {
             ClassNotFoundException classNotFoundException = e;
             CharSequence property = Framework.getProperty(PlatformConfigure.BOOT_ACTIVITY,
