@@ -32,8 +32,8 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkListener;
-import org.osgi.framework.ServiceListener;
-import org.osgi.framework.ServiceReference;
+//import org.osgi.framework.ServiceListener;
+//import org.osgi.framework.ServiceReference;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.ProtectionDomain;
-import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -55,7 +54,7 @@ public final class BundleImpl implements Bundle {
     Archive archive;
     final File bundleDir;
     BundleClassLoader classloader;
-    private final BundleContextImpl context;
+
     int currentStartlevel;
     ProtectionDomain domain;
     Hashtable<String, String> headers = new Hashtable<String, String>();
@@ -63,30 +62,26 @@ public final class BundleImpl implements Bundle {
     boolean persistently;
     List<BundleListener> registeredBundleListeners;
     List<FrameworkListener> registeredFrameworkListeners;
-    List<ServiceListener> registeredServiceListeners;
-    List<ServiceReference> registeredServices;
-    Package[] staleExportedPackages;
     int state = 0;
-
+    boolean isValid=true;
 
     static {
         log = LoggerFactory.getInstance("BundleImpl");
     }
 
-    BundleImpl(File bundleDir, String location, BundleContextImpl bundleContextImpl,
+    BundleImpl(File bundleDir, String location,
                InputStream archiveInputStream, File archiveFile, boolean isInstall)
             throws BundleException, IOException {
         this.persistently = false;
         this.domain = null;
-        this.registeredServices = null;
+       // this.registeredServices = null;
         this.registeredFrameworkListeners = null;
         this.registeredBundleListeners = null;
-        this.registeredServiceListeners = null;
-        this.staleExportedPackages = null;
+       // this.registeredServiceListeners = null;
+       // this.staleExportedPackages = null;
         long currentTimeMillis = System.currentTimeMillis();
         this.location = location;
-        bundleContextImpl.bundle = this;
-        this.context = bundleContextImpl;
+
         this.currentStartlevel = Framework.initStartlevel;
         this.bundleDir = bundleDir;
         if (archiveInputStream != null) {
@@ -119,15 +114,14 @@ public final class BundleImpl implements Bundle {
         }
     }
 
-    BundleImpl(File file, BundleContextImpl bundleContextImpl) throws Exception {
+    BundleImpl(File file) throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
         DataInputStream dataInputStream = new DataInputStream(new FileInputStream(new File(file, "meta")));
         this.location = dataInputStream.readUTF();
         this.currentStartlevel = dataInputStream.readInt();
         this.persistently = dataInputStream.readBoolean();
         dataInputStream.close();
-        bundleContextImpl.bundle = this;
-        this.context = bundleContextImpl;
+
         this.bundleDir = file;
         this.state = BundleEvent.STARTED;
         try {
@@ -145,17 +139,17 @@ public final class BundleImpl implements Bundle {
 
 
     private synchronized void resolveBundle(boolean recursive) throws BundleException {
-        if (this.state != 4) {
+        if (this.state != BundleEvent.STOPPED) {
             if (this.classloader == null) {
                 this.classloader = new BundleClassLoader(this);
             }
             if (recursive) {
                 this.classloader.resolveBundle(true, new HashSet(0));
-                this.state = 4;
+                this.state =  BundleEvent.STOPPED;
             } else if (this.classloader.resolveBundle(false, null)) {
-                this.state = 4;
+                this.state =  BundleEvent.STOPPED;
             }
-            Framework.notifyBundleListeners(0, this);
+            Framework.notifyBundleListeners(BundleEvent.LOADED, this);
         }
     }
 
@@ -184,19 +178,6 @@ public final class BundleImpl implements Bundle {
         return this.classloader;
     }
 
-    @Override
-    public ServiceReference[] getRegisteredServices() {
-        if (this.state == BundleEvent.INSTALLED) {
-            throw new IllegalStateException("Bundle " + toString()
-                    + "has been unregistered.");
-        } else if (this.registeredServices == null) {
-            return null;
-        } else {
-            return this.registeredServices
-                    .toArray(new ServiceReference[this.registeredServices
-                            .size()]);
-        }
-    }
 
     @Override
     public URL getResource(String name) {
@@ -205,28 +186,6 @@ public final class BundleImpl implements Bundle {
         }
         throw new IllegalStateException("Bundle " + toString()
                 + " has been uninstalled");
-    }
-
-    @Override
-    public ServiceReference[] getServicesInUse() {
-        if (this.state == BundleEvent.INSTALLED) {
-            throw new IllegalStateException("Bundle " + toString()
-                    + "has been unregistered.");
-        }
-        ArrayList<ServiceReferenceImpl> arrayList = new ArrayList<ServiceReferenceImpl>();
-        ServiceReferenceImpl[] serviceReferenceImplArr = Framework.services
-                .toArray(new ServiceReferenceImpl[Framework.services.size()]);
-        int i = 0;
-        while (i < serviceReferenceImplArr.length) {
-            synchronized (serviceReferenceImplArr[i].useCounters) {
-                if (serviceReferenceImplArr[i].useCounters.get(this) != null) {
-                    arrayList.add(serviceReferenceImplArr[i]);
-                }
-            }
-            i++;
-        }
-        return arrayList
-                .toArray(new ServiceReference[arrayList.size()]);
     }
 
     @Override
@@ -263,7 +222,7 @@ public final class BundleImpl implements Bundle {
             this.state = BundleEvent.UPDATED;
             try {
 
-                this.context.isValid = true;
+                isValid = true;
                 // if (!(this.classloader.activatorClassName == null ||
                 // StringUtils
                 // .isBlank(this.classloader.activatorClassName))) {
@@ -318,13 +277,13 @@ public final class BundleImpl implements Bundle {
                 Framework.clearBundleTrace(this);
                 this.state = BundleEvent.STOPPED;
                 Framework.notifyBundleListeners(BundleEvent.STOPPED, this);
-                this.context.isValid = false;
+                isValid = false;
             } catch (Throwable th) {
                 // this.classloader.activator = null;
                 Framework.clearBundleTrace(this);
                 this.state = BundleEvent.STOPPED;
                 Framework.notifyBundleListeners(BundleEvent.STOPPED, this);
-                this.context.isValid = false;
+                isValid = false;
             }
         }
     }
@@ -351,8 +310,8 @@ public final class BundleImpl implements Bundle {
         this.classloader = null;
         Framework.bundles.remove(this);
         Framework.notifyBundleListeners(BundleEvent.UNINSTALLED, this);
-        this.context.isValid = false;
-        this.context.bundle = null;
+        isValid = false;
+
 
 
     }
@@ -415,33 +374,7 @@ public final class BundleImpl implements Bundle {
         try {
             this.archive = new BundleArchive(this.location, this.bundleDir);
             BundleClassLoader bundleClassLoader = new BundleClassLoader(this);
-            String[] exports = this.classloader.exports;
-            if (exports.length > 0) {
-                int i = 0;
-                boolean resetoriginalExporter=false;
-                while (i < exports.length) {
 
-                    Package packageR = Framework.exportedPackages
-                            .get(new Package(exports[i], null, false));
-                    if (packageR.importingBundles == null
-                            || packageR.classloader != this.classloader) {
-
-                    } else {
-                        packageR.removalPending = true;
-
-                        resetoriginalExporter=true;
-                    }
-                    i++;
-
-                }
-                if (resetoriginalExporter) {
-                    if (this.classloader.originalExporter != null) {
-                        bundleClassLoader.originalExporter = this.classloader.originalExporter;
-                    } else {
-                        bundleClassLoader.originalExporter = this.classloader;
-                    }
-                }
-            }
             this.classloader.cleanup(true);
             this.classloader = bundleClassLoader;
             if (this.classloader.resolveBundle(false, null)) {

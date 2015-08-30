@@ -125,8 +125,7 @@ public interface Bundle {
      * <p>
      * <p>
      * A bundle is in the <code>STARTING</code> state when its
-     * {@link #start() start} method is active. A bundle must be in this
-     * state when the bundle's {@link BundleActivator#start} is called. If the
+     * {@link #start() start} method is active. If the
      * <code>BundleActivator.start</code> method completes without exception,
      * then the bundle has successfully started and must move to the
      * <code>ACTIVE</code> state.
@@ -533,57 +532,8 @@ public interface Bundle {
      */
     String getLocation();
 
-    /**
-     * Returns this bundle's <code>ServiceReference</code> list for all
-     * services it has registered or <code>null</code> if this bundle has no
-     * registered services.
-     * <p>
-     * <p>
-     * If the Java runtime supports permissions, a <code>ServiceReference</code>
-     * object to a service is included in the returned list only if the caller
-     * has the <code>ServicePermission</code> to get the service using at
-     * least one of the named classes the service was registered under.
-     * <p>
-     * <p>
-     * The list is valid at the time of the call to this method, however, as the
-     * Framework is a very dynamic environment, services can be modified or
-     * unregistered at anytime.
-     *
-     * @return An array of <code>ServiceReference</code> objects or
-     * <code>null</code>.
-     * @throws IllegalStateException If this bundle has been
-     *                               uninstalled.
-     * @see ServiceRegistration
-     * @see ServiceReference
-     * @see ServicePermission
-     */
-    ServiceReference[] getRegisteredServices();
 
-    /**
-     * Returns this bundle's <code>ServiceReference</code> list for all
-     * services it is using or returns <code>null</code> if this bundle is not
-     * using any services. A bundle is considered to be using a service if its
-     * use count for that service is greater than zero.
-     * <p>
-     * <p>
-     * If the Java Runtime Environment supports permissions, a
-     * <code>ServiceReference</code> object to a service is included in the
-     * returned list only if the caller has the <code>ServicePermission</code>
-     * to get the service using at least one of the named classes the service
-     * was registered under.
-     * <p>
-     * The list is valid at the time of the call to this method, however, as the
-     * Framework is a very dynamic environment, services can be modified or
-     * unregistered at anytime.
-     *
-     * @return An array of <code>ServiceReference</code> objects or
-     * <code>null</code>.
-     * @throws IllegalStateException If this bundle has been
-     *                               uninstalled.
-     * @see ServiceReference
-     * @see ServicePermission
-     */
-    ServiceReference[] getServicesInUse();
+
 
     /**
      * Determines if this bundle has the specified permissions.
