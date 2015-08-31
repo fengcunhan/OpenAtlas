@@ -25,12 +25,10 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
-import com.openatlas.boot.ProviderProxy;
+import com.openatlas.android.compat.ProviderProxy;
 
 public class GameProviderProxy extends ProviderProxy {
-    /**
-	 * @param mTargetProvider
-	 */
+
 	public GameProviderProxy() {
 		super("com.openatlas.android.game2.GameProvider");
 		// TODO Auto-generated constructor stub

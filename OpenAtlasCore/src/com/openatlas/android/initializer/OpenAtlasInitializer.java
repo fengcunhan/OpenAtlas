@@ -31,10 +31,10 @@ import android.util.Log;
 
 import com.openatlas.android.task.Coordinator;
 import com.openatlas.android.task.Coordinator.TaggedRunnable;
-import com.openatlas.boot.Globals;
+import com.openatlas.framework.OpenAtlasInternalConstant;
+import com.openatlas.runtime.Globals;
 import com.openatlas.bundleInfo.BundleInfoList;
-import com.openatlas.framework.Atlas;
-import com.openatlas.framework.PlatformConfigure;
+import com.openatlas.framework.OpenAtlas;
 import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
 import com.openatlas.util.ApkUtils;
@@ -67,10 +67,9 @@ public class OpenAtlasInitializer {
     public void init() {
     
         initStartTime = System.currentTimeMillis();
-        setupMonitor();
-        setupLog();
+
         try {
-            Atlas.getInstance().init(this.mApplication);
+            OpenAtlas.getInstance().init(this.mApplication);
             log.debug("OpenAtlas framework inited end " + this.mPackageName + " " + (System.currentTimeMillis() - initStartTime) + " ms");
         } catch (Throwable e) {
             Log.e("OpenAtlasInitializer", "Could not init atlas framework !!!", e);
@@ -80,18 +79,18 @@ public class OpenAtlasInitializer {
 
     public void startUp() {
 
-        this.mProperties.put(PlatformConfigure.BOOT_ACTIVITY, PlatformConfigure.BOOT_ACTIVITY);
-        this.mProperties.put(PlatformConfigure.COM_OPENATLAS_DEBUG_BUNDLES, "true");
-        this.mProperties.put(PlatformConfigure.ATLAS_APP_DIRECTORY, this.mApplication.getFilesDir().getParent());
+        this.mProperties.put(OpenAtlasInternalConstant.BOOT_ACTIVITY, OpenAtlasInternalConstant.BOOT_ACTIVITY);
+        this.mProperties.put(OpenAtlasInternalConstant.COM_OPENATLAS_DEBUG_BUNDLES, "true");
+        this.mProperties.put(OpenAtlasInternalConstant.ATLAS_APP_DIRECTORY, this.mApplication.getFilesDir().getParent());
 
         try {
 
-            Globals.init(this.mApplication, Atlas.getInstance().getDelegateClassLoader());
+            Globals.init(this.mApplication, OpenAtlas.getInstance().getDelegateClassLoader());
             this.mDebug = new BundleDebug();
             if (this.mApplication.getPackageName().equals(this.mPackageName)) {
                 if (!( verifyRuntime() || !ApkUtils.isRootSystem())) {
-                    this.mProperties.put(PlatformConfigure.OPENATLAS_PUBLIC_KEY, SecurityBundleListner.PUBLIC_KEY);
-                    Atlas.getInstance().addBundleListener(new SecurityBundleListner());
+                    this.mProperties.put(OpenAtlasInternalConstant.OPENATLAS_PUBLIC_KEY, SecurityBundleListner.PUBLIC_KEY);
+                    OpenAtlas.getInstance().addBundleListener(new SecurityBundleListner());
                 }
                 if (this.isUpdate || this.mDebug.isDebugable()) {
                     this.mProperties.put("osgi.init", "true");
@@ -104,14 +103,14 @@ public class OpenAtlasInitializer {
                 mOptDexProcess.init(this.mApplication);
             }
             log.debug("OpenAtlas framework prepare starting in process " + this.mPackageName + " " + (System.currentTimeMillis() - initStartTime) + " ms");
-            Atlas.getInstance().setClassNotFoundInterceptorCallback(new ClassNotFoundInterceptor());
-            if (InstallSolutionConfig.install_when_findclass && BundleInfoList.getInstance().getBundles()==null) {
-            	InstallSolutionConfig.install_when_oncreate = true;
+            OpenAtlas.getInstance().setClassNotFoundInterceptorCallback(new ClassNotFoundInterceptor());
+            if (InstallPolicy.install_when_findclass && BundleInfoList.getInstance().getBundles()==null) {
+            	InstallPolicy.install_when_oncreate = true;
                 this.tryInstall = true;
             }
 
             try {
-                Atlas.getInstance().startup(this.mProperties);
+                OpenAtlas.getInstance().startup(this.mProperties);
                 installBundles(mBundlesInstaller, mOptDexProcess);
                 log.debug("OpenAtlas framework end startUp in process " + this.mPackageName + " " + (System.currentTimeMillis() - initStartTime) + " ms");
             } catch (Throwable e) {
@@ -126,14 +125,14 @@ public class OpenAtlasInitializer {
     private void installBundles(final BundlesInstaller mBundlesInstaller, final OptDexProcess mOptDexProcess) {
 
         if (this.mDebug.isDebugable()) {
-        	InstallSolutionConfig.install_when_oncreate = true;
+        	InstallPolicy.install_when_oncreate = true;
         }
         if (this.mApplication.getPackageName().equals(this.mPackageName)) {
-            if (InstallSolutionConfig.install_when_oncreate) {
+            if (InstallPolicy.install_when_oncreate) {
 
             }
             if (this.isUpdate || this.mDebug.isDebugable()) {
-                if (InstallSolutionConfig.install_when_oncreate) {
+                if (InstallPolicy.install_when_oncreate) {
                     Coordinator.postTask(new  TaggedRunnable("AtlasStartup") {
 						@Override
 						public void run() {
@@ -146,7 +145,7 @@ public class OpenAtlasInitializer {
                     return;
                 }
                 Utils.notifyBundleInstalled(mApplication);
-                Utils.UpdatePackageVersion(this.mApplication);
+                Utils.updatePackageVersion(this.mApplication);
                 Utils.saveAtlasInfoBySharedPreferences(this.mApplication);
             } else if (!this.isUpdate) {
                 if (this.tryInstall) {
@@ -176,11 +175,5 @@ public class OpenAtlasInitializer {
         return true;
     }
 
-    private void setupMonitor() {
-    }
 
-    private void setupLog() {
-
-        Atlas.getInstance().setLogger(new ExternalLog());
-    }
 }

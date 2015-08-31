@@ -19,7 +19,7 @@
  *
  * @author BunnyBlue
  **/
-package com.openatlas.boot;
+package com.openatlas.runtime;
 
 import android.app.Application;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -86,6 +86,11 @@ public class Globals {
         return sInstalledVersionName;
     }
 
+    public static void initInstalledVersionName(String InstalledVersionName) {
+        if (sInstalledVersionName != null)
+            sInstalledVersionName = InstalledVersionName;
+
+    }
     public static int getVersionCode() {
         int i = 0;
         try {

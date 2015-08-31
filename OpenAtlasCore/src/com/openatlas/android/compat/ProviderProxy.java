@@ -19,12 +19,14 @@
  *
  * @author BunnyBlue
  **/
-package com.openatlas.boot;
+package com.openatlas.android.compat;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+
+import com.openatlas.runtime.Globals;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

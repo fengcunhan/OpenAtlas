@@ -29,7 +29,7 @@ import android.os.Looper;
 
 import com.openatlas.framework.BundleImpl;
 import com.openatlas.framework.Framework;
-import com.openatlas.framework.PlatformConfigure;
+import com.openatlas.framework.OpenAtlasInternalConstant;
 import com.openatlas.hack.OpenAtlasHacks;
 import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
@@ -136,7 +136,7 @@ public class BundleLifecycleHandler implements SynchronousBundleListener {
     private void started(Bundle bundle) {
         BundleImpl bundleImpl = (BundleImpl) bundle;
         long currentTimeMillis = System.currentTimeMillis();
-        if (PlatformConfigure.CODE_ENABLE_COMPILE) {//no used OSGI.MF any more,disable compile this code
+        if (OpenAtlasInternalConstant.CODE_ENABLE_COMPILE) {//no used OSGI.MF any more,disable compile this code
             String mBundleApplicationNames = bundleImpl.getHeaders().get("Bundle-Application");
             if (StringUtils.isNotEmpty(mBundleApplicationNames)) {
                 String[] bundleApplications;

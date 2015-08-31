@@ -33,6 +33,8 @@ import android.os.Message;
 import android.os.Process;
 
 import com.openatlas.hack.Hack.HackDeclaration.HackAssertionException;
+import com.openatlas.log.Logger;
+import com.openatlas.log.LoggerFactory;
 import com.openatlas.runtime.DelegateClassLoader;
 import com.openatlas.runtime.DelegateResources;
 import com.openatlas.runtime.RuntimeVariables;
@@ -48,7 +50,8 @@ import java.util.Map;
 public class AndroidHack {
     private static Object _mLoadedApk;
     private static Object _sActivityThread;
-
+    public static final int RECEIVER                = 113;
+   static Logger logger= LoggerFactory.getInstance("AndroidHack");
     static final class HandlerHack implements Callback {
         final Object activityThread;
         final Handler handler;
@@ -66,29 +69,25 @@ public class AndroidHack {
                 AndroidHack.ensureLoadedApk();
             } catch (Throwable th) {
                 th.printStackTrace();
-                RuntimeException runtimeException;
+
                 if ((th instanceof ClassNotFoundException)
                         || th.toString().contains("ClassNotFoundException")) {
-                    if (message.what != 113) {
+                    if (message.what != RECEIVER) {
                         Object loadedApk = AndroidHack.getLoadedApk(
                                 RuntimeVariables.androidApplication,
                                 this.activityThread,
                                 RuntimeVariables.androidApplication
                                         .getPackageName());
                         if (loadedApk == null) {
-                            runtimeException = new RuntimeException(
-                                    "loadedapk is null");
+                            logger.error("",new RuntimeException("loadedapk is null"));
                         } else {
-                            ClassLoader classLoader = OpenAtlasHacks.LoadedApk_mClassLoader
-                                    .get(loadedApk);
+                            ClassLoader classLoader = OpenAtlasHacks.LoadedApk_mClassLoader.get(loadedApk);
                             if (classLoader instanceof DelegateClassLoader) {
-                                runtimeException = new RuntimeException(
-                                        "From Atlas:classNotFound ---", th);
+                                logger.error("",new RuntimeException("From OpenAtlas:classNotFound ---", th));
+
                             } else {
-                                RuntimeException runtimeException2 = new RuntimeException(
-                                        "wrong classloader in loadedapk---"
-                                                + classLoader.getClass()
-                                                .getName(), th);
+                                logger.error("",new RuntimeException("wrong classloader in loadedapk---" + classLoader.getClass().getName(), th));
+
                             }
                         }
                     }
@@ -96,7 +95,7 @@ public class AndroidHack {
                         || th.toString().contains("ClassCastException")) {
                     Process.killProcess(Process.myPid());
                 } else {
-                    runtimeException = new RuntimeException(th);
+                    logger.error("", new RuntimeException(th));
                 }
             }
             return true;

@@ -29,12 +29,11 @@ package com.openatlas.framework;
  * @author BunnyBlue
  *
  */
-public class PlatformConfigure {
+public class OpenAtlasInternalConstant {
     /****闪屏activity****/
     public static final String BOOT_ACTIVITY = "com.openatlas.welcome.Welcome";
     public static final String BOOT_ACTIVITY_DEFAULT = "com.openatlas.launcher.welcome";
     public static final String ACTION_BROADCAST_BUNDLES_INSTALLED = "com.openatlas.action.BUNDLES_INSTALLED";
-    public static final String ACTION_BROADCAST_HOMEPAGELOADFINISHED = "com.openatlas.action.HomePageLoadFinished";
     public static final String ATLAS_APP_DIRECTORY = "com.openatlas.AppDirectory";
     public static final String INSTALL_LOACTION = "com.openatlas.storage";
     public static final String COM_OPENATLAS_DEBUG_BUNDLES = "com.openatlas.debug.bundles";

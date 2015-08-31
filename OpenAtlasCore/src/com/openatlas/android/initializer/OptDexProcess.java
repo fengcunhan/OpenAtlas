@@ -27,10 +27,10 @@ import android.app.Application;
 import android.content.Intent;
 import android.util.Log;
 
-import com.openatlas.framework.Atlas;
+import com.openatlas.framework.OpenAtlas;
 import com.openatlas.framework.AtlasConfig;
 import com.openatlas.framework.BundleImpl;
-import com.openatlas.framework.PlatformConfigure;
+import com.openatlas.framework.OpenAtlasInternalConstant;
 import com.openatlas.framework.bundlestorage.BundleArchiveRevision.DexLoadException;
 import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
@@ -94,11 +94,11 @@ public class OptDexProcess {
     private void finishInstalled() {
         Utils.saveAtlasInfoBySharedPreferences(this.mApplication);
         System.setProperty("BUNDLES_INSTALLED", "true");
-        this.mApplication.sendBroadcast(new Intent(PlatformConfigure.ACTION_BROADCAST_BUNDLES_INSTALLED));
+        this.mApplication.sendBroadcast(new Intent(OpenAtlasInternalConstant.ACTION_BROADCAST_BUNDLES_INSTALLED));
     }
 
     private void runOptDexNonDelay() {
-        for (Bundle bundle : Atlas.getInstance().getBundles()) {
+        for (Bundle bundle : OpenAtlas.getInstance().getBundles()) {
             if (!(bundle == null || contains(AtlasConfig.STORE, bundle.getLocation()))) {
                 try {
                     ((BundleImpl) bundle).optDexFile();
@@ -115,7 +115,7 @@ public class OptDexProcess {
     private void runOptDexDelay() {
  
         for (String location : AtlasConfig.STORE) {
-            Bundle bundle = Atlas.getInstance().getBundle(location);
+            Bundle bundle = OpenAtlas.getInstance().getBundle(location);
             if (bundle != null) {
                 try {
                     ((BundleImpl) bundle).optDexFile();
@@ -132,7 +132,7 @@ public class OptDexProcess {
     private void runOptDexAuto() {
 
         for (String location :AtlasConfig.AUTO) {
-            Bundle mBundle = Atlas.getInstance().getBundle(location);
+            Bundle mBundle = OpenAtlas.getInstance().getBundle(location);
             if (mBundle != null) {
                 try {
                     ((BundleImpl) mBundle).optDexFile();

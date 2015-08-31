@@ -77,8 +77,6 @@ public class InvalidSyntaxException extends Exception {
      * <code>InvalidSyntaxException</code> object.
      *
      * @return The invalid filter string.
-     * @see BundleContext#getServiceReferences
-     * @see BundleContext#addServiceListener(ServiceListener, String)
      */
     public String getFilter() {
         return filter;

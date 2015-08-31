@@ -42,19 +42,19 @@ import java.util.Dictionary;
  * @since 1.1
  */
 public interface Filter {
-    /**
-     * Filter using a service's properties.
-     * <p>
-     * This <code>Filter</code> is executed using the keys and values of the
-     * referenced service's properties. The keys are case insensitively matched
-     * with this <code>Filter</code>.
-     *
-     * @param reference The reference to the service whose properties are used
-     *                  in the match.
-     * @return <code>true</code> if the service's properties match this
-     * <code>Filter</code>; <code>false</code> otherwise.
-     */
-    boolean match(ServiceReference<?> reference);
+//    /**
+//     * Filter using a service's properties.
+//     * <p>
+//     * This <code>Filter</code> is executed using the keys and values of the
+//     * referenced service's properties. The keys are case insensitively matched
+//     * with this <code>Filter</code>.
+//     *
+//     * @param reference The reference to the service whose properties are used
+//     *                  in the match.
+//     * @return <code>true</code> if the service's properties match this
+//     * <code>Filter</code>; <code>false</code> otherwise.
+//     */
+//    boolean match(ServiceReference<?> reference);
 
     /**
      * Filter using a <code>Dictionary</code>. This <code>Filter</code> is

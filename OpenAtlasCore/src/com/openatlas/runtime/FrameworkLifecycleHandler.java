@@ -49,7 +49,9 @@ public class FrameworkLifecycleHandler implements FrameworkListener {
             case FrameworkEvent.STARTED:
                 started();
                 break;
-            default:
+            default:{
+                log.warn("frameworkEvent unsupported event >>"+frameworkEvent.getType());
+            }
         }
     }
 

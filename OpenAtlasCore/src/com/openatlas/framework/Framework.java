@@ -44,15 +44,8 @@ import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Constants;
-import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceEvent;
-import org.osgi.framework.ServiceListener;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.packageadmin.ExportedPackage;
-import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
 
 import java.io.DataInputStream;
@@ -64,21 +57,19 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.security.AccessController;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
-import java.util.EventListener;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
+
+//import org.osgi.framework.ServiceReference;
 
 public final class Framework {
     private static final AdminPermission ADMIN_PERMISSION = new AdminPermission();
@@ -98,18 +89,12 @@ public final class Framework {
     static List<BundleListener> bundleListeners = new ArrayList<BundleListener>();
     static Map<String, Bundle> bundles = new ConcurrentHashMap<String, Bundle>();
     private static ClassNotFoundInterceptorCallback classNotFoundCallback;
-    static Map<String, List<ServiceReference>> classes_services = new HashMap<String, List<ServiceReference>>();
-    static Map<Package, Package> exportedPackages = new ConcurrentHashMap<Package, Package>();
     static List<FrameworkListener> frameworkListeners = new ArrayList<FrameworkListener>();
     static boolean frameworkStartupShutdown = false;
     static int initStartlevel = 1;
     static final Logger log = LoggerFactory.getInstance("Framework");
-    static boolean mIsEnableBundleInstallWhenFindClass = false;
-    static Map<String, String> mMapForComAndBundles = new HashMap<String, String>();
     static Properties properties;
     static boolean restart = false;
-    static List<ServiceListenerEntry> serviceListeners = new ArrayList<ServiceListenerEntry>();
-    static List<ServiceReference> services = new ArrayList<ServiceReference>();
     static int startlevel = 0;
     static List<BundleListener> syncBundleListeners = new ArrayList<BundleListener>();
     static SystemBundle systemBundle;
@@ -117,37 +102,9 @@ public final class Framework {
     static List<String> writeAheads = new ArrayList<String>();
 
 
-    static final class ServiceListenerEntry implements EventListener {
-        final Filter filter;
-        final ServiceListener listener;
 
-        ServiceListenerEntry(ServiceListener serviceListener, String str) throws InvalidSyntaxException {
-            this.listener = serviceListener;
-            this.filter = str == null ? null : RFC1960Filter.fromString(str);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof ServiceListenerEntry)) {
-                return false;
-            }
-            return this.listener.equals(((ServiceListenerEntry) obj).listener);
-        }
-
-        @Override
-        public int hashCode() {
-            return (this.filter != null ? this.filter.hashCode() >> 8 : 0) + this.listener.hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return this.listener + " " + this.filter;
-        }
-    }
-
-    private static final class SystemBundle implements Bundle, PackageAdmin, StartLevel {
+    private static final class SystemBundle implements Bundle,  StartLevel {
         private final Dictionary<String, String> props;
-        private final ServiceReference[] registeredServices;
         int state;
 
         class ShutdownThread extends Thread {
@@ -179,7 +136,7 @@ public final class Framework {
             }
         }
 
-        // TODO this is Component old version impl
+
         class RefreshBundlesThread extends Thread {
             final Bundle[] bundleArray;
 
@@ -189,91 +146,6 @@ public final class Framework {
 
             @Override
             public void run() {
-                synchronized (exportedPackages) {
-                    try {
-                        List<?> bundles;
-                        Bundle[] bundleArr;
-                        int i;
-                        BundleImpl bundleImpl;
-                        if (this.bundleArray == null) {
-                            bundles = Framework.getBundles();
-                            bundleArr = bundles.toArray(new Bundle[bundles.size()]);
-                        } else {
-                            bundleArr = this.bundleArray;
-                        }
-                        List<Bundle> arrayList = new ArrayList<Bundle>(bundleArr.length);
-                        for (i = 0; i < bundleArr.length; i++) {
-                            if (bundleArr[i] != systemBundle) {
-                                bundleImpl = (BundleImpl) bundleArr[i];
-                                if (bundleImpl.classloader == null || bundleImpl.classloader.originalExporter != null) {
-                                    arrayList.add(bundleArr[i]);
-                                }
-                            }
-                        }
-                        if (arrayList.isEmpty()) {
-                            return;
-                        }
-                        int i2;
-                        if (DEBUG_PACKAGES && log.isDebugEnabled()) {
-                            log.debug("REFRESHING PACKAGES FROM BUNDLES " + arrayList);
-                        }
-                        Set hashSet = new HashSet();
-                        while (!arrayList.isEmpty()) {
-                            bundleImpl = (BundleImpl) arrayList.remove(0);
-                            if (!hashSet.contains(bundleImpl)) {
-                                ExportedPackage[] access$100 = SystemBundle.this.getExportedPackages(bundleImpl, true);
-                                if (access$100 != null) {
-                                    for (ExportedPackage exportedPackage : access$100) {
-                                        Package packageR = (Package) exportedPackage;
-                                        if (packageR.importingBundles != null) {
-                                            arrayList.addAll(Arrays.asList(packageR.importingBundles.toArray(new Bundle[packageR.importingBundles.size()])));
-                                        }
-                                    }
-                                }
-                                if (bundleImpl.classloader != null) {
-                                    hashSet.add(bundleImpl);
-                                }
-                            }
-                        }
-                        if (DEBUG_PACKAGES && log.isDebugEnabled()) {
-                            log.debug("UPDATE GRAPH IS " + hashSet);
-                        }
-                        Bundle[] bundleArr2 = new Bundle[hashSet.size()];
-                        i = -1;
-                        bundles = Framework.getBundles();
-                        Bundle[] bundleArr3 = bundles.toArray(new Bundle[bundles.size()]);
-                        for (i2 = 0; i2 < bundleArr3.length; i2++) {
-                            if (hashSet.contains(bundleArr3[i2])) {
-                                i++;
-                                bundleArr2[i] = bundleArr3[i2];
-                            }
-                        }
-                        i2 = startlevel;
-                        SystemBundle.this.setLevel(bundleArr2, 0, true);
-                        for (i = 0; i < bundleArr2.length; i++) {
-                            ((BundleImpl) bundleArr2[i]).classloader.cleanup(false);
-                            ((BundleImpl) bundleArr2[i]).staleExportedPackages = null;
-                        }
-                        for (Bundle bundle : bundleArr2) {
-                            BundleClassLoader bundleClassLoader = ((BundleImpl) bundle).classloader;
-                            if (bundleClassLoader.exports.length > 0) {
-                                Framework.export(bundleClassLoader, bundleClassLoader.exports, false);
-                            }
-                        }
-                        for (Bundle bundle2 : bundleArr2) {
-                            try {
-                                ((BundleImpl) bundle2).classloader.resolveBundle(true, new HashSet<BundleClassLoader>());
-                            } catch (BundleException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        SystemBundle.this.setLevel(bundleArr2, i2, true);
-                        Framework.notifyFrameworkListeners(4, systemBundle, null);
-                    } catch (Exception e2) {
-                        e2.printStackTrace();
-                    } catch (Throwable th) {
-                    }
-                }
             }
         }
 
@@ -281,12 +153,7 @@ public final class Framework {
             this.props = new Hashtable<String, String>();
             this.props.put(Constants.BUNDLE_NAME, Constants.SYSTEM_BUNDLE_LOCATION);
             this.props.put(Constants.BUNDLE_VERSION, Framework.FRAMEWORK_VERSION);
-            this.props.put(Constants.BUNDLE_VENDOR, "Atlas");
-            ServiceReferenceImpl serviceReferenceImpl = new ServiceReferenceImpl(this, this, null, new String[]{StartLevel.class.getName(), PackageAdmin.class.getName()});
-            Framework.addValue(Framework.classes_services, StartLevel.class.getName(), serviceReferenceImpl);
-            Framework.addValue(Framework.classes_services, PackageAdmin.class.getName(), serviceReferenceImpl);
-            Framework.services.add(serviceReferenceImpl);
-            this.registeredServices = new ServiceReference[]{serviceReferenceImpl};
+            this.props.put(Constants.BUNDLE_VENDOR, "OpenAtlas");
         }
 
         @Override
@@ -304,20 +171,20 @@ public final class Framework {
             return Constants.SYSTEM_BUNDLE_LOCATION;
         }
 
-        @Override
-        public ServiceReference[] getRegisteredServices() {
-            return this.registeredServices;
-        }
+//        @Override
+//        public ServiceReference[] getRegisteredServices() {
+//            return null;
+//        }
 
         @Override
         public URL getResource(String name) {
             return getClass().getResource(name);
         }
 
-        @Override
-        public ServiceReference[] getServicesInUse() {
-            return null;
-        }
+//        @Override
+//        public ServiceReference[] getServicesInUse() {
+//            return null;
+//        }
 
         @Override
         public int getState() {
@@ -501,76 +368,7 @@ public final class Framework {
             }
         }
 
-        @Override
-        public ExportedPackage[] getExportedPackages(Bundle bundle) {
-            return getExportedPackages(bundle, false);
-        }
-
-        private ExportedPackage[] getExportedPackages(Bundle bundle, boolean z) {
-            synchronized (Framework.exportedPackages) {
-                if (bundle != null) {
-                    if (bundle != Framework.systemBundle) {
-                        BundleImpl bundleImpl = (BundleImpl) bundle;
-                        if (bundleImpl.state == 1) {
-                            ExportedPackage[] exportedPackageArr;
-                            if (z) {
-                                exportedPackageArr = bundleImpl.staleExportedPackages;
-                            } else {
-                                exportedPackageArr = null;
-                            }
-                            return exportedPackageArr;
-                        }
-                        String[] strArr = bundleImpl.classloader.exports;
-                        if (strArr == null) {
-                            return null;
-                        }
-                        ArrayList arrayList = new ArrayList();
-                        for (String str : strArr) {
-                            Package packageR = Framework.exportedPackages.get(new Package(str, null, false));
-                            if (packageR != null && packageR.classloader == bundleImpl.classloader) {
-                                if (packageR.resolved) {
-                                    arrayList.add(packageR);
-                                } else {
-                                    try {
-                                        packageR.classloader.resolveBundle(true, new HashSet());
-                                        arrayList.add(packageR);
-                                    } catch (BundleException e) {
-                                    }
-                                }
-                            }
-                        }
-                        if (bundleImpl.staleExportedPackages != null) {
-                            arrayList.addAll(Arrays.asList(bundleImpl.staleExportedPackages));
-                        }
-                        System.out.println("\tBundle " + bundleImpl + " has exported packages " + arrayList);
-                        return arrayList.isEmpty() ? null : (ExportedPackage[]) arrayList.toArray(new ExportedPackage[arrayList.size()]);
-                    }
-                }
-                return Framework.exportedPackages.keySet().toArray(new ExportedPackage[Framework.exportedPackages.size()]);
-            }
-        }
-
-        @Override
-        public ExportedPackage getExportedPackage(String name) {
-            synchronized (exportedPackages) {
-                try {
-                    Package packageR = exportedPackages.get(new Package(name, null, false));
-                    if (packageR == null) {
-                        return null;
-                    }
-                    if (!packageR.resolved) {
-                        packageR.classloader.resolveBundle(true, new HashSet());
-                    }
-                    return packageR;
-                } catch (BundleException e) {
-                    return null;
-                } catch (Throwable th) {
-                }
-            }
-            return null;
-        }
-
-        @Override
+        //@Override
         public void refreshPackages(Bundle[] bundleArr) {
             new RefreshBundlesThread(bundleArr).start();
         }
@@ -602,7 +400,7 @@ public final class Framework {
                         }
                     }
                 }
-                bundleImpl = new BundleImpl(mBundleArchiveFile, location, new BundleContextImpl(), null, apkFile, true);
+                bundleImpl = new BundleImpl(mBundleArchiveFile, location, null, apkFile, true);
                 storeMetadata();
                 BundleLock.WriteUnLock(location);
                 if (mBundleArchiveFile != null) {
@@ -655,7 +453,7 @@ public final class Framework {
                         }
                     }
                 }
-                bundleImpl = new BundleImpl(mBundleArchiveFile, location, new BundleContextImpl(), archiveInputStream, null, true);
+                bundleImpl = new BundleImpl(mBundleArchiveFile, location, archiveInputStream, null, true);
                 storeMetadata();
                 BundleLock.WriteUnLock(location);
                 if (mBundleArchiveFile != null) {
@@ -787,15 +585,15 @@ public final class Framework {
         if (filesDir == null || !filesDir.exists()) {
             filesDir = RuntimeVariables.androidApplication.getFilesDir();
         }
-        BASEDIR = properties.getProperty(PlatformConfigure.OPENATLAS_BASEDIR, filesDir.getAbsolutePath());
-        BUNDLE_LOCATION = properties.getProperty(PlatformConfigure.OPENATLAS_BUNDLE_LOCATION, "file:" + BASEDIR);
-        CLASSLOADER_BUFFER_SIZE = getProperty(PlatformConfigure.OPENATLAS_CLASSLOADER_BUFFER_SIZE, 1024 * 10);
-        LOG_LEVEL = getProperty(PlatformConfigure.OPENATLAS_LOG_LEVEL, 6);
-        DEBUG_BUNDLES = getProperty(PlatformConfigure.OPENATLAS_DEBUG_BUNDLES, false);
-        DEBUG_PACKAGES = getProperty(PlatformConfigure.OPENATLAS_DEBUG_PACKAGES, false);
-        DEBUG_SERVICES = getProperty(PlatformConfigure.OPENATLAS_DEBUG_SERVICES, false);
-        DEBUG_CLASSLOADING = getProperty(PlatformConfigure.OPENATLAS_DEBUG_CLASSLOADING, false);
-        if (getProperty(PlatformConfigure.OPENATLAS_DEBUG, false)) {
+        BASEDIR = properties.getProperty(OpenAtlasInternalConstant.OPENATLAS_BASEDIR, filesDir.getAbsolutePath());
+        BUNDLE_LOCATION = properties.getProperty(OpenAtlasInternalConstant.OPENATLAS_BUNDLE_LOCATION, "file:" + BASEDIR);
+        CLASSLOADER_BUFFER_SIZE = getProperty(OpenAtlasInternalConstant.OPENATLAS_CLASSLOADER_BUFFER_SIZE, 1024 * 10);
+        LOG_LEVEL = getProperty(OpenAtlasInternalConstant.OPENATLAS_LOG_LEVEL, 6);
+        DEBUG_BUNDLES = getProperty(OpenAtlasInternalConstant.OPENATLAS_DEBUG_BUNDLES, false);
+        DEBUG_PACKAGES = getProperty(OpenAtlasInternalConstant.OPENATLAS_DEBUG_PACKAGES, false);
+        DEBUG_SERVICES = getProperty(OpenAtlasInternalConstant.OPENATLAS_DEBUG_SERVICES, false);
+        DEBUG_CLASSLOADING = getProperty(OpenAtlasInternalConstant.OPENATLAS_DEBUG_CLASSLOADING, false);
+        if (getProperty(OpenAtlasInternalConstant.OPENATLAS_DEBUG, false)) {
             System.out.println("SETTING ALL DEBUG FLAGS");
             LOG_LEVEL = 3;
             DEBUG_BUNDLES = true;
@@ -803,7 +601,7 @@ public final class Framework {
             DEBUG_SERVICES = true;
             DEBUG_CLASSLOADING = true;
         }
-        STRICT_STARTUP = getProperty(PlatformConfigure.OPENATLAS_STRICT_STARTUP, false);
+        STRICT_STARTUP = getProperty(OpenAtlasInternalConstant.OPENATLAS_STRICT_STARTUP, false);
         String property = properties.getProperty("org.osgi.framework.system.packages");
         if (property != null) {
             StringTokenizer stringTokenizer = new StringTokenizer(property, ",");
@@ -847,7 +645,7 @@ public final class Framework {
     }
 
     private static void launch() {
-        STORAGE_LOCATION = properties.getProperty(PlatformConfigure.INSTALL_LOACTION, properties.getProperty("org.osgi.framework.dir", BASEDIR + File.separatorChar + "storage"))
+        STORAGE_LOCATION = properties.getProperty(OpenAtlasInternalConstant.INSTALL_LOACTION, properties.getProperty("org.osgi.framework.dir", BASEDIR + File.separatorChar + "storage"))
                 + File.separatorChar;
         systemBundle = new SystemBundle();
         systemBundle.state = BundleEvent.UPDATED;
@@ -881,7 +679,7 @@ public final class Framework {
     }
 
     protected static void warning(String message) throws RuntimeException {
-        if (getProperty(PlatformConfigure.OPENATLAS_STRICT_STARTUP, false)) {
+        if (getProperty(OpenAtlasInternalConstant.OPENATLAS_STRICT_STARTUP, false)) {
             throw new RuntimeException(message);
         }
         System.err.println("WARNING: " + message);
@@ -929,7 +727,7 @@ public final class Framework {
                     writeAheads.addAll(Arrays.asList(split));
                 }
                 dataInputStream.close();
-                if (!getProperty(PlatformConfigure.OPENATLAS_AUTO_LOAD, true)) {
+                if (!getProperty(OpenAtlasInternalConstant.OPENATLAS_AUTO_LOAD, true)) {
                     return readInt;
                 }
                 File storageLocation = new File(STORAGE_LOCATION);
@@ -945,7 +743,7 @@ public final class Framework {
                 while (i < listFiles.length) {
                     if (listFiles[i].isDirectory() && new File(listFiles[i], "meta").exists()) {
                         try {
-                            System.out.println("RESTORED BUNDLE " + new BundleImpl(listFiles[i], new BundleContextImpl()).location);
+                            System.out.println("RESTORED BUNDLE " + new BundleImpl(listFiles[i]).location);
                         } catch (Exception e) {
                             log.error(e.getMessage(), e.getCause());
                         }
@@ -1021,9 +819,6 @@ public final class Framework {
         mDirectory.delete();
     }
 
-    static void checkAdminPermission() {
-        AccessController.checkPermission(ADMIN_PERMISSION);
-    }
 
     static BundleImpl installNewBundle(String bundleName) throws BundleException {
         try {
@@ -1037,7 +832,7 @@ public final class Framework {
     private static BundleImpl restoreFromExistedBundle(String location, File file) {
 
         try {
-            return new BundleImpl(file, new BundleContextImpl());
+            return new BundleImpl(file);
         } catch (Throwable e) {
             OpenAtlasMonitor.getInstance().trace(Integer.valueOf(-1), "", "", "restore bundle failed " + location + e);
             log.error("restore bundle failed" + location, e);
@@ -1061,7 +856,7 @@ public final class Framework {
                     if (bundle != null) {
                         bundle.update(archiveFiles[i]);
                     } else {
-                        BundleImpl bundleImpl = new BundleImpl(new File(file, locations[i]), locations[i], new BundleContextImpl(), null, archiveFiles[i], false);
+                        BundleImpl bundleImpl = new BundleImpl(new File(file, locations[i]), locations[i],  null, archiveFiles[i], false);
                     }
                     BundleLock.WriteUnLock(locations[i]);
                 } catch (Throwable th) {
@@ -1074,19 +869,6 @@ public final class Framework {
         storeMetadata();
     }
 
-    static void unregisterService(ServiceReference serviceReference) {
-        services.remove(serviceReference);
-        removeValue(classes_services, (String[]) serviceReference.getProperty(Constants.OBJECTCLASS), serviceReference);
-        BundleImpl bundleImpl = (BundleImpl) serviceReference.getBundle();
-        bundleImpl.registeredServices.remove(serviceReference);
-        if (bundleImpl.registeredServices.isEmpty()) {
-            bundleImpl.registeredServices = null;
-        }
-        notifyServiceListeners(BundleEvent.STOPPED, serviceReference);
-        if (DEBUG_SERVICES && log.isInfoEnabled()) {
-            log.info("Framework: UNREGISTERED SERVICE " + serviceReference);
-        }
-    }
 
     static void notifyBundleListeners(int event, Bundle bundle) {
 
@@ -1182,18 +964,7 @@ public final class Framework {
         }
     }
 
-    static void notifyServiceListeners(int event, ServiceReference serviceReference) {
-        if (!serviceListeners.isEmpty()) {
-            ServiceEvent serviceEvent = new ServiceEvent(event, serviceReference);
-            ServiceListenerEntry[] serviceListenerEntryArr = serviceListeners.toArray(new ServiceListenerEntry[serviceListeners.size()]);
-            for (int i = 0; i < serviceListenerEntryArr.length; i++) {
-                if (serviceListenerEntryArr[i].filter == null || serviceListenerEntryArr[i].filter.match(((ServiceReferenceImpl) serviceReference).properties)) {
-                    serviceListenerEntryArr[i].listener.serviceChanged(serviceEvent);
-                }
-            }
 
-        }
-    }
 
     static void clearBundleTrace(BundleImpl bundleImpl) {
 
@@ -1201,27 +972,11 @@ public final class Framework {
             frameworkListeners.removeAll(bundleImpl.registeredFrameworkListeners);
             bundleImpl.registeredFrameworkListeners = null;
         }
-        if (bundleImpl.registeredServiceListeners != null) {
-            serviceListeners.removeAll(bundleImpl.registeredServiceListeners);
-            bundleImpl.registeredServiceListeners = null;
-        }
+
         if (bundleImpl.registeredBundleListeners != null) {
             bundleListeners.removeAll(bundleImpl.registeredBundleListeners);
             syncBundleListeners.removeAll(bundleImpl.registeredBundleListeners);
             bundleImpl.registeredBundleListeners = null;
-        }
-        ServiceReference[] registeredServices = bundleImpl.getRegisteredServices();
-        if (registeredServices != null) {
-            for (ServiceReference serviceReference : registeredServices) {
-                unregisterService(serviceReference);
-                ((ServiceReferenceImpl) serviceReference).invalidate();
-            }
-
-            bundleImpl.registeredServices = null;
-        }
-        ServiceReference[] servicesInUse = bundleImpl.getServicesInUse();
-        for (ServiceReference serviceReference : servicesInUse) {
-            ((ServiceReferenceImpl) serviceReference).ungetService(bundleImpl);
         }
 
     }
@@ -1249,66 +1004,9 @@ public final class Framework {
         }
     }
 
-    static void export(BundleClassLoader bundleClassLoader, String[] packageNames, boolean resolved) {
-        synchronized (exportedPackages) {
-            if (DEBUG_PACKAGES && log.isDebugEnabled()) {
-                log.debug("Bundle " + bundleClassLoader.bundle + " registers " + (resolved ? "resolved" : "unresolved") + " packages " + Arrays.asList(packageNames));
-            }
-            for (String packageName : packageNames) {
-                Package packageR = new Package(packageName, bundleClassLoader, resolved);
-                Package packageR2 = exportedPackages.get(packageR);
-                if (packageR2 == null) {
-                    exportedPackages.put(packageR, packageR);
-                    if (DEBUG_PACKAGES && log.isDebugEnabled()) {
-                        log.debug("REGISTERED PACKAGE " + packageR);
-                    }
-                } else if (packageR2.importingBundles == null && packageR.updates(packageR2)) {
-                    exportedPackages.remove(packageR2);
-                    exportedPackages.put(packageR, packageR);
-                    if (DEBUG_PACKAGES && log.isDebugEnabled()) {
-                        log.debug("REPLACED PACKAGE " + packageR2 + " WITH " + packageR);
-                    }
-                }
-            }
-        }
-    }
 
-    static BundleClassLoader getImport(BundleImpl bundleImpl, String packageName, boolean resolve, HashSet<BundleClassLoader> hashSet) {
-        if (DEBUG_PACKAGES && log.isDebugEnabled()) {
-            log.debug("Bundle " + bundleImpl + " requests package " + packageName);
-        }
-        synchronized (exportedPackages) {
-            try {
-                Package packageR = exportedPackages.get(new Package(packageName, null, false));
-                if (packageR == null || !(packageR.resolved || resolve)) {
-                    return null;
-                }
-                BundleClassLoader bundleClassLoader = packageR.classloader;
-                if (bundleClassLoader == bundleImpl.classloader) {
-                    return bundleClassLoader;
-                }
-                if (!(!resolve || packageR.resolved || hashSet.contains(packageR.classloader))) {
-                    hashSet.add(bundleImpl.classloader);
-                    packageR.classloader.resolveBundle(true, hashSet);
-                }
-                if (packageR.importingBundles == null) {
-                    packageR.importingBundles = new ArrayList();
-                }
-                if (!packageR.importingBundles.contains(bundleImpl)) {
-                    packageR.importingBundles.add(bundleImpl);
-                }
-                if (DEBUG_PACKAGES && log.isDebugEnabled()) {
-                    log.debug("REQUESTED PACKAGE " + packageName + ", RETURNED DELEGATION TO " + bundleClassLoader.bundle);
-                }
-                return bundleClassLoader;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            } catch (Throwable th) {
-            }
-        }
-        return null;
-    }
+
+
 
     public static boolean isFrameworkStartupShutdown() {
         return frameworkStartupShutdown;

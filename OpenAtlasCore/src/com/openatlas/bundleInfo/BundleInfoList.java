@@ -31,7 +31,7 @@ import java.util.List;
 /******Bundle 从asset的json解析插件对象列表，存放插件信息
  *
  * *********/
-public class BundleInfoList {//TODO 与BundleListing合并
+public class BundleInfoList {
     private static BundleInfoList singleton;
     private final String TAG;
     private List<BundleInfo> mBundleInfoList;
@@ -57,14 +57,16 @@ public class BundleInfoList {//TODO 与BundleListing合并
     }
 
     public static synchronized BundleInfoList getInstance() {
-        BundleInfoList bundleInfoList;
+        if (singleton != null) {
+            return singleton;
+        }
         synchronized (BundleInfoList.class) {
             if (singleton == null) {
                 singleton = new BundleInfoList();
             }
-            bundleInfoList = singleton;
+
         }
-        return bundleInfoList;
+        return singleton;
     }
 
     /***初始化Bundle列表*****/
@@ -73,7 +75,7 @@ public class BundleInfoList {//TODO 与BundleListing合并
 
         if (this.mBundleInfoList != null || linkedList == null) {
 
-            Log.i(TAG, "XXXXXBundleInfoList initialization failed.");
+            Log.i(TAG, "BundleInfoList initialization failed.");
             initilized = false;
         } else {
             this.mBundleInfoList = linkedList;
@@ -182,7 +184,7 @@ public class BundleInfoList {//TODO 与BundleListing合并
     }
 
     /****dump  BundleList******/
-    public void print() {
+    public void dumpBundleInfos() {
         if (this.mBundleInfoList != null && this.mBundleInfoList.isEmpty()) {
             for (int index = 0; index < this.mBundleInfoList.size(); ++index) {
                 BundleInfo bundleInfo = this.mBundleInfoList.get(index);

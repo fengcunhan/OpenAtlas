@@ -57,9 +57,6 @@ public class BundleEvent extends EventObject {
     /**
      * The bundle has been started.
      * <p>
-     * The bundle's
-     * {@link BundleActivator#start(BundleContext) BundleActivator start} method
-     * has been executed if the bundle has a bundle activator class.
      *
      * @see Bundle#start()
      */
@@ -68,10 +65,6 @@ public class BundleEvent extends EventObject {
     /**
      * The bundle has been stopped.
      * <p>
-     * The bundle's
-     * {@link BundleActivator#stop(BundleContext) BundleActivator stop} method
-     * has been executed if the bundle has a bundle activator class.
-     *
      * @see Bundle#stop()
      */
     public final static int STOPPED = 0x00000004;
@@ -109,9 +102,7 @@ public class BundleEvent extends EventObject {
     /**
      * The bundle is about to be activated.
      * <p>
-     * The bundle's
-     * {@link BundleActivator#start(BundleContext) BundleActivator start} method
-     * is about to be called if the bundle has a bundle activator class. This
+     *This
      * event is only delivered to {@link SynchronousBundleListener}s. It is not
      * delivered to <code>BundleListener</code>s.
      *
@@ -123,9 +114,7 @@ public class BundleEvent extends EventObject {
     /**
      * The bundle is about to deactivated.
      * <p>
-     * The bundle's
-     * {@link BundleActivator#stop(BundleContext) BundleActivator stop} method
-     * is about to be called if the bundle has a bundle activator class. This
+     * This
      * event is only delivered to {@link SynchronousBundleListener}s. It is not
      * delivered to <code>BundleListener</code>s.
      *

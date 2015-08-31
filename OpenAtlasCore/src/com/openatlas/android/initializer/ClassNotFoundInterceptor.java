@@ -23,9 +23,9 @@ package com.openatlas.android.initializer;
 
 import android.content.Intent;
 
-import com.openatlas.boot.Globals;
+import com.openatlas.runtime.Globals;
 import com.openatlas.bundleInfo.BundleInfoList;
-import com.openatlas.framework.PlatformConfigure;
+import com.openatlas.framework.OpenAtlasInternalConstant;
 import com.openatlas.runtime.ClassNotFoundInterceptorCallback;
 
 import java.util.ArrayList;
@@ -60,14 +60,14 @@ public class ClassNotFoundInterceptor implements ClassNotFoundInterceptorCallbac
         Object obj2 = null;
         String className = intent.getComponent().getClassName();
         CharSequence dataString = intent.getDataString();
-        if (className == null || !className.equals(PlatformConfigure.BOOT_ACTIVITY)) {
+        if (className == null || !className.equals(OpenAtlasInternalConstant.BOOT_ACTIVITY)) {
             String bundleForComponet = BundleInfoList.getInstance().getBundleNameForComponet(className);
-            //   Atlas.getInstance().getBundle(intent.get)
+            //   OpenAtlas.getInstance().getBundle(intent.get)
 //            if (mOptDexProcess.sInternalBundles == null) {
 //                mOptDexProcess.instance().resolveInternalBundles();
 //            }
 //            if (mOptDexProcess.sInternalBundles != null) {
-//                if (mOptDexProcess.sInternalBundles.contains(bundleForComponet) || Atlas.getInstance().getBundle(bundleForComponet) != null) {
+//                if (mOptDexProcess.sInternalBundles.contains(bundleForComponet) || OpenAtlas.getInstance().getBundle(bundleForComponet) != null) {
 //                    obj = null;
 //                }
 //                obj2 = obj;
@@ -76,7 +76,7 @@ public class ClassNotFoundInterceptor implements ClassNotFoundInterceptorCallbac
 //            }
             if (obj2 != null) {
 //                Component findBundleByActivity =Component();// mOptDexProcess.instance().findBundleByActivity(className);
-//                if (!(findBundleByActivity == null || Atlas.getInstance().getBundle(findBundleByActivity.getPkgName()) != null || GO_H5_BUNDLES_IF_NOT_EXISTS.contains(findBundleByActivity.getPkgName()))) {
+//                if (!(findBundleByActivity == null || OpenAtlas.getInstance().getBundle(findBundleByActivity.getPkgName()) != null || GO_H5_BUNDLES_IF_NOT_EXISTS.contains(findBundleByActivity.getPkgName()))) {
 //                    new Handler(Looper.getMainLooper()).post(new BootRunnable(this, intent, className, findBundleByActivity));
 //                }
             }
@@ -114,7 +114,7 @@ public class ClassNotFoundInterceptor implements ClassNotFoundInterceptorCallbac
             intent.setData(this.mIntent.getData());
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-            intent.setClass(Globals.getApplication(), PlatformConfigure.BundleNotFoundActivity);
+            intent.setClass(Globals.getApplication(), OpenAtlasInternalConstant.BundleNotFoundActivity);
             Globals.getApplication().startActivity(intent);
         }
     }

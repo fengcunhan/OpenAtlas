@@ -27,7 +27,6 @@ import com.openatlas.hack.OpenAtlasHacks;
 import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
 
-import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
 
 import java.io.File;
@@ -41,10 +40,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
@@ -62,13 +59,13 @@ public final class BundleClassLoader extends ClassLoader {
     // String activatorClassName;
     final Archive archive;
     BundleImpl bundle;
-    private String[] dynamicImports=new String[0];
-    String[] exports=new String[0];
-    Map<String, BundleClassLoader> importDelegations;
-    String[] imports=new String[0];
+    //private String[] dynamicImports=new String[0];
+   // String[] exports=new String[0];
+    //Map<String, BundleClassLoader> importDelegations;
+    //String[] imports=new String[0];
     private File[] nativeLibraryDirectories;
     BundleClassLoader originalExporter;
-    String[] requires=new String[0];
+    //String[] requires=new String[0];
 
     /***
      * remove next version
@@ -116,7 +113,7 @@ public final class BundleClassLoader extends ClassLoader {
     static {
         log = LoggerFactory.getInstance("BundleClassLoader");
         FRAMEWORK_PACKAGES = new HashSet<String>();
-        FRAMEWORK_PACKAGES.add(PlatformConfigure.OPENATLAS_FRAMEWORK_PACKAGE);
+        FRAMEWORK_PACKAGES.add(OpenAtlasInternalConstant.OPENATLAS_FRAMEWORK_PACKAGE);
         FRAMEWORK_PACKAGES.add("org.osgi.framework");
         FRAMEWORK_PACKAGES.add("org.osgi.service.packageadmin");
         FRAMEWORK_PACKAGES.add("org.osgi.service.startlevel");
@@ -125,9 +122,9 @@ public final class BundleClassLoader extends ClassLoader {
 
     BundleClassLoader(BundleImpl bundleImpl) throws BundleException {
         super(Object.class.getClassLoader());
-        this.exports = new String[0];
-        this.imports = new String[0];
-        this.requires = new String[0];
+//        this.exports = new String[0];
+//        this.imports = new String[0];
+//        this.requires = new String[0];
         // this.activatorClassName = null;
         // this.activator = null;
         this.bundle = bundleImpl;
@@ -141,7 +138,7 @@ public final class BundleClassLoader extends ClassLoader {
         return this.bundle;
     }
 
-
+    @Deprecated
     private void checkExecutionEnviroment(String[] requireEnv, String[] execEnv)
             throws BundleException {
         if (requireEnv.length != 0) {
@@ -163,115 +160,115 @@ public final class BundleClassLoader extends ClassLoader {
         if (Framework.DEBUG_CLASSLOADING && log.isInfoEnabled()) {
             log.info("BundleClassLoader: Resolving " + this.bundle + (resolve ? " (critical)" : " (not critical)"));
         }
-        HashSet hashSetExports=null;
-        if (this.exports.length > 0) {
-             hashSetExports = new HashSet(this.exports.length);
-            for (String parsePackageString : this.exports) {
-                hashSetExports.add(Package.parsePackageString(parsePackageString)[0]);
-            }
-
-        }
-        if (this.imports.length > 0) {
-            if (this.importDelegations == null) {
-                this.importDelegations = new HashMap(this.imports.length);
-            }
-            for (int i = 0; i < this.imports.length; i++) {
-                String obj = Package.parsePackageString(this.imports[i])[0];
-                if (!FRAMEWORK_PACKAGES.contains(obj)
-                        && this.importDelegations.get(obj) == null
-                        && (hashSetExports == null || !hashSetExports.contains(obj))) {
-                    BundleClassLoader bundleClassLoader = Framework.getImport(
-                            this.bundle, this.imports[i], resolve, hashSet);
-                    if (bundleClassLoader != null) {
-                        if (bundleClassLoader != this) {
-                            this.importDelegations.put(obj, bundleClassLoader);
-                        }
-                    } else if (resolve) {
-                        throw new BundleException("Unsatisfied import "
-                                + this.imports[i] + " for bundle "
-                                + this.bundle.toString(),
-                                new ClassNotFoundException(
-                                        "Unsatisfied import "
-                                                + this.imports[i]));
-                    } else {
-                        if (this.exports.length > 0) {
-                            Framework.export(this, this.exports, false);
-                        }
-                        if (!Framework.DEBUG_CLASSLOADING
-                                || !log.isInfoEnabled()) {
-                            return false;
-                        }
-                        log.info("BundleClassLoader: Missing import "
-                                + this.imports[i]
-                                + ". Resolving attempt terminated unsuccessfully.");
-                        return false;
-                    }
-                }
-            }
-        }
-        if (this.exports.length > 0) {
-            if (this.importDelegations == null) {
-                this.importDelegations = new HashMap(this.imports.length);
-            }
-            for (int i = 0; i < this.exports.length; i++) {
-                BundleClassLoader bundleClassLoader = Framework.getImport(
-                        this.bundle,
-                        Package.parsePackageString(this.exports[i])[0], false,
-                        null);
-                if (!(bundleClassLoader == null || bundleClassLoader == this)) {
-                    this.importDelegations.put(
-                            Package.parsePackageString(this.exports[i])[0],
-                            bundleClassLoader);
-                }
-            }
-        }
-        if (this.exports.length > 0) {
-            Framework.export(this, this.exports, true);
-        }
+//        HashSet hashSetExports=null;
+//        if (this.exports.length > 0) {
+//             hashSetExports = new HashSet(this.exports.length);
+//            for (String parsePackageString : this.exports) {
+//                hashSetExports.add(Package.parsePackageString(parsePackageString)[0]);
+//            }
+//
+//        }
+//        if (this.imports.length > 0) {
+//            if (this.importDelegations == null) {
+//                this.importDelegations = new HashMap(this.imports.length);
+//            }
+//            for (int i = 0; i < this.imports.length; i++) {
+//                String obj = Package.parsePackageString(this.imports[i])[0];
+//                if (!FRAMEWORK_PACKAGES.contains(obj)
+//                        && this.importDelegations.get(obj) == null
+//                        && (hashSetExports == null || !hashSetExports.contains(obj))) {
+//                    BundleClassLoader bundleClassLoader = Framework.getImport(
+//                            this.bundle, this.imports[i], resolve, hashSet);
+//                    if (bundleClassLoader != null) {
+//                        if (bundleClassLoader != this) {
+//                            this.importDelegations.put(obj, bundleClassLoader);
+//                        }
+//                    } else if (resolve) {
+//                        throw new BundleException("Unsatisfied import "
+//                                + this.imports[i] + " for bundle "
+//                                + this.bundle.toString(),
+//                                new ClassNotFoundException(
+//                                        "Unsatisfied import "
+//                                                + this.imports[i]));
+//                    } else {
+//                        if (this.exports.length > 0) {
+//                            Framework.export(this, this.exports, false);
+//                        }
+//                        if (!Framework.DEBUG_CLASSLOADING
+//                                || !log.isInfoEnabled()) {
+//                            return false;
+//                        }
+//                        log.info("BundleClassLoader: Missing import "
+//                                + this.imports[i]
+//                                + ". Resolving attempt terminated unsuccessfully.");
+//                        return false;
+//                    }
+//                }
+//            }
+//        }
+//        if (this.exports.length > 0) {
+//            if (this.importDelegations == null) {
+//                this.importDelegations = new HashMap(this.imports.length);
+//            }
+//            for (int i = 0; i < this.exports.length; i++) {
+//                BundleClassLoader bundleClassLoader = Framework.getImport(
+//                        this.bundle,
+//                        Package.parsePackageString(this.exports[i])[0], false,
+//                        null);
+//                if (!(bundleClassLoader == null || bundleClassLoader == this)) {
+//                    this.importDelegations.put(
+//                            Package.parsePackageString(this.exports[i])[0],
+//                            bundleClassLoader);
+//                }
+//            }
+//        }
+//        if (this.exports.length > 0) {
+//            Framework.export(this, this.exports, true);
+//        }
         return true;
     }
 
     void cleanup(boolean staleExportedPackage) {
         ArrayList arrayList = new ArrayList();
-        for (String export : this.exports) {
-            Package packageR = Framework.exportedPackages
-                    .get(new Package(export, null, false));
-            if (packageR != null) {
-                if (packageR.importingBundles == null) {
-                    Framework.exportedPackages.remove(packageR);
-                    packageR.importingBundles = null;
-                } else {
-                    packageR.removalPending = true;
-                    arrayList.add(packageR);
-                }
-            }
-        }
+//        for (String export : this.exports) {
+//            Package packageR = Framework.exportedPackages
+//                    .get(new Package(export, null, false));
+//            if (packageR != null) {
+//                if (packageR.importingBundles == null) {
+//                    Framework.exportedPackages.remove(packageR);
+//                    packageR.importingBundles = null;
+//                } else {
+//                    packageR.removalPending = true;
+//                    arrayList.add(packageR);
+//                }
+//            }
+//        }
         if (this.bundle != null) {
-            if (staleExportedPackage) {
-                this.bundle.staleExportedPackages = (Package[]) arrayList
-                        .toArray(new Package[arrayList.size()]);
-            } else {
-                this.bundle.staleExportedPackages = null;
-            }
+//            if (staleExportedPackage) {
+//                this.bundle.staleExportedPackages = (Package[]) arrayList
+//                        .toArray(new Package[arrayList.size()]);
+//            } else {
+//                this.bundle.staleExportedPackages = null;
+//            }
         }
-        if (this.importDelegations != null) {
-            String[] delegations = this.importDelegations.keySet()
-                    .toArray(new String[this.importDelegations.size()]);
-            for (String mImportDelegation : delegations) {
-                Package exportPackage = Framework.exportedPackages
-                        .get(new Package(mImportDelegation, null, false));
-                if (!(exportPackage == null || exportPackage.importingBundles == null)) {
-                    exportPackage.importingBundles.remove(this.bundle);
-                    if (exportPackage.importingBundles.isEmpty()) {
-                        exportPackage.importingBundles = null;
-                        if (exportPackage.removalPending) {
-                            Framework.exportedPackages.remove(exportPackage);
-                        }
-                    }
-                }
-            }
-        }
-        this.importDelegations = null;
+//        if (this.importDelegations != null) {
+//            String[] delegations = this.importDelegations.keySet()
+//                    .toArray(new String[this.importDelegations.size()]);
+//            for (String mImportDelegation : delegations) {
+//                Package exportPackage = Framework.exportedPackages
+//                        .get(new Package(mImportDelegation, null, false));
+//                if (!(exportPackage == null || exportPackage.importingBundles == null)) {
+//                    exportPackage.importingBundles.remove(this.bundle);
+//                    if (exportPackage.importingBundles.isEmpty()) {
+//                        exportPackage.importingBundles = null;
+//                        if (exportPackage.removalPending) {
+//                            Framework.exportedPackages.remove(exportPackage);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+ //       this.importDelegations = null;
         // this.activator = null;
         this.originalExporter = null;
         if (staleExportedPackage) {
@@ -279,8 +276,8 @@ public final class BundleClassLoader extends ClassLoader {
                 this.bundle = null;
             }
             // this.activatorClassName = null;
-            this.imports = null;
-            this.dynamicImports = null;
+//            this.imports = null;
+//            this.dynamicImports = null;
         }
     }
 
@@ -293,48 +290,48 @@ public final class BundleClassLoader extends ClassLoader {
         if (findOwnClass != null) {
             return findOwnClass;
         }
-        if (this.dynamicImports.length > 0) {
-            for (int i = 0; i < this.dynamicImports.length; i++) {
-                if (this.dynamicImports[i].indexOf("version") > -1) {
-                    Package[] packageArr = Framework.exportedPackages
-                            .keySet().toArray(
-                                    new Package[Framework.exportedPackages
-                                            .size()]);
-                    for (int i2 = 0; i2 < packageArr.length; i2++) {
-                        if (packageArr[i2].matches(this.dynamicImports[i])) {
-                            Class<?> findDelegatedClass = findDelegatedClass(
-                                    packageArr[i2].classloader, clazz);
-                            if (findDelegatedClass != null) {
-                                return findDelegatedClass;
-                            }
-                        }
-                    }
-                    continue;
-                } else {
-                    Package packageR = Framework.exportedPackages
-                            .get(new Package(packageOf(clazz), null, false));
-                    if (packageR != null) {
-                        findOwnClass = findDelegatedClass(packageR.classloader,
-                                clazz);
-                        if (findOwnClass != null) {
-                            return findOwnClass;
-                        }
-                    } else {
-                        continue;
-                    }
-                }
-            }
-        }
-        if (this.importDelegations != null) {
-            BundleClassLoader bundleClassLoader = this.importDelegations
-                    .get(packageOf(clazz));
-            if (bundleClassLoader != null) {
-                findOwnClass = findDelegatedClass(bundleClassLoader, clazz);
-                if (findOwnClass != null) {
-                    return findOwnClass;
-                }
-            }
-        }
+//        if (this.dynamicImports.length > 0) {
+//            for (int i = 0; i < this.dynamicImports.length; i++) {
+//                if (this.dynamicImports[i].indexOf("version") > -1) {
+//                    Package[] packageArr = Framework.exportedPackages
+//                            .keySet().toArray(
+//                                    new Package[Framework.exportedPackages
+//                                            .size()]);
+//                    for (int i2 = 0; i2 < packageArr.length; i2++) {
+//                        if (packageArr[i2].matches(this.dynamicImports[i])) {
+//                            Class<?> findDelegatedClass = findDelegatedClass(
+//                                    packageArr[i2].classloader, clazz);
+//                            if (findDelegatedClass != null) {
+//                                return findDelegatedClass;
+//                            }
+//                        }
+//                    }
+//                    continue;
+//                } else {
+//                    Package packageR = Framework.exportedPackages
+//                            .get(new Package(packageOf(clazz), null, false));
+//                    if (packageR != null) {
+//                        findOwnClass = findDelegatedClass(packageR.classloader,
+//                                clazz);
+//                        if (findOwnClass != null) {
+//                            return findOwnClass;
+//                        }
+//                    } else {
+//                        continue;
+//                    }
+//                }
+//            }
+//        }
+//        if (this.importDelegations != null) {
+//            BundleClassLoader bundleClassLoader = this.importDelegations
+//                    .get(packageOf(clazz));
+//            if (bundleClassLoader != null) {
+//                findOwnClass = findDelegatedClass(bundleClassLoader, clazz);
+//                if (findOwnClass != null) {
+//                    return findOwnClass;
+//                }
+//            }
+//        }
         try {
             findOwnClass = Framework.systemClassLoader.loadClass(clazz);
             if (findOwnClass != null) {
@@ -376,16 +373,17 @@ public final class BundleClassLoader extends ClassLoader {
         if (findOwnResources.size() > 0) {
             return (URL) findOwnResources.get(0);
         }
-        List findImportedResources = findImportedResources(stripTrailing, false);
-        return findImportedResources.size() > 0 ? (URL) findImportedResources
-                .get(0) : null;
+        return  null;
+//        List findImportedResources = findImportedResources(stripTrailing, false);
+//        return findImportedResources.size() > 0 ? (URL) findImportedResources
+//                .get(0) : null;
     }
 
     @Override
     protected Enumeration<URL> findResources(String name) {
         String stripTrailing = stripTrailing(name);
         Collection findOwnResources = findOwnResources(stripTrailing, true);
-        findOwnResources.addAll(findImportedResources(stripTrailing, true));
+       // findOwnResources.addAll(findImportedResources(stripTrailing, true));
         return Collections.enumeration(findOwnResources);
     }
 
@@ -398,19 +396,7 @@ public final class BundleClassLoader extends ClassLoader {
         }
     }
 
-    private List<URL> findImportedResources(String name, boolean z) {
-        if (this.bundle.state == BundleEvent.STARTED || this.importDelegations == null) {
-            return EMPTY_LIST;
-        }
-        BundleClassLoader bundleClassLoader = this.importDelegations
-                .get(packageOf(pseudoClassname(name)));
-        if (bundleClassLoader == null) {
-            return EMPTY_LIST;
-        }
-        return bundleClassLoader.originalExporter == null ? bundleClassLoader
-                .findOwnResources(name, z) : bundleClassLoader.originalExporter
-                .findOwnResources(name, z);
-    }
+
 
     @Override
     protected String findLibrary(String nickname) {

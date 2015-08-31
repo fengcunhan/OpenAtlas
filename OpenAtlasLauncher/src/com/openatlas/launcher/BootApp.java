@@ -20,8 +20,8 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL
  * **/
 package com.openatlas.launcher;
 
-import com.openatlas.android.lifecycle.OpenAtlasApp;
-import com.openatlas.framework.PlatformConfigure;
+import com.openatlas.android.compat.OpenAtlasApp;
+import com.openatlas.framework.OpenAtlasInternalConstant;
 import com.openatlas.framework.AtlasConfig;
 
 public class BootApp extends OpenAtlasApp {
@@ -41,7 +41,7 @@ public class BootApp extends OpenAtlasApp {
 
 		super.onCreate();
 	
-		PlatformConfigure.BundleNotFoundActivity=BundleNotFoundActivity.class;
+		OpenAtlasInternalConstant.BundleNotFoundActivity=BundleNotFoundActivity.class;
 	}
 
 

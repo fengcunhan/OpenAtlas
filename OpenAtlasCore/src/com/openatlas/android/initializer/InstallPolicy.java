@@ -20,10 +20,11 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * @author BunnyBlue
- * @author BunnyBlue
  */
-/**
- * @author BunnyBlue
- *
- */
-package com.openatlas.boot;
+package com.openatlas.android.initializer;
+
+
+public class InstallPolicy {
+    public static boolean install_when_findclass = true;
+    public static boolean install_when_oncreate = true;
+}

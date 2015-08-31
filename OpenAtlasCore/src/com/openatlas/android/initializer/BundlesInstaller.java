@@ -31,7 +31,7 @@ import android.os.StatFs;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.openatlas.framework.Atlas;
+import com.openatlas.framework.OpenAtlas;
 import com.openatlas.framework.AtlasConfig;
 import com.openatlas.log.Logger;
 import com.openatlas.log.LoggerFactory;
@@ -111,7 +111,7 @@ public class BundlesInstaller {
 					installBundle(zipFile, (List) bundleList, this.application);
 				}
 				if (!reInstall) {
-					Utils.UpdatePackageVersion(this.application);
+					Utils.updatePackageVersion(this.application);
 				}
 
 			} catch (IOException e) {
@@ -164,7 +164,7 @@ public class BundlesInstaller {
 		}
 		if (isTargetApp) {
 			for (String location : AtlasConfig.AUTO) {
-				Bundle bundle = Atlas.getInstance().getBundle(location);
+				Bundle bundle = OpenAtlas.getInstance().getBundle(location);
 				if (bundle != null) {
 					try {
 						bundle.start();
@@ -190,7 +190,7 @@ public class BundlesInstaller {
 		if (isTargetApp) {
 			String[] auto = AtlasConfig.AUTO;
 			for (String location:auto){
-				Bundle bundle = Atlas.getInstance().getBundle(location);
+				Bundle bundle = OpenAtlas.getInstance().getBundle(location);
 				if (bundle != null) {
 					try {
 						bundle.start();
@@ -226,14 +226,14 @@ public class BundlesInstaller {
 			return false;
 		}
 		File archvieFile = new File(new File(application.getFilesDir().getParentFile(), "lib"), fileNameFromEntryName);
-		if (Atlas.getInstance().getBundle(packageNameFromEntryName) != null) {
+		if (OpenAtlas.getInstance().getBundle(packageNameFromEntryName) != null) {
 			return false;
 		}
 		try {
 			if (archvieFile.exists()) {
-				Atlas.getInstance().installBundle(packageNameFromEntryName, archvieFile);
+				OpenAtlas.getInstance().installBundle(packageNameFromEntryName, archvieFile);
 			} else {
-				Atlas.getInstance().installBundle(packageNameFromEntryName, zipFile.getInputStream(zipFile.getEntry(location)));
+				OpenAtlas.getInstance().installBundle(packageNameFromEntryName, zipFile.getInputStream(zipFile.getEntry(location)));
 			}
 			log.info("Succeed to install bundle " + packageNameFromEntryName);
 			return true;
