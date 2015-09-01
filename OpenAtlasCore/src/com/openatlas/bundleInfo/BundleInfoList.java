@@ -41,7 +41,7 @@ public class BundleInfoList {
         /******四大组件列表******/
         public List<String> Components;
         /******Bundle依赖******/
-        public List<String> DependentBundles;
+        public List<String> DependentBundles=new ArrayList<String>();
         /******Bundle名称******/
         public String bundleName;
         /******Bundle中是否包含动态库******/

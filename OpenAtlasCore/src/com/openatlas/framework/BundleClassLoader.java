@@ -21,6 +21,7 @@
  **/
 package com.openatlas.framework;
 
+import com.openatlas.bundleInfo.BundleInfoList;
 import com.openatlas.framework.bundlestorage.Archive;
 import com.openatlas.framework.bundlestorage.BundleArchiveRevision.DexLoadException;
 import com.openatlas.hack.OpenAtlasHacks;
@@ -66,7 +67,7 @@ public final class BundleClassLoader extends ClassLoader {
     private File[] nativeLibraryDirectories;
     BundleClassLoader originalExporter;
     //String[] requires=new String[0];
-
+   final List<String> dependencyForBundle ;
     /***
      * remove next version
      *********/
@@ -129,6 +130,7 @@ public final class BundleClassLoader extends ClassLoader {
         // this.activator = null;
         this.bundle = bundleImpl;
         this.archive = bundleImpl.archive;
+        dependencyForBundle= BundleInfoList.getInstance().getDependencyForBundle(bundle.getLocation());
         if (this.archive == null) {
             throw new BundleException("Not Component valid bundle: " + bundleImpl.location);
         }
@@ -290,48 +292,18 @@ public final class BundleClassLoader extends ClassLoader {
         if (findOwnClass != null) {
             return findOwnClass;
         }
-//        if (this.dynamicImports.length > 0) {
-//            for (int i = 0; i < this.dynamicImports.length; i++) {
-//                if (this.dynamicImports[i].indexOf("version") > -1) {
-//                    Package[] packageArr = Framework.exportedPackages
-//                            .keySet().toArray(
-//                                    new Package[Framework.exportedPackages
-//                                            .size()]);
-//                    for (int i2 = 0; i2 < packageArr.length; i2++) {
-//                        if (packageArr[i2].matches(this.dynamicImports[i])) {
-//                            Class<?> findDelegatedClass = findDelegatedClass(
-//                                    packageArr[i2].classloader, clazz);
-//                            if (findDelegatedClass != null) {
-//                                return findDelegatedClass;
-//                            }
-//                        }
-//                    }
-//                    continue;
-//                } else {
-//                    Package packageR = Framework.exportedPackages
-//                            .get(new Package(packageOf(clazz), null, false));
-//                    if (packageR != null) {
-//                        findOwnClass = findDelegatedClass(packageR.classloader,
-//                                clazz);
-//                        if (findOwnClass != null) {
-//                            return findOwnClass;
-//                        }
-//                    } else {
-//                        continue;
-//                    }
-//                }
-//            }
-//        }
-//        if (this.importDelegations != null) {
-//            BundleClassLoader bundleClassLoader = this.importDelegations
-//                    .get(packageOf(clazz));
-//            if (bundleClassLoader != null) {
-//                findOwnClass = findDelegatedClass(bundleClassLoader, clazz);
-//                if (findOwnClass != null) {
-//                    return findOwnClass;
-//                }
-//            }
-//        }
+
+        for (String dependency:dependencyForBundle){
+        ClassLoader  dependencyLoader=   OpenAtlas.getInstance().getBundleClassLoader(dependency);
+            if (dependencyLoader!=null){
+
+             Class   depClass= findDelegatedClass((BundleClassLoader) dependencyLoader,clazz);
+                if (depClass!=null){
+                    return  depClass;
+                }
+
+            }
+        }
         try {
             findOwnClass = Framework.systemClassLoader.loadClass(clazz);
             if (findOwnClass != null) {

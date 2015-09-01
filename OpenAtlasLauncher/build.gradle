@@ -43,3 +43,13 @@ android {
         release.setRoot('build-types/release')
     }
 }
+task openAtlasWrapBundle<< {
+
+    javaexec {
+        classpath "$projectDir/OpenAtlasBundleMaker.jar"
+        main = 'com.openAtlas.bundleInfo.maker.BundleMakeBooter'
+        args "$projectDir/libs/armeabi".toString(),"$projectDir/assets/bundle-info.json".toString()
+    }
+}
+assembleDebug .dependsOn(openAtlasWrapBundle)
+assembleRelease .dependsOn(openAtlasWrapBundle)
