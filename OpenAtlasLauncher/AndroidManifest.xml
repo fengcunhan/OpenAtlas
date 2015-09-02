@@ -39,6 +39,11 @@
         <activity
             android:name="com.openatlas.homelauncher.NativeFragmentActivity"
             android:label="NativeFragmentActivity"></activity>
+        <service
+            android:name="com.openatlas.homelauncher.DaemonService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
 
         <provider
             android:name="com.openatlas.launcher.mirrorProvider.GameProviderProxy"
