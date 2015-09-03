@@ -6,6 +6,32 @@ dependencies {
     compile project(':OpenAtlasCore')
 
 }
+def openAtlasGitVersionName = { ->
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'describe', '--tags'//, '--dirty'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
+    catch (ignored) {
+        return "UnKnown";
+    }
+}
+def openAtlasGitVersionCode = { ->
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {//git rev-list --count HEAD
+            commandLine 'git', 'rev-list','--count','HEAD'//, '--first-parent', '--count', 'master'
+            standardOutput = stdout
+        }
+        return Integer.parseInt(stdout.toString().trim())
+    }
+    catch (ignored) {
+        return 0;
+    }
+}
 
 android {
     compileSdkVersion 22
@@ -13,6 +39,11 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_6
         targetCompatibility JavaVersion.VERSION_1_6
+    }
+    defaultConfig {
+        versionCode openAtlasGitVersionCode()
+        versionName openAtlasGitVersionName()
+
     }
     sourceSets {
         main {
@@ -39,13 +70,13 @@ android {
         release.setRoot('build-types/release')
     }
 }
-task openAtlasWrapBundle<< {
+task openAtlasWrapBundle << {
 
     javaexec {
         classpath "$projectDir/OpenAtlasBundleMaker.jar"
         main = 'com.openAtlas.bundleInfo.maker.BundleMakeBooter'
-        args "$projectDir/libs/armeabi".toString(),"$projectDir/assets/bundle-info.json".toString()
+        args "$projectDir/libs/armeabi".toString(), "$projectDir/assets/bundle-info.json".toString()
     }
 }
-assembleDebug .dependsOn(openAtlasWrapBundle)
-assembleRelease .dependsOn(openAtlasWrapBundle)
+assembleDebug.dependsOn(openAtlasWrapBundle)
+assembleRelease.dependsOn(openAtlasWrapBundle)
