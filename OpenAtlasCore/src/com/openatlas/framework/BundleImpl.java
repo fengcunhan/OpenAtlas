@@ -32,8 +32,6 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkListener;
-//import org.osgi.framework.ServiceListener;
-//import org.osgi.framework.ServiceReference;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -48,6 +46,9 @@ import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+
+//import org.osgi.framework.ServiceListener;
+//import org.osgi.framework.ServiceReference;
 /***OSGI Bundle implementation **/
 public final class BundleImpl implements Bundle {
     static final Logger log;
@@ -74,15 +75,12 @@ public final class BundleImpl implements Bundle {
             throws BundleException, IOException {
         this.persistently = false;
         this.domain = null;
-       // this.registeredServices = null;
         this.registeredFrameworkListeners = null;
         this.registeredBundleListeners = null;
-       // this.registeredServiceListeners = null;
-       // this.staleExportedPackages = null;
         long currentTimeMillis = System.currentTimeMillis();
         this.location = location;
 
-        this.currentStartlevel = Framework.initStartlevel;
+        this.currentStartlevel = Framework.startlevel;
         this.bundleDir = bundleDir;
         if (archiveInputStream != null) {
             //  try {
@@ -105,7 +103,7 @@ public final class BundleImpl implements Bundle {
         if (isInstall) {
             Framework.bundles.put(location, this);
             resolveBundle(false);
-            Framework.notifyBundleListeners(1, this);
+            Framework.notifyBundleListeners(BundleEvent.INSTALLED, this);
         }
 
         if (Framework.DEBUG_BUNDLES && log.isInfoEnabled()) {
@@ -171,9 +169,10 @@ public final class BundleImpl implements Bundle {
     public Archive getArchive() {
         return this.archive;
     }
-/***
- * @return  BundleClassLoader BundleClassLoader
- * **/
+
+    /***
+     * @return BundleClassLoader BundleClassLoader
+     **/
     public ClassLoader getClassLoader() {
         return this.classloader;
     }
@@ -223,20 +222,6 @@ public final class BundleImpl implements Bundle {
             try {
 
                 isValid = true;
-                // if (!(this.classloader.activatorClassName == null ||
-                // StringUtils
-                // .isBlank(this.classloader.activatorClassName))) {
-                // Class<?> loadClass = this.classloader
-                // .loadClass(this.classloader.activatorClassName);
-                // if (loadClass == null) {
-                // throw new ClassNotFoundException(
-                // this.classloader.activatorClassName);
-                // }
-                // this.classloader.activator = (BundleActivator) loadClass
-                // .newInstance();
-                // this.classloader.activator.start(this.context);
-                //
-                // }
                 this.state = BundleEvent.RESOLVED;
                 Framework.notifyBundleListeners(BundleEvent.STARTED, this);
                 if (Framework.DEBUG_BUNDLES && log.isInfoEnabled()) {
@@ -247,8 +232,7 @@ public final class BundleImpl implements Bundle {
                 Framework.clearBundleTrace(this);
                 this.state = BundleEvent.STOPPED;
                 String msg = "Error starting bundle " + toString();
-
-                BundleException bundleException = new BundleException(msg, th);
+                log.error(msg,th);
             }
         }
     }
@@ -267,19 +251,15 @@ public final class BundleImpl implements Bundle {
         } else if (this.state == BundleEvent.RESOLVED) {
             this.state = BundleEvent.UNINSTALLED;
             try {
-                // if (this.classloader.activator != null) {
-                // this.classloader.activator.stop(this.context);
-                // }
                 if (Framework.DEBUG_BUNDLES && log.isInfoEnabled()) {
                     log.info("Framework: Bundle " + toString() + " stopped.");
                 }
-                // this.classloader.activator = null;
                 Framework.clearBundleTrace(this);
                 this.state = BundleEvent.STOPPED;
                 Framework.notifyBundleListeners(BundleEvent.STOPPED, this);
                 isValid = false;
             } catch (Throwable th) {
-                // this.classloader.activator = null;
+
                 Framework.clearBundleTrace(this);
                 this.state = BundleEvent.STOPPED;
                 Framework.notifyBundleListeners(BundleEvent.STOPPED, this);
@@ -302,10 +282,6 @@ public final class BundleImpl implements Bundle {
         }
         this.state = BundleEvent.INSTALLED;
         new File(this.bundleDir, "meta").delete();
-        if (this.classloader.originalExporter != null) {
-            this.classloader.originalExporter.cleanup(true);
-            this.classloader.originalExporter = null;
-        }
         this.classloader.cleanup(true);
         this.classloader = null;
         Framework.bundles.remove(this);
