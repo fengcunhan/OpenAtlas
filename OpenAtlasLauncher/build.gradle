@@ -75,7 +75,7 @@ task openAtlasWrapBundle << {
     javaexec {
         classpath "$projectDir/OpenAtlasBundleMaker.jar"
         main = 'com.openAtlas.bundleInfo.maker.BundleMakeBooter'
-        args "$projectDir/libs/armeabi".toString(), "$projectDir/assets/bundle-info.json".toString()
+        args "$projectDir/libs/armeabi".toString(), "$projectDir/assets/bundle-info.json".toString(),"$projectDir/.bundleCache"
     }
 }
 assembleDebug.dependsOn(openAtlasWrapBundle)
