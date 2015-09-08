@@ -54,20 +54,9 @@ public final class BundleClassLoader extends ClassLoader {
     private static final List<URL> EMPTY_LIST;
     static final HashSet<String> FRAMEWORK_PACKAGES;
     static final Logger log;
-    // @Deprecated
-    // BundleActivator activator;
-    // @Deprecated
-    // String activatorClassName;
     final Archive archive;
     BundleImpl bundle;
-    //private String[] dynamicImports=new String[0];
-   // String[] exports=new String[0];
-    //Map<String, BundleClassLoader> importDelegations;
-    //String[] imports=new String[0];
-    private File[] nativeLibraryDirectories;
-    BundleClassLoader originalExporter;
-    //String[] requires=new String[0];
-   final List<String> dependencyForBundle ;
+    List<BundleClassLoader> dependencyClsLoaders;
     /***
      * remove next version
      *********/
@@ -130,7 +119,6 @@ public final class BundleClassLoader extends ClassLoader {
         // this.activator = null;
         this.bundle = bundleImpl;
         this.archive = bundleImpl.archive;
-        dependencyForBundle= BundleInfoList.getInstance().getDependencyForBundle(bundle.getLocation());
         if (this.archive == null) {
             throw new BundleException("Not Component valid bundle: " + bundleImpl.location);
         }
@@ -162,6 +150,13 @@ public final class BundleClassLoader extends ClassLoader {
         if (Framework.DEBUG_CLASSLOADING && log.isInfoEnabled()) {
             log.info("BundleClassLoader: Resolving " + this.bundle + (resolve ? " (critical)" : " (not critical)"));
         }
+        List<String> pkgs=BundleInfoList.getInstance().
+                getDependencyForBundle(bundle.getLocation());
+        dependencyClsLoaders=new ArrayList<BundleClassLoader>(pkgs.size());
+        for (int i=0;i<pkgs.size();i++){
+            dependencyClsLoaders.add((BundleClassLoader) OpenAtlas.getInstance().getBundleClassLoader(pkgs.get(i)));
+        }
+
 //        HashSet hashSetExports=null;
 //        if (this.exports.length > 0) {
 //             hashSetExports = new HashSet(this.exports.length);
@@ -232,19 +227,6 @@ public final class BundleClassLoader extends ClassLoader {
 
     void cleanup(boolean staleExportedPackage) {
         ArrayList arrayList = new ArrayList();
-//        for (String export : this.exports) {
-//            Package packageR = Framework.exportedPackages
-//                    .get(new Package(export, null, false));
-//            if (packageR != null) {
-//                if (packageR.importingBundles == null) {
-//                    Framework.exportedPackages.remove(packageR);
-//                    packageR.importingBundles = null;
-//                } else {
-//                    packageR.removalPending = true;
-//                    arrayList.add(packageR);
-//                }
-//            }
-//        }
         if (this.bundle != null) {
 //            if (staleExportedPackage) {
 //                this.bundle.staleExportedPackages = (Package[]) arrayList
@@ -270,16 +252,14 @@ public final class BundleClassLoader extends ClassLoader {
 //                }
 //            }
 //        }
- //       this.importDelegations = null;
+        //       this.importDelegations = null;
         // this.activator = null;
-        this.originalExporter = null;
+
         if (staleExportedPackage) {
             if (arrayList.size() == 0) {
                 this.bundle = null;
             }
-            // this.activatorClassName = null;
-//            this.imports = null;
-//            this.dynamicImports = null;
+
         }
     }
 
@@ -293,13 +273,13 @@ public final class BundleClassLoader extends ClassLoader {
             return findOwnClass;
         }
 
-        for (String dependency:dependencyForBundle){
-        ClassLoader  dependencyLoader=   OpenAtlas.getInstance().getBundleClassLoader(dependency);
-            if (dependencyLoader!=null){
+        for (int i=0;i<dependencyClsLoaders.size();i++) {
+            BundleClassLoader dependencyLoader = dependencyClsLoaders.get(i);
+            if (dependencyLoader != null) {
+                findOwnClass = findDelegatedClass(dependencyLoader, clazz);
+                if (findOwnClass != null) {
+                    return findOwnClass;
 
-             Class   depClass= findDelegatedClass((BundleClassLoader) dependencyLoader,clazz);
-                if (depClass!=null){
-                    return  depClass;
                 }
 
             }
@@ -345,7 +325,7 @@ public final class BundleClassLoader extends ClassLoader {
         if (findOwnResources.size() > 0) {
             return (URL) findOwnResources.get(0);
         }
-        return  null;
+        return null;
 //        List findImportedResources = findImportedResources(stripTrailing, false);
 //        return findImportedResources.size() > 0 ? (URL) findImportedResources
 //                .get(0) : null;
@@ -355,7 +335,7 @@ public final class BundleClassLoader extends ClassLoader {
     protected Enumeration<URL> findResources(String name) {
         String stripTrailing = stripTrailing(name);
         Collection findOwnResources = findOwnResources(stripTrailing, true);
-       // findOwnResources.addAll(findImportedResources(stripTrailing, true));
+        // findOwnResources.addAll(findImportedResources(stripTrailing, true));
         return Collections.enumeration(findOwnResources);
     }
 
@@ -369,18 +349,9 @@ public final class BundleClassLoader extends ClassLoader {
     }
 
 
-
     @Override
     protected String findLibrary(String nickname) {
         String mapLibraryName = System.mapLibraryName(nickname);
-        if (this.nativeLibraryDirectories != null) {
-            for (File file : this.nativeLibraryDirectories) {
-                File file2 = new File(file, mapLibraryName);
-                if (file2.canRead()) {
-                    return file2.getAbsolutePath();
-                }
-            }
-        }
         File findLibrary = this.archive.findLibrary(mapLibraryName);
         if (findLibrary != null) {
             return findLibrary.getAbsolutePath();
@@ -435,8 +406,4 @@ public final class BundleClassLoader extends ClassLoader {
         return lastIndexOf > -1 ? name.substring(0, lastIndexOf) : "";
     }
 
-    private static String pseudoClassname(String name) {
-        return stripTrailing(name).replace('.', '-').replace('/', '.')
-                .replace('\\', '.');
-    }
 }

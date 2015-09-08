@@ -26,6 +26,6 @@ proguard/
 *.log
 .DS_Store
 
-
+.bundleCache/
 
 /obj/
