@@ -50,6 +50,7 @@ import android.view.animation.AnimationUtils;
 import com.eftimoff.androipathview.PathView;
 import com.openatlas.framework.OpenAtlasInternalConstant;
 import com.openatlas.launcher.LauncherActivity;
+import com.openatlas.launcher.ProxyActivity;
 import com.openatlas.launcher.R;
 import com.openatlas.runtime.Globals;
 
@@ -311,9 +312,10 @@ public class WelcomeFragment extends Fragment implements Callback {
       //  boolean z2 = false;.//com.openatlas.homelauncher.MainActivity
         if (getActivity()!=null&&LauncherActivity.class==getActivity().getClass() ) {
 
-        	Intent mIntent=new Intent();
-    		mIntent.setClassName(getActivity(), "com.openatlas.homelauncher.MainActivity");
-    		startActivity(mIntent);
+        	Intent mIntent=new Intent(getActivity(),ProxyActivity.class);
+    		//mIntent.setClassName(getActivity(), ProxyActivity.class.getName());
+            mIntent.putExtra("realActivity","com.openatlas.homelauncher.MainActivity");
+            startActivity(mIntent);
             LauncherActivity.doLaunchoverUT();
             getActivity().finish();
         }else {
