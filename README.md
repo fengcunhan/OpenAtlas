@@ -1,3 +1,5 @@
+[![Android Gems](http://www.android-gems.com/badge/bunnyblue/OpenAtlas.svg?branch=master)](http://www.android-gems.com/lib/bunnyblue/OpenAtlas)
+
 # OpenAtlasCore  non-Proxy  Android Dynamic Deployment Framework
 ![](art/OpenAtlas_logo_full.png)<br>
  [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android%20OpenAtlas-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/2056)<br>

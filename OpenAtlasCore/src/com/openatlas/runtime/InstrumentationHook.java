@@ -456,6 +456,7 @@ public class InstrumentationHook extends Instrumentation {
             }else{
                 newActivity = this.mBase.newActivity(cl, className, intent);
             }
+
         } catch (ClassNotFoundException e) {
             ClassNotFoundException classNotFoundException = e;
             CharSequence property = Framework.getProperty(OpenAtlasInternalConstant.BOOT_ACTIVITY,
